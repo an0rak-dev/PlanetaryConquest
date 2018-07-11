@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">PlanetaryConquest</string>
+    <string name="menu_button1">Flying</string>
+    <string name="menu_button2">Asteroids</string>
+    <string name="menu_button3">Aliens</string>
+</resources>
