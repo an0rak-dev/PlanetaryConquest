@@ -4,4 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
+    <com.google.vr.sdk.base.GvrView
+        android:id="@+id/flying_gvr_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true" />
+
 </android.support.constraint.ConstraintLayout>
