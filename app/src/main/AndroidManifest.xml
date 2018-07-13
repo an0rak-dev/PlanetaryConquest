@@ -12,17 +12,22 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+                <!-- Enable the Cardboard category -->
                 <category android:name="com.google.intent.category.CARDBOARD" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
         <activity
             android:name=".FlyingActivity"
-            android:parentActivityName=".MainActivity">
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape"> <!-- Landscape required in VR -->
         </activity>
     </application>
 
+    <!-- Use the software VR -->
     <uses-feature android:name="android.software.vr.mode" android:required="false"/>
+    <!-- Enable High performance for VR -->
     <uses-feature android:name="android.hardware.vr.high_performance" android:required="false"/>
+    <!-- Permission to External Storage are required in order to use the distortion  --> <!-- TODO(an0rak) : WHY ? -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>
