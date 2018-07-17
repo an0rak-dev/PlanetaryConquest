@@ -1,6 +1,5 @@
 package com.github.an0rakdev.planetaryconquest;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.constraint.Constraints;
 import android.util.Log;
@@ -27,6 +26,8 @@ public class FlyingActivity extends GvrActivity implements GvrView.StereoRendere
         gvrView.setTransitionViewEnabled(true);
 
         setGvrView(gvrView);
+
+        Sphere moon = new Sphere(1);
     }
 
     @Override
