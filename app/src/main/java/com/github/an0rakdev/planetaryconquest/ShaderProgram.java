@@ -3,11 +3,16 @@ package com.github.an0rakdev.planetaryconquest;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ShaderProgram {
     private static final String TAG = "ShaderProgram";
     private int program;
+    private List<Integer> shaders;
 
     public ShaderProgram() {
+        this.shaders = new ArrayList<>();
         this.program = GLES20.glCreateProgram();
     }
 
@@ -27,11 +32,18 @@ public class ShaderProgram {
             GLES20.glDeleteShader(shader);
             return;
         }
-        GLES20.glAttachShader(this.program, shader);
+        this.shaders.add(shader);
+    }
+
+    public void prepare() {
+        this.program = GLES20.glCreateProgram();
+        for (final Integer shader : this.shaders) {
+            GLES20.glAttachShader(this.program, shader);
+        }
+        GLES20.glLinkProgram(this.program);
     }
 
     public void draw(final Triangle shape) {
-        GLES20.glLinkProgram(this.program);
         GLES20.glUseProgram(this.program);
         // Add the vertices position to the shader's program.
         int positionHandle = GLES20.glGetAttribLocation(this.program, "vPosition");
@@ -40,7 +52,7 @@ public class ShaderProgram {
                 false, 3 * shape.getVerticesStride(),
                 shape.getVerticesBuffer());
         // Add the fragments' color to the shader's program.
-        int colorHandle = GLES20.glGetAttribLocation(this.program, "vColor");
+        int colorHandle = GLES20.glGetUniformLocation(this.program, "vColor");
         GLES20.glUniform4fv(colorHandle, 1, shape.getFragmentsColor(), 0);
         // Draw
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, shape.getNbOfVertices());
