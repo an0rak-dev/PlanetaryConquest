@@ -22,6 +22,10 @@
             android:parentActivityName=".MainActivity"
             android:screenOrientation="landscape"> <!-- Landscape required in VR -->
         </activity>
+        <activity android:name=".OpenGlActivity"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="landscape">
+        </activity>
     </application>
 
     <!-- Use the software VR -->

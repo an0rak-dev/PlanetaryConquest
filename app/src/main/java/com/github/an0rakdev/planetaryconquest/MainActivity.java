@@ -13,6 +13,11 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
     }
 
+    public void startOpenGLDemo(final View view) {
+        final Intent intent = new Intent(this, OpenGlActivity.class);
+        startActivity(intent);
+    }
+
     public void startFlyingDemo(final View view) {
         final Intent intent = new Intent(this, FlyingActivity.class);
         startActivity(intent);

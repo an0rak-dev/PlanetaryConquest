@@ -11,6 +11,12 @@
         android:gravity="center"
         android:orientation="vertical">
         <Button
+            android:id="@+id/openglDemoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/menu_openglbutton"
+            android:onClick="startOpenGLDemo"/>
+        <Button
             android:id="@+id/flyingDemoButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
