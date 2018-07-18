@@ -1,12 +1,19 @@
 package com.github.an0rakdev.planetaryconquest;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+import java.nio.ShortBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Vector;
 
 class Sphere {
     private static final int LATITUDE_PORTION = 30;
     private static final int LONGITUDE_PORTION = 30;
+    private FloatBuffer vertexBuffer;
+    private FloatBuffer textureBuffer;
+    private FloatBuffer normalBuffer;
+    private ShortBuffer drawOrderBuffer;
 
     Sphere(final int radius) {
         final float latFrac = (float)Math.PI/(float)LATITUDE_PORTION;
@@ -14,6 +21,8 @@ class Sphere {
         final List<Float> normalData = new ArrayList<>();
         final List<Float> textureData = new ArrayList<>();
         final List<Float> vertexData = new ArrayList<>();
+        final List<Integer> drawOrder = new ArrayList<>();
+
         // Calculate datas of normals, textures and vertex.
         for (int lat = 0; lat < LATITUDE_PORTION; lat++) {
             final float theta = (float)lat * latFrac;
@@ -34,7 +43,37 @@ class Sphere {
                 vertexData.add(fracX * radius);
                 vertexData.add(fracY * radius);
                 vertexData.add(fracZ * radius);
+
+                final int firstIndice = lat * (LONGITUDE_PORTION+1) + lon;
+                final int secondIndice = firstIndice + LONGITUDE_PORTION + 1;
+                drawOrder.add(firstIndice);
+                drawOrder.add(secondIndice);
+                drawOrder.add(firstIndice + 1);
+                drawOrder.add(secondIndice);
+                drawOrder.add(secondIndice + 1);
+                drawOrder.add(firstIndice + 1);
             }
         }
+        this.vertexBuffer = this.bufferize(vertexData);
+        this.textureBuffer = this.bufferize(textureData);
+        this.normalBuffer = this.bufferize(normalData);
+        ByteBuffer bb = ByteBuffer.allocateDirect(drawOrder.size() * Short.SIZE);
+        bb.order(ByteOrder.nativeOrder());
+        this.drawOrderBuffer = bb.asShortBuffer();
+        for (final Integer s : drawOrder) {
+            this.drawOrderBuffer.put(s.shortValue());
+        }
+        this.drawOrderBuffer.position(0);
+    }
+
+    private FloatBuffer bufferize(final List<Float> floatValues) {
+        ByteBuffer bb = ByteBuffer.allocateDirect(floatValues.size() * Float.SIZE);
+        bb.order(ByteOrder.nativeOrder());
+        final FloatBuffer result = bb.asFloatBuffer();
+        for (final Float f : floatValues) {
+            result.put(f.floatValue());
+        }
+        result.position(0);
+        return result;
     }
 }
