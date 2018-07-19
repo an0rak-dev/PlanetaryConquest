@@ -5,17 +5,11 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
-import android.util.Log;
 
-import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.graphics.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.ShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.SimpleShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.Triangle;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -37,7 +31,7 @@ public class OpenGlActivity extends Activity {
 
     private class OpenGLRenderer implements GLSurfaceView.Renderer {
         private final Context context;
-        private Triangle triangle;
+        private Model model;
         private ShaderProgram shaderProgram;
 
         OpenGLRenderer(final Context context) {
@@ -46,13 +40,13 @@ public class OpenGlActivity extends Activity {
 
         public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
             GLES20.glClearColor(0f, 0f, 0f, 1f);
-            this.triangle = new Triangle();
+            this.model = new Triangle();
             this.shaderProgram = new SimpleShaderProgram(this.context);
         }
 
         public void onDrawFrame(final GL10 unused) {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-            this.shaderProgram.draw(this.triangle);
+            this.shaderProgram.draw(this.model);
         }
 
         public void onSurfaceChanged(final GL10 unused, final int width, final int height) {

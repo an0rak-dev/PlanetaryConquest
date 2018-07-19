@@ -45,5 +45,5 @@ public abstract class ShaderProgram {
         GLES20.glLinkProgram(this.program);
     }
 
-    public abstract void draw(final Triangle shape);
+    public abstract void draw(final Model shape);
 }

@@ -6,7 +6,7 @@ import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Triangle {
+public class Triangle implements Model {
     private FloatBuffer vertices;
     private int nbOfVertices;
 
@@ -35,18 +35,22 @@ public class Triangle {
         this.vertices.position(0);
     }
 
+    @Override
     public FloatBuffer getVerticesBuffer() {
         return this.vertices;
     }
 
+    @Override
     public int getVerticesStride() {
         return (Float.SIZE / Byte.SIZE);
     }
 
+    @Override
     public int getNbOfVertices() {
         return this.nbOfVertices;
     }
 
+    @Override
     public float[] getFragmentsColor() {
         return new float[]{
           0.636f, 0.795f, 0.222f, 1f
