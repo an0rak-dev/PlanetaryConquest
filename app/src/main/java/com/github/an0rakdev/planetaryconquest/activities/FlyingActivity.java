@@ -16,8 +16,6 @@ import com.google.vr.sdk.base.Viewport;
 import javax.microedition.khronos.egl.EGLConfig;
 
 public class FlyingActivity extends GvrActivity implements GvrView.StereoRenderer {
-    private Triangle shape;
-    private ShaderProgram renderingShader;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,9 +30,6 @@ public class FlyingActivity extends GvrActivity implements GvrView.StereoRendere
         gvrView.setTransitionViewEnabled(true);
 
         setGvrView(gvrView);
-
-        this.shape = new Triangle();
-        this.renderingShader = new ShaderProgram();
     }
 
     @Override
