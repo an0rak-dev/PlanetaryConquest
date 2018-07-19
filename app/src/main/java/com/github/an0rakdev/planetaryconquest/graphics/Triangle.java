@@ -1,4 +1,4 @@
-package com.github.an0rakdev.planetaryconquest;
+package com.github.an0rakdev.planetaryconquest.graphics;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -7,18 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Triangle {
-    public static final String VERTEX_SHADER =
-            "attribute vec4 vPosition;" +
-            "void main() {" +
-            "  gl_Position = vPosition;" +
-            "}";
-    public static final String FRAGMENT_SHADER =
-            "precision mediump float;" +
-            "uniform vec4 vColor;" +
-            "void main() {" +
-            "  gl_FragColor = vColor;" +
-            "}";
-
     private FloatBuffer vertices;
     private int nbOfVertices;
 

@@ -1,9 +1,12 @@
-package com.github.an0rakdev.planetaryconquest;
+package com.github.an0rakdev.planetaryconquest.activities;
 
 import android.opengl.GLES20;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.graphics.ShaderProgram;
+import com.github.an0rakdev.planetaryconquest.graphics.Triangle;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
@@ -42,11 +45,6 @@ public class FlyingActivity extends GvrActivity implements GvrView.StereoRendere
     @Override
     public void onDrawEye(Eye eye) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        this.renderingShader.addShader(Triangle.VERTEX_SHADER,
-                GLES20.GL_VERTEX_SHADER, "Vertex");
-        this.renderingShader.addShader(Triangle.FRAGMENT_SHADER,
-                GLES20.GL_FRAGMENT_SHADER, "Fragment");
-        this.renderingShader.draw(this.shape);
     }
 
     @Override
