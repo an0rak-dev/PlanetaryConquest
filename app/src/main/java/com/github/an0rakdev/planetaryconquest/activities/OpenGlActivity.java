@@ -9,6 +9,7 @@ import android.os.Bundle;
 import com.github.an0rakdev.planetaryconquest.graphics.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.ShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.SimpleShaderProgram;
+import com.github.an0rakdev.planetaryconquest.graphics.Square;
 import com.github.an0rakdev.planetaryconquest.graphics.Triangle;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -40,7 +41,7 @@ public class OpenGlActivity extends Activity {
 
         public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
             GLES20.glClearColor(0f, 0f, 0f, 1f);
-            this.model = new Triangle();
+            this.model = new Square();
             this.shaderProgram = new SimpleShaderProgram(this.context);
         }
 
