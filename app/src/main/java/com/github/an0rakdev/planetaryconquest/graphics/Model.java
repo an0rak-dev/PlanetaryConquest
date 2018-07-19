@@ -16,7 +16,9 @@ public abstract class Model {
                 * this.getVerticesStride());
         bb.order(ByteOrder.nativeOrder());
         this.vertices = bb.asFloatBuffer();
-        for (final Float f : coords) { this.vertices.put(f.floatValue()); }
+        for (final Float f : coords) {
+            this.vertices.put(f);
+        }
         this.vertices.position(0);
     }
 

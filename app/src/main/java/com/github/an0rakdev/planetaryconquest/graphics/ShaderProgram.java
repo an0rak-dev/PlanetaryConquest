@@ -11,9 +11,9 @@ public abstract class ShaderProgram {
     private static final String TAG = "ShaderProgram";
     final int program;
     final Context context;
-    private List<Integer> shaders;
+    private final List<Integer> shaders;
 
-    public ShaderProgram(final Context context) {
+    ShaderProgram(final Context context) {
         this.context = context;
         this.shaders = new ArrayList<>();
         this.program = GLES20.glCreateProgram();

@@ -5,8 +5,6 @@ import android.os.Bundle;
 import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.graphics.ShaderProgram;
-import com.github.an0rakdev.planetaryconquest.graphics.Triangle;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;

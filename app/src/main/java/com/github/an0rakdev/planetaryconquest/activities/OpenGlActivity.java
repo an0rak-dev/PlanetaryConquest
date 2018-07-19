@@ -10,7 +10,6 @@ import com.github.an0rakdev.planetaryconquest.graphics.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.ShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.SimpleShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.Square;
-import com.github.an0rakdev.planetaryconquest.graphics.Triangle;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;

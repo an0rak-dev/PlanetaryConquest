@@ -3,7 +3,7 @@ package com.github.an0rakdev.planetaryconquest.graphics;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Triangle extends Model {
+public final class Triangle extends Model {
     @Override
     public float[] getFragmentsColor() {
         return new float[]{
@@ -14,8 +14,8 @@ public class Triangle extends Model {
     @Override
     protected List<Float> calculateCoordonates() {
         final List<Float> coords = new ArrayList<>();
-        final Float z= 0f;
-        final Float y= 0.5f;
+        final Float z = 0f;
+        final Float y = 0.5f;
         // First point
         coords.add(0.0f);
         coords.add(y);

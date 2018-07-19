@@ -2,6 +2,17 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.an0rakdev.planetaryconquest">
 
+    <!-- Use the software VR -->
+    <uses-feature
+        android:name="android.software.vr.mode"
+        android:required="false" />
+    <!-- Enable High performance for VR -->
+    <uses-feature
+        android:name="android.hardware.vr.high_performance"
+        android:required="false" />
+    <!-- Permission to External Storage are required in order to use the distortion  --> <!-- TODO(an0rak) : WHY ? -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -22,16 +33,9 @@
             android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="landscape"> <!-- Landscape required in VR -->
         </activity>
-        <activity android:name=".activities.OpenGlActivity"
+        <activity
+            android:name=".activities.OpenGlActivity"
             android:parentActivityName=".activities.MainActivity"
-            android:screenOrientation="landscape">
-        </activity>
+            android:screenOrientation="landscape"/>
     </application>
-
-    <!-- Use the software VR -->
-    <uses-feature android:name="android.software.vr.mode" android:required="false"/>
-    <!-- Enable High performance for VR -->
-    <uses-feature android:name="android.hardware.vr.high_performance" android:required="false"/>
-    <!-- Permission to External Storage are required in order to use the distortion  --> <!-- TODO(an0rak) : WHY ? -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 </manifest>

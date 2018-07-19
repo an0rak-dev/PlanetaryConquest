@@ -3,7 +3,7 @@ package com.github.an0rakdev.planetaryconquest.graphics;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Square extends Model {
+public final class Square extends Model {
 
     @Override
     public float[] getFragmentsColor() {
