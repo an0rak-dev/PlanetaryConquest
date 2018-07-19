@@ -22,7 +22,7 @@ public class SimpleShaderProgram extends ShaderProgram {
     }
 
     @Override
-    public void draw(final Triangle shape) {
+    public void draw(final Model shape) {
         GLES20.glUseProgram(this.program);
         // Add the vertices position to the shader's program.
         int positionHandle = GLES20.glGetAttribLocation(this.program, "vPosition");
