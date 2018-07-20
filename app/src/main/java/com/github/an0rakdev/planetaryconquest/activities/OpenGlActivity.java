@@ -42,7 +42,7 @@ public class OpenGlActivity extends Activity {
 
         public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
             GLES20.glClearColor(0f, 0f, 0f, 1f);
-            this.model = new Square();
+            this.model = new Triangle();
             this.shaderProgram = new MVPShaderProgram(this.context);
         }
 
