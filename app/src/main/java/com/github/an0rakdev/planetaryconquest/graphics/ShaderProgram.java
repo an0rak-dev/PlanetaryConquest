@@ -16,14 +16,13 @@ public abstract class ShaderProgram {
     private static final String TAG = "ShaderProgram";
     final int program;
     final Context context;
-    protected final float[] projectionMatrix;
     private final List<Integer> shaders;
 
     ShaderProgram(final Context context) {
         this.context = context;
         this.shaders = new ArrayList<>();
         this.program = GLES20.glCreateProgram();
-        this.projectionMatrix = new float[16]; // 4 * 4 matrix
+
     }
 
     final void addShader(final int shaderFd, final int type) {
@@ -52,12 +51,6 @@ public abstract class ShaderProgram {
             GLES20.glAttachShader(this.program, shader);
         }
         GLES20.glLinkProgram(this.program);
-    }
-
-    public void adaptToScene(final int sceneWidth, final int sceneHeight) {
-        float sceneRatio = (float) sceneWidth / sceneHeight;
-        Matrix.frustumM(this.projectionMatrix, 0,
-                -sceneRatio, sceneRatio, -1, 1, 3, 7);
     }
 
     public abstract void draw(final Model shape);
