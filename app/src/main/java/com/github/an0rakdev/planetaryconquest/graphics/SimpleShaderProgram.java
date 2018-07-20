@@ -16,8 +16,8 @@ public class SimpleShaderProgram extends ShaderProgram {
 
     public SimpleShaderProgram(final Context context) {
         super(context);
-        this.attachShader(R.raw.simple_vertex, GLES20.GL_VERTEX_SHADER);
-        this.attachShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
+        this.addShader(R.raw.simple_vertex, GLES20.GL_VERTEX_SHADER);
+        this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
         this.prepare();
     }
 
@@ -36,31 +36,5 @@ public class SimpleShaderProgram extends ShaderProgram {
         // Draw
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, shape.getNbOfVertices());
         GLES20.glDisableVertexAttribArray(positionHandle);
-    }
-
-
-    private void attachShader(final int shaderFd, final int type) {
-        final String shaderSource = this.readContentOf(shaderFd);
-        if (!shaderSource.isEmpty()) {
-            this.addShader(shaderSource, type);
-        }
-    }
-
-    private String readContentOf(final int fd) {
-        final InputStream inputStream = this.context.getResources().openRawResource(fd);
-        final BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-        final StringBuilder contentSb = new StringBuilder();
-        final String lineSep = System.getProperty("line.separator");
-        try {
-            String line = reader.readLine();
-            while (null != line) {
-                contentSb.append(line).append(lineSep);
-                line = reader.readLine();
-            }
-            reader.close();
-        } catch (final IOException ex) {
-            Log.e(TAG, "Unable to read the content of " + fd);
-        }
-        return contentSb.toString();
     }
 }
