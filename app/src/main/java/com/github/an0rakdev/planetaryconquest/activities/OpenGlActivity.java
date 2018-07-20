@@ -6,10 +6,12 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
+import com.github.an0rakdev.planetaryconquest.graphics.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.ShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.SimpleShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.Square;
+import com.github.an0rakdev.planetaryconquest.graphics.Triangle;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -41,7 +43,7 @@ public class OpenGlActivity extends Activity {
         public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
             GLES20.glClearColor(0f, 0f, 0f, 1f);
             this.model = new Square();
-            this.shaderProgram = new SimpleShaderProgram(this.context);
+            this.shaderProgram = new MVPShaderProgram(this.context);
         }
 
         public void onDrawFrame(final GL10 unused) {
@@ -51,6 +53,7 @@ public class OpenGlActivity extends Activity {
 
         public void onSurfaceChanged(final GL10 unused, final int width, final int height) {
             GLES20.glViewport(0, 0, width, height);
+            this.shaderProgram.adaptToScene(width, height);
         }
     }
 }
