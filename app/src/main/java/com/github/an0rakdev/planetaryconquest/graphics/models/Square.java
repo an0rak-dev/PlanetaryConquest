@@ -1,4 +1,4 @@
-package com.github.an0rakdev.planetaryconquest.graphics;
+package com.github.an0rakdev.planetaryconquest.graphics.models;
 
 import java.util.ArrayList;
 import java.util.List;

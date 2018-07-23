@@ -4,11 +4,11 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 
-import com.github.an0rakdev.planetaryconquest.graphics.MVPShaderProgram;
-import com.github.an0rakdev.planetaryconquest.graphics.Model;
-import com.github.an0rakdev.planetaryconquest.graphics.ScaleShaderProgram;
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.ScaleShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.Scaling;
-import com.github.an0rakdev.planetaryconquest.graphics.Triangle;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Triangle;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;

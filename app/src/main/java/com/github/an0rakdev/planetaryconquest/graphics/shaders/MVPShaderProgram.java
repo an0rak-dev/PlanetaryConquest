@@ -1,10 +1,11 @@
-package com.github.an0rakdev.planetaryconquest.graphics;
+package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
 import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 
 public class MVPShaderProgram extends ShaderProgram {
     private final float projectionMatrix[];

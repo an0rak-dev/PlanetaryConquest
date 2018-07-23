@@ -1,7 +1,9 @@
-package com.github.an0rakdev.planetaryconquest.graphics;
+package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.Matrix;
+
+import com.github.an0rakdev.planetaryconquest.graphics.Scaling;
 
 public class ScaleShaderProgram extends MVPShaderProgram implements Scaling {
     private final float scaleMatrix[];

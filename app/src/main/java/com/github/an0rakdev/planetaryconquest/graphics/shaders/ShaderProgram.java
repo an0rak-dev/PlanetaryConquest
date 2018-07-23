@@ -1,9 +1,10 @@
-package com.github.an0rakdev.planetaryconquest.graphics;
+package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Log;
+
+import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 
 import java.io.BufferedReader;
 import java.io.IOException;
