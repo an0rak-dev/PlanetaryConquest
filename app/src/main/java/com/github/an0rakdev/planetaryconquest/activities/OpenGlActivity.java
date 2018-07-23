@@ -33,6 +33,7 @@ public class OpenGlActivity extends Activity {
     }
 
     private class OpenGLSurfaceView extends GLSurfaceView {
+
         public OpenGLSurfaceView(final Context context) {
             super(context);
             setEGLContextClientVersion(2);
@@ -42,12 +43,9 @@ public class OpenGlActivity extends Activity {
         @Override
         public boolean onTouchEvent(final MotionEvent event) {
             if (MotionEvent.ACTION_MOVE == event.getAction()) {
+                float zero = getHeight() / 2;
                 float y = event.getY();
-                if (y > getHeight() / 2) {
-                    dy = 1.0f;
-                } else {
-                    dy = -1.0f;
-                }
+                dy = (y - zero) / (getHeight() / 2);
             }
             return true;
         }
@@ -72,11 +70,8 @@ public class OpenGlActivity extends Activity {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
             this.shaderProgram.draw(this.model);
             if (0.0f != dy && Scaling.class.isAssignableFrom(this.shaderProgram.getClass())) {
-                if (dy > 0.0f) {
-                    ((Scaling) this.shaderProgram).rescale(1.2f, 1.2f, 1.2f);
-                } else if (dy < 0.0f) {
-                    ((Scaling) this.shaderProgram).rescale(0.8f, 0.8f, 0.8f);
-                }
+                ((Scaling) this.shaderProgram).rescale(dy, dy, dy);
+               Log.i("dy", String.valueOf(dy));
             }
         }
 
