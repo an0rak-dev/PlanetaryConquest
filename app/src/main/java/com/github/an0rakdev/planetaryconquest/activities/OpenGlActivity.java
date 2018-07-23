@@ -10,6 +10,7 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.MotionEvent;
 
 import com.github.an0rakdev.planetaryconquest.graphics.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.Model;
@@ -21,44 +22,14 @@ import com.github.an0rakdev.planetaryconquest.graphics.Triangle;
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
 
-public class OpenGlActivity extends Activity implements SensorEventListener {
-    private SensorManager sensorManager;
-    private float lastZPosition;
-    private float deltaZ;
+public class OpenGlActivity extends Activity {
+    private float dy;
 
     @Override
     public void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(new OpenGLSurfaceView(this));
-        this.lastZPosition = 0.0f;
-        this.deltaZ = 0f;
-        this.sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        final Sensor sensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        this.sensorManager.registerListener(this, sensor, SensorManager.SENSOR_DELAY_NORMAL);
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        this.sensorManager.unregisterListener(this);
-    }
-
-    @Override
-    public void onSensorChanged(final SensorEvent sensorEvent) {
-        if (sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            this.deltaZ = sensorEvent.values[2] - this.lastZPosition;
-            this.lastZPosition = sensorEvent.values[2];
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int i) {
-        // Do nothing.
+        this.dy = 0.0f;
     }
 
     private class OpenGLSurfaceView extends GLSurfaceView {
@@ -66,6 +37,19 @@ public class OpenGlActivity extends Activity implements SensorEventListener {
             super(context);
             setEGLContextClientVersion(2);
             setRenderer(new OpenGLRenderer(context));
+        }
+
+        @Override
+        public boolean onTouchEvent(final MotionEvent event) {
+            if (MotionEvent.ACTION_MOVE == event.getAction()) {
+                float y = event.getY();
+                if (y > getHeight() / 2) {
+                    dy = 1.0f;
+                } else {
+                    dy = -1.0f;
+                }
+            }
+            return true;
         }
     }
 
@@ -87,11 +71,11 @@ public class OpenGlActivity extends Activity implements SensorEventListener {
         public void onDrawFrame(final GL10 unused) {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
             this.shaderProgram.draw(this.model);
-            if (Scaling.class.isAssignableFrom(this.shaderProgram.getClass())) {
-                if (deltaZ != 0) {
-                    // FIXME : Define min and max scale bounds + a z(0) point.
-                    ((Scaling) this.shaderProgram).rescale(1 + deltaZ, 1 + deltaZ, 1 + deltaZ);
-                    deltaZ = 0f;
+            if (0.0f != dy && Scaling.class.isAssignableFrom(this.shaderProgram.getClass())) {
+                if (dy > 0.0f) {
+                    ((Scaling) this.shaderProgram).rescale(1.2f, 1.2f, 1.2f);
+                } else if (dy < 0.0f) {
+                    ((Scaling) this.shaderProgram).rescale(0.8f, 0.8f, 0.8f);
                 }
             }
         }
