@@ -70,8 +70,7 @@ public class OpenGlActivity extends Activity {
             GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
             this.shaderProgram.draw(this.model);
             if (0.0f != dy && Scaling.class.isAssignableFrom(this.shaderProgram.getClass())) {
-                ((Scaling) this.shaderProgram).rescale(dy, dy, dy);
-               Log.i("dy", String.valueOf(dy));
+                ((Scaling) this.shaderProgram).rescale(1-dy, 1-dy, 1-dy);
             }
         }
 
