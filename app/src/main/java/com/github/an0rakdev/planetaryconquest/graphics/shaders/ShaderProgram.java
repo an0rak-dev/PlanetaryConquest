@@ -2,6 +2,7 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
@@ -72,5 +73,16 @@ public abstract class ShaderProgram {
             Log.e(TAG, "Unable to read the content of " + fd);
         }
         return contentSb.toString();
+    }
+
+    final void render(final Model shape, final int verticesHandle) {
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, shape.getNbOfVertices());
+        GLES20.glDisableVertexAttribArray(verticesHandle);
+    }
+
+    final float[] createMatrix() {
+        final float matrix[] = new float[16];
+        Matrix.setIdentityM(matrix, 0);
+        return matrix;
     }
 }
