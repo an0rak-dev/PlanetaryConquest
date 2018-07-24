@@ -2,6 +2,7 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.Matrix;
 
 import com.github.an0rakdev.planetaryconquest.R;
@@ -19,7 +20,7 @@ public class VRShaderProgram extends MVPShaderProgram {
         // This represent your position in the VR world.
         // It needs to be updated when you move.
         Matrix.setLookAtM(this.camera, 0,
-                0.0f, 0.0f, -2f,
+                0.0f, 0.0f, 2f,
                 0.0f, 0.0f, 0.0f,
                 1f, 0.0f, 0.0f);
         this.addShader(R.raw.mvp_vertex, GLES20.GL_VERTEX_SHADER);
