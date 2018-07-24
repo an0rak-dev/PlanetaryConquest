@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Triangle;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRShaderProgram;
 import com.google.vr.sdk.base.Eye;
@@ -52,7 +53,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     public void onSurfaceCreated(EGLConfig config) {
         // Classic.
         this.shaderProgram = new VRShaderProgram(context);
-        this.shape = new Triangle();
+        this.shape = new Sphere();
     }
 
     @Override
