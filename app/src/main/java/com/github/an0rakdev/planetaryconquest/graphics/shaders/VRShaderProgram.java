@@ -16,6 +16,8 @@ public class VRShaderProgram extends MVPShaderProgram {
         super(context);
         this.camera = this.createMatrix();
         this.mvpMatrix = this.createMatrix();
+        // This represent your position in the VR world.
+        // It needs to be updated when you move.
         Matrix.setLookAtM(this.camera, 0,
                 0.0f, 0.0f, -2f,
                 0.0f, 0.0f, 0.0f,
