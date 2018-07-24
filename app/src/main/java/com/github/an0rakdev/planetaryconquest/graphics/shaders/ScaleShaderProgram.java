@@ -10,15 +10,13 @@ public class ScaleShaderProgram extends MVPShaderProgram implements Scaling {
 
     public ScaleShaderProgram(final Context context) {
         super(context);
-        this.scaleMatrix = new float[16];
-        Matrix.setIdentityM(this.scaleMatrix, 0);
+        this.scaleMatrix = this.createMatrix();
     }
 
     @Override
     protected float[] applyTransformations() {
         final float mvpTransfo[] = super.applyTransformations();
-        final float transformations[] = new float[16];
-        Matrix.setIdentityM(transformations, 0);
+        final float transformations[] = this.createMatrix();
         Matrix.multiplyMM(transformations, 0, mvpTransfo, 0, this.scaleMatrix, 0);
         return transformations;
     }

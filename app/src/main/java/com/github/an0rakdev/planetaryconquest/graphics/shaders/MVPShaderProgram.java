@@ -12,8 +12,7 @@ public class MVPShaderProgram extends ShaderProgram {
 
     public MVPShaderProgram(final Context context) {
         super(context);
-        this.projectionMatrix = new float[16]; // 4 * 4 matrix
-        Matrix.setIdentityM(this.projectionMatrix, 0);
+        this.projectionMatrix = this.createMatrix();
         this.addShader(R.raw.mvp_vertex, GLES20.GL_VERTEX_SHADER);
         this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
         this.prepare();
@@ -36,21 +35,19 @@ public class MVPShaderProgram extends ShaderProgram {
         final int mvpMatrixHandle = GLES20.glGetUniformLocation(this.program, "vMatrix");
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, transformations, 0);
         // Draw
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, shape.getNbOfVertices());
-        GLES20.glDisableVertexAttribArray(verticesHandle);
+        this.render(shape, verticesHandle);
     }
 
     protected float[] applyTransformations() {
-        final float transformationMatrix[] = new float[16];
-        final float viewMatrix[] = new float[16];
-        Matrix.setIdentityM(transformationMatrix, 0);
+        final float transformationMatrix[] = this.createMatrix();
+        final float viewMatrix[] = this.createMatrix();
         Matrix.setLookAtM(viewMatrix, 0, 0, 0,-3,
                 0f, 0f, 0f, 1f, 0f, 0f);
         Matrix.multiplyMM(transformationMatrix, 0, this.projectionMatrix, 0, viewMatrix, 0);
         return transformationMatrix;
     }
 
-    private int applyVerticesAndColor(final Model shape) {
+    final int applyVerticesAndColor(final Model shape) {
         // Add the vertices position to the shader's program.
         final int positionHandle = GLES20.glGetAttribLocation(this.program, "vPosition");
         GLES20.glEnableVertexAttribArray(positionHandle);
