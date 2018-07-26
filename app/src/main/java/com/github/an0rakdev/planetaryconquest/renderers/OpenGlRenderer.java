@@ -38,7 +38,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
 
     @Override
     public void onDrawFrame(final GL10 unused) {
-        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); // Reset background
         if (Rotation.class.isAssignableFrom(this.shaderProgram.getClass())) {
             long time = SystemClock.uptimeMillis() % 16000L;
             float angle = 0.090f * ((int) time);

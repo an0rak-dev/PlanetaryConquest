@@ -95,10 +95,4 @@ public abstract class ShaderProgram {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, shape.getNbOfVertices());
         GLES20.glDisableVertexAttribArray(verticesHandle);
     }
-
-    final float[] createMatrix() {
-        final float matrix[] = new float[16];
-        Matrix.setIdentityM(matrix, 0);
-        return matrix;
-    }
 }
