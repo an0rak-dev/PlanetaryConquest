@@ -14,7 +14,7 @@ public class YRotationShaderProgram extends MVPShaderProgram {
 
     public YRotationShaderProgram(Context context) {
         super(context);
-        final Coordinates axis = new Coordinates(0, 1, 0);
+        final Coordinates axis = new Coordinates(0f, 1f, 0f);
         this.rotationMatrix = new RotationMatrix(4,4, axis);
     }
 
