@@ -12,8 +12,8 @@ import com.github.an0rakdev.planetaryconquest.math.Scaling;
 public class ScaleShaderProgram extends MVPShaderProgram {
     private final GenericMatrix scaleMatrix;
 
-    public ScaleShaderProgram(final Context context) {
-        super(context);
+    public ScaleShaderProgram(final Context context, final boolean useSeveralColors) {
+        super(context, useSeveralColors);
         this.scaleMatrix = new ScaleMatrix(4,4);
     }
 

@@ -91,8 +91,11 @@ public abstract class ShaderProgram {
         return contentSb.toString();
     }
 
-    final void render(final Model shape, final int verticesHandle) {
+    final void render(final Model shape, final int verticesHandle, final int colorHandler) {
         GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, shape.getNbOfVertices());
         GLES20.glDisableVertexAttribArray(verticesHandle);
+        if (0 < colorHandler) {
+            GLES20.glDisableVertexAttribArray(colorHandler);
+        }
     }
 }

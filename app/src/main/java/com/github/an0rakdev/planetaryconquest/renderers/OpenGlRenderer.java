@@ -30,7 +30,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
         this.model = new Square();
-        this.shaderProgram = new YRotationShaderProgram(this.context);
+        this.shaderProgram = new YRotationShaderProgram(this.context, this.model.hasSeveralColors());
     }
 
     @Override
