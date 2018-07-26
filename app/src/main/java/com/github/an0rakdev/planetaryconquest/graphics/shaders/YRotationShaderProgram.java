@@ -3,27 +3,30 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 import android.content.Context;
 import android.opengl.Matrix;
 
+import com.github.an0rakdev.planetaryconquest.Coordinates;
+import com.github.an0rakdev.planetaryconquest.Dim4Matrix;
+import com.github.an0rakdev.planetaryconquest.GenericMatrix;
 import com.github.an0rakdev.planetaryconquest.graphics.Rotation;
 
 public class YRotationShaderProgram extends MVPShaderProgram implements Rotation {
-    private final float[] rotationMatrix;
+    private final GenericMatrix rotationMatrix;
 
     public YRotationShaderProgram(Context context) {
         super(context);
-        this.rotationMatrix = this.createMatrix();
+        this.rotationMatrix = new Dim4Matrix();
     }
 
     @Override
-    protected float[] applyTransformations() {
-        final float mvpTransfo[] = super.applyTransformations();
-        final float transformations[] = this.createMatrix();
-        Matrix.multiplyMM(transformations, 0, mvpTransfo, 0, this.rotationMatrix, 0);
+    protected GenericMatrix applyTransformations() {
+        final GenericMatrix mvpTransfo = super.applyTransformations();
+        final GenericMatrix transformations = new Dim4Matrix();
+        transformations.multiply(mvpTransfo, this.rotationMatrix);
         return transformations;
     }
 
     @Override
     public void rotate(float angle) {
-        Matrix.setIdentityM(this.rotationMatrix, 0);
-        Matrix.setRotateM(this.rotationMatrix, 0, angle, 0f, -1f, 0f);
+        final Coordinates axis = new Coordinates(0, 1, 0);
+        this.rotationMatrix.changeToRotation(angle, axis);
     }
 }
