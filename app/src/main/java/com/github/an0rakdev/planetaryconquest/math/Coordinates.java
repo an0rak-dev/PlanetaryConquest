@@ -1,6 +1,7 @@
 package com.github.an0rakdev.planetaryconquest.math;
 
 public class Coordinates {
+    public static final int DIMENSION = 3;
     public float x;
     public float y;
     public float z;
