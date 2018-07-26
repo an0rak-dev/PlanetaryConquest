@@ -1,7 +1,8 @@
-package com.github.an0rakdev.planetaryconquest.graphics.shaders;
+package com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations;
 
 import android.content.Context;
 
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
 import com.github.an0rakdev.planetaryconquest.math.matrix.GenericMatrix;

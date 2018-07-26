@@ -10,7 +10,7 @@ public class CameraMatrix extends GenericMatrix {
         super(nbLin, nbCol);
         Matrix.setLookAtM(this.values, 0,
                 eye.x, eye.y, eye.z,
-                0,0,0,
+                0f,0f,0f,
                 up.x, up.y, up.z);
     }
 }

@@ -1,7 +1,9 @@
-package com.github.an0rakdev.planetaryconquest.graphics.shaders;
+package com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations;
 
 import android.content.Context;
 
+import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
 import com.github.an0rakdev.planetaryconquest.math.matrix.GenericMatrix;
 import com.github.an0rakdev.planetaryconquest.math.matrix.transformations.ScaleMatrix;
@@ -13,6 +15,11 @@ public class ScaleShaderProgram extends MVPShaderProgram {
     public ScaleShaderProgram(final Context context) {
         super(context);
         this.scaleMatrix = new ScaleMatrix(4,4);
+    }
+
+    @Override
+    public void draw(Model shape) {
+        super.draw(shape);
     }
 
     @Override

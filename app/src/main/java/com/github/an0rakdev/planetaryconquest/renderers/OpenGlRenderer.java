@@ -5,11 +5,11 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.SystemClock;
 
-import com.github.an0rakdev.planetaryconquest.graphics.models.Triangle;
+import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Triangle;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
-import com.github.an0rakdev.planetaryconquest.graphics.shaders.ScaleShaderProgram;
-import com.github.an0rakdev.planetaryconquest.graphics.shaders.YRotationShaderProgram;
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations.ScaleShaderProgram;
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations.YRotationShaderProgram;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -29,7 +29,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
         this.model = new Triangle();
-        this.shaderProgram = new YRotationShaderProgram(this.context);
+        this.shaderProgram = new ScaleShaderProgram(this.context);
     }
 
     @Override
