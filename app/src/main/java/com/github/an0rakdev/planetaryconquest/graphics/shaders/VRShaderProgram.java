@@ -15,8 +15,8 @@ public class VRShaderProgram extends MVPShaderProgram {
     private final GenericMatrix camera;
     private final GenericMatrix mvpMatrix;
 
-    public VRShaderProgram(Context context) {
-        super(context);
+    public VRShaderProgram(Context context, final boolean useSeveralColors) {
+        super(context, useSeveralColors);
         this.mvpMatrix = new Dim4Matrix();
         // This represent your position in the VR world.
         // It needs to be updated when you move.
@@ -32,11 +32,12 @@ public class VRShaderProgram extends MVPShaderProgram {
     public void draw(final Model shape) {
         GLES20.glUseProgram(this.program);
         final int verticesHandle = this.applyVertices(shape);
+        final int colorHandle = this.applyColors(shape);
         final int mvpMatrixHandle = GLES20.glGetUniformLocation(this.program, "vMatrix");
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
                 this.mvpMatrix.getValues(), 0);
         // Draw
-        this.render(shape, verticesHandle);
+        this.render(shape, verticesHandle, colorHandle);
     }
 
     public void adaptToEye(final Eye eye) {

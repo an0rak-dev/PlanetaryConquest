@@ -4,6 +4,8 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.Matrix;
 
+import com.github.an0rakdev.planetaryconquest.graphics.models.MonoColorModel;
+import com.github.an0rakdev.planetaryconquest.graphics.models.MultiColorModel;
 import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
@@ -16,14 +18,18 @@ public class MVPShaderProgram extends ShaderProgram {
     private GenericMatrix projectionMatrix;
     private final GenericMatrix viewMatrix;
 
-    public MVPShaderProgram(final Context context) {
+    public MVPShaderProgram(final Context context, final boolean useSeveralColors) {
         super(context);
         this.projectionMatrix = new Dim4Matrix();
         final Coordinates eyePosition = new Coordinates(0f, 0f, -3f);
         final Coordinates upPosition = new Coordinates(0f, 1f, 0f);
         this.viewMatrix = new CameraMatrix(4,4, eyePosition, upPosition);
         this.addShader(R.raw.mvp_vertex, GLES20.GL_VERTEX_SHADER);
-        this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
+        if (useSeveralColors) {
+            this.addShader(R.raw.multicolor_fragment, GLES20.GL_FRAGMENT_SHADER);
+        } else {
+            this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
+        }
         this.prepare();
     }
 
@@ -37,14 +43,14 @@ public class MVPShaderProgram extends ShaderProgram {
         GLES20.glUseProgram(this.program);
         // Apply the model's vertices and the color
         final int verticesHandle = this.applyVertices(shape);
-        this.applyColors(shape);
+        final int colorHandler = this.applyColors(shape);
         // Apply the transformations matrix
         final GenericMatrix transformations = this.applyTransformations();
         final int mvpMatrixHandle = GLES20.glGetUniformLocation(this.program, "vMatrix");
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false,
                 transformations.getValues(), 0);
         // Draw
-        this.render(shape, verticesHandle);
+        this.render(shape, verticesHandle, colorHandler);
     }
 
     protected GenericMatrix applyTransformations() {
@@ -63,8 +69,19 @@ public class MVPShaderProgram extends ShaderProgram {
         return positionHandle;
     }
 
-    private final void applyColors(final Model shape) {
-        final int colorHandle = GLES20.glGetUniformLocation(this.program, "vColor");
-        GLES20.glUniform4fv(colorHandle, 1, shape.getFragmentsColor(), 0);
+    final int applyColors(final Model shape) {
+        if (shape.hasSeveralColors()) {
+            final int colorHandler = GLES20.glGetAttribLocation(this.program, "vColors");
+            GLES20.glEnableVertexAttribArray(colorHandler);
+            final MultiColorModel multiColorShape = (MultiColorModel) shape;
+            GLES20.glVertexAttribPointer(colorHandler, 3, GLES20.GL_FLOAT,
+                    false, 3 * multiColorShape.getColorsStride(),
+                    multiColorShape.getColorsBuffer());
+            return colorHandler;
+        } else {
+            final int colorHandle = GLES20.glGetUniformLocation(this.program, "vColor");
+            GLES20.glUniform4fv(colorHandle, 1, ((MonoColorModel)shape).getFragmentsColor(), 0);
+            return -1;
+        }
     }
 }

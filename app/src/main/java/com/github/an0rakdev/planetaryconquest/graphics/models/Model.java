@@ -33,7 +33,7 @@ public abstract class Model {
      * @return the number of bytes for one vertex in this model.
      */
     public int getVerticesStride() {
-        return (Float.SIZE / Byte.SIZE);
+        return Float.BYTES;
     }
 
     /**
@@ -43,10 +43,7 @@ public abstract class Model {
         return this.vertices;
     }
 
-    /**
-     * @return the colors to use for those fragments (one color = 4 entries in the array).
-     */
-    public abstract float[] getFragmentsColor();
+    public abstract boolean hasSeveralColors();
 
     /**
      * @return the number of vertices used for drawing this model.
