@@ -6,13 +6,12 @@ import android.opengl.GLSurfaceView;
 import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Rotation;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Icosahedron;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Sphere;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Octahedron;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Square;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Triangle;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
-import com.github.an0rakdev.planetaryconquest.graphics.shaders.ScaleShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.Scaling;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Triangle;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.YRotationShaderProgram;
 
 import javax.microedition.khronos.egl.EGLConfig;
@@ -32,8 +31,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
-        this.model = new Icosahedron();
-        this.shaderProgram = new YRotationShaderProgram(this.context);
+        this.model = new Triangle();
+        this.shaderProgram = new MVPShaderProgram(this.context);
     }
 
     @Override

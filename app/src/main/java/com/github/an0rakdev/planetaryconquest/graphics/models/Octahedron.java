@@ -3,7 +3,7 @@ package com.github.an0rakdev.planetaryconquest.graphics.models;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Icosahedron extends Model {
+public class Octahedron extends Model {
     private List<Float> coords;
     private static final float TOP[] = {0f, 0.5f, 0f};
     private static final float LEFT[] = {-0.25f, 0f, 0f};
