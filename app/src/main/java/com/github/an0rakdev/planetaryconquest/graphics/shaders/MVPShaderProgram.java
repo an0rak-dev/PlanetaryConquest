@@ -34,7 +34,7 @@ public class MVPShaderProgram extends ShaderProgram {
         GLES20.glUseProgram(this.program);
         // Apply the model's vertices and the color
         final int verticesHandle = this.applyVertices(shape);
-        final int colorHandle = this.applyColors(shape);
+        this.applyColors(shape);
         // Apply the transformations matrix
         final float[] transformations = this.applyTransformations();
         final int mvpMatrixHandle = GLES20.glGetUniformLocation(this.program, "vMatrix");
@@ -42,7 +42,6 @@ public class MVPShaderProgram extends ShaderProgram {
 
         // Draw
         this.render(shape, verticesHandle);
-        GLES20.glDisableVertexAttribArray(colorHandle);
     }
 
     protected float[] applyTransformations() {
@@ -64,18 +63,8 @@ public class MVPShaderProgram extends ShaderProgram {
         return positionHandle;
     }
 
-    final int applyColors(final Model shape) {
-        float[] colors = shape.getFragmentsColor();
-        ByteBuffer bb = ByteBuffer.allocateDirect(colors.length * Float.BYTES);
-        bb.order(ByteOrder.nativeOrder());
-        FloatBuffer colorBuffer = bb.asFloatBuffer();
-        colorBuffer.put(colors);
-        colorBuffer.position(0);
-        int colorHandle = GLES20.glGetAttribLocation(this.program, "vColor");
-        GLES20.glEnableVertexAttribArray(colorHandle);
-        final int size = 3;
-        GLES20.glVertexAttribPointer(colorHandle, size,
-                GLES20.GL_FLOAT, false, size*3, colorBuffer);
-        return colorHandle;
+    private final void applyColors(final Model shape) {
+        final int colorHandle = GLES20.glGetUniformLocation(this.program, "vColor");
+        GLES20.glUniform4fv(colorHandle, 1, shape.getFragmentsColor(), 0);
     }
 }
