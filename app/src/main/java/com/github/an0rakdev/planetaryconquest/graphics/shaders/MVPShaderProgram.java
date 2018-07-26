@@ -2,6 +2,7 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
@@ -17,8 +18,9 @@ public class MVPShaderProgram extends ShaderProgram {
 
     public MVPShaderProgram(final Context context) {
         super(context);
-        final Coordinates eyePosition = new Coordinates(0, 0, -3);
-        final Coordinates upPosition = new Coordinates(0, 1, 0);
+        this.projectionMatrix = new Dim4Matrix();
+        final Coordinates eyePosition = new Coordinates(0f, 0f, -3f);
+        final Coordinates upPosition = new Coordinates(0f, 1f, 0f);
         this.viewMatrix = new CameraMatrix(4,4, eyePosition, upPosition);
         this.addShader(R.raw.mvp_vertex, GLES20.GL_VERTEX_SHADER);
         this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);

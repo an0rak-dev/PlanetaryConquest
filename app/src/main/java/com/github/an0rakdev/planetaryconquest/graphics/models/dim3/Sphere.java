@@ -1,4 +1,6 @@
-package com.github.an0rakdev.planetaryconquest.graphics.models;
+package com.github.an0rakdev.planetaryconquest.graphics.models.dim3;
+
+import com.github.an0rakdev.planetaryconquest.graphics.models.MonoColorModel;
 
 import java.util.ArrayList;
 import java.util.List;

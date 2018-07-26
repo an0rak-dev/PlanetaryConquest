@@ -4,8 +4,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Sphere;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Triangle;
+import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRShaderProgram;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;

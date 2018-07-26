@@ -9,7 +9,7 @@ public abstract class Model {
     private final FloatBuffer vertices;
     private final int nbOfVertices;
 
-    Model() {
+    public Model() {
         List<Float> coords = this.calculateCoordonates();
         this.nbOfVertices = coords.size() / 3;
         final ByteBuffer bb = ByteBuffer.allocateDirect(coords.size()
