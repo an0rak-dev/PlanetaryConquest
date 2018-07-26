@@ -7,6 +7,10 @@ import android.opengl.Matrix;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
+
 public class MVPShaderProgram extends ShaderProgram {
     private final float projectionMatrix[];
 
@@ -22,41 +26,56 @@ public class MVPShaderProgram extends ShaderProgram {
         float sceneRatio = (float) sceneWidth / sceneHeight;
         Matrix.setIdentityM(this.projectionMatrix, 0);
         Matrix.frustumM(this.projectionMatrix, 0,
-                -sceneRatio, sceneRatio, -1, 1, 3, 7);
+                -sceneRatio, sceneRatio, -1, 1, 3, 100);
     }
 
     @Override
     public void draw(Model shape) {
         GLES20.glUseProgram(this.program);
         // Apply the model's vertices and the color
-        final int verticesHandle = this.applyVerticesAndColor(shape);
+        final int verticesHandle = this.applyVertices(shape);
+        final int colorHandle = this.applyColors(shape);
         // Apply the transformations matrix
         final float[] transformations = this.applyTransformations();
         final int mvpMatrixHandle = GLES20.glGetUniformLocation(this.program, "vMatrix");
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, transformations, 0);
+
         // Draw
         this.render(shape, verticesHandle);
+        GLES20.glDisableVertexAttribArray(colorHandle);
     }
 
     protected float[] applyTransformations() {
         final float transformationMatrix[] = this.createMatrix();
         final float viewMatrix[] = this.createMatrix();
         Matrix.setLookAtM(viewMatrix, 0, 0, 0,-3,
-                0f, 0f, 0f, 1f, 0f, 0f);
+                0f, 0f, 0f, 0f, 1f, 0f);
         Matrix.multiplyMM(transformationMatrix, 0, this.projectionMatrix, 0, viewMatrix, 0);
         return transformationMatrix;
     }
 
-    final int applyVerticesAndColor(final Model shape) {
+    final int applyVertices(final Model shape) {
         // Add the vertices position to the shader's program.
         final int positionHandle = GLES20.glGetAttribLocation(this.program, "vPosition");
         GLES20.glEnableVertexAttribArray(positionHandle);
         GLES20.glVertexAttribPointer(positionHandle, 3, GLES20.GL_FLOAT,
                 false, 3 * shape.getVerticesStride(),
                 shape.getVerticesBuffer());
-        // Add the fragments' color to the shader's program.
-        final int colorHandle = GLES20.glGetUniformLocation(this.program, "vColor");
-        GLES20.glUniform4fv(colorHandle, 1, shape.getFragmentsColor(), 0);
         return positionHandle;
+    }
+
+    final int applyColors(final Model shape) {
+        float[] colors = shape.getFragmentsColor();
+        ByteBuffer bb = ByteBuffer.allocateDirect(colors.length * Float.BYTES);
+        bb.order(ByteOrder.nativeOrder());
+        FloatBuffer colorBuffer = bb.asFloatBuffer();
+        colorBuffer.put(colors);
+        colorBuffer.position(0);
+        int colorHandle = GLES20.glGetAttribLocation(this.program, "vColor");
+        GLES20.glEnableVertexAttribArray(colorHandle);
+        final int size = 3;
+        GLES20.glVertexAttribPointer(colorHandle, size,
+                GLES20.GL_FLOAT, false, size*3, colorBuffer);
+        return colorHandle;
     }
 }

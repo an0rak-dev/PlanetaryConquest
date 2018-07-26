@@ -2,7 +2,6 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.GLES30;
 import android.opengl.Matrix;
 
 import com.github.an0rakdev.planetaryconquest.R;
@@ -31,7 +30,7 @@ public class VRShaderProgram extends MVPShaderProgram {
     @Override
     public void draw(final Model shape) {
         GLES20.glUseProgram(this.program);
-        final int verticesHandle = this.applyVerticesAndColor(shape);
+        final int verticesHandle = this.applyVertices(shape);
         final int mvpMatrixHandle = GLES20.glGetUniformLocation(this.program, "vMatrix");
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, this.mvpMatrix, 0);
         // Draw

@@ -8,7 +8,7 @@ public class Sphere extends MonoColorModel {
     @Override
     protected List<Float> calculateCoordonates() {
         final List<Float> coords = new ArrayList<>();
-        // TODO
+        // TODO Base this on a normalized Icosahedron model.
         return coords;
     }
 }
