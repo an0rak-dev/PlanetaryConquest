@@ -2,30 +2,24 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
-import com.github.an0rakdev.planetaryconquest.Coordinates;
-import com.github.an0rakdev.planetaryconquest.Dim4Matrix;
-import com.github.an0rakdev.planetaryconquest.GenericMatrix;
+import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
+import com.github.an0rakdev.planetaryconquest.math.Coordinates;
+import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
+import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.FrustumPerspectiveMatrix;
+import com.github.an0rakdev.planetaryconquest.math.matrix.GenericMatrix;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-
 public class MVPShaderProgram extends ShaderProgram {
-    private final GenericMatrix projectionMatrix;
+    private GenericMatrix projectionMatrix;
     private final GenericMatrix viewMatrix;
 
     public MVPShaderProgram(final Context context) {
         super(context);
-        this.projectionMatrix = new Dim4Matrix();
-        this.viewMatrix = new Dim4Matrix();
         final Coordinates eyePosition = new Coordinates(0, 0, -3);
-        final Coordinates centerPosition = new Coordinates();
         final Coordinates upPosition = new Coordinates(0, 1, 0);
-        this.viewMatrix.changeToCamera(eyePosition, centerPosition, upPosition);
+        this.viewMatrix = new CameraMatrix(4,4, eyePosition, upPosition);
         this.addShader(R.raw.mvp_vertex, GLES20.GL_VERTEX_SHADER);
         this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
         this.prepare();
@@ -33,7 +27,7 @@ public class MVPShaderProgram extends ShaderProgram {
 
     public void adaptToScene(final int sceneWidth, final int sceneHeight) {
         float sceneRatio = (float) sceneWidth / sceneHeight;
-        this.projectionMatrix.changeToFrustumPerspective(sceneRatio);
+        this.projectionMatrix = new FrustumPerspectiveMatrix(4,4, sceneRatio);
     }
 
     @Override

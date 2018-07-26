@@ -5,13 +5,9 @@ import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.SystemClock;
 
-import com.github.an0rakdev.planetaryconquest.graphics.Rotation;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Octahedron;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Square;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Triangle;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
-import com.github.an0rakdev.planetaryconquest.graphics.Scaling;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.ScaleShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.YRotationShaderProgram;
 
@@ -39,15 +35,14 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onDrawFrame(final GL10 unused) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); // Reset background
-        if (Rotation.class.isAssignableFrom(this.shaderProgram.getClass())) {
-            long time = SystemClock.uptimeMillis() % 16000L;
+        if (this.shaderProgram instanceof YRotationShaderProgram) {
+            long time = SystemClock.uptimeMillis() % 4000L;
             float angle = 0.090f * ((int) time);
-            ((Rotation) this.shaderProgram).rotate(angle);
+            ((YRotationShaderProgram) this.shaderProgram).applyRotation(angle);
         }
-
-        if (0.0f != this.dy && Scaling.class.isAssignableFrom(this.shaderProgram.getClass())) {
+        if (0.0f != this.dy && this.shaderProgram instanceof ScaleShaderProgram) {
             final float delta = 1 - this.dy;
-            ((Scaling) this.shaderProgram).rescale(delta, delta, delta);
+            ((ScaleShaderProgram) this.shaderProgram).setScaleTo(delta, delta, delta);
             this.dy = 0f;
         }
         this.shaderProgram.draw(this.model);

@@ -1,4 +1,4 @@
-package com.github.an0rakdev.planetaryconquest;
+package com.github.an0rakdev.planetaryconquest.math;
 
 public class Coordinates {
     public float x;

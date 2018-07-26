@@ -1,18 +1,18 @@
 package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
-import android.opengl.Matrix;
 
-import com.github.an0rakdev.planetaryconquest.Dim4Matrix;
-import com.github.an0rakdev.planetaryconquest.GenericMatrix;
-import com.github.an0rakdev.planetaryconquest.graphics.Scaling;
+import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
+import com.github.an0rakdev.planetaryconquest.math.matrix.GenericMatrix;
+import com.github.an0rakdev.planetaryconquest.math.matrix.transformations.ScaleMatrix;
+import com.github.an0rakdev.planetaryconquest.math.Scaling;
 
-public class ScaleShaderProgram extends MVPShaderProgram implements Scaling {
+public class ScaleShaderProgram extends MVPShaderProgram {
     private final GenericMatrix scaleMatrix;
 
     public ScaleShaderProgram(final Context context) {
         super(context);
-        this.scaleMatrix = new Dim4Matrix();
+        this.scaleMatrix = new ScaleMatrix(4,4);
     }
 
     @Override
@@ -23,8 +23,7 @@ public class ScaleShaderProgram extends MVPShaderProgram implements Scaling {
         return transformations;
     }
 
-    @Override
-    public void rescale(float x, float y, float z) {
-        this.scaleMatrix.changeToScale(x,y,z);
+    public void setScaleTo(float x, float y, float z) {
+        ((Scaling) this.scaleMatrix).rescale(x,y,z);
     }
 }
