@@ -11,6 +11,7 @@ import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations.ScaleShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations.YRotationShaderProgram;
+import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -29,7 +30,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
-        this.model = new Square();
+        this.model = new Triangle(new Coordinates(), 1.7f);
         this.shaderProgram = new YRotationShaderProgram(this.context, this.model.hasSeveralColors());
     }
 
