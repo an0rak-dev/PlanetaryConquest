@@ -73,8 +73,9 @@ public class MVPShaderProgram extends ShaderProgram {
             final int colorHandler = GLES20.glGetAttribLocation(this.program, "vColors");
             GLES20.glEnableVertexAttribArray(colorHandler);
             final MultiColorModel multiColorShape = (MultiColorModel) shape;
-            GLES20.glVertexAttribPointer(colorHandler, 3, GLES20.GL_FLOAT,
-                    false, 3 * multiColorShape.getColorsStride(),
+            GLES20.glVertexAttribPointer(colorHandler, 4, GLES20.GL_FLOAT,
+                    false,
+                    0,
                     multiColorShape.getColorsBuffer());
             return colorHandler;
         } else {
