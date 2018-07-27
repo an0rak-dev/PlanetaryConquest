@@ -8,18 +8,27 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class Square extends MultiColorModel {
+    private final Coordinates center;
+    private final float size;
+
+    public Square(final Coordinates center, final float size) {
+        this.center = center;
+        this.size = size;
+    }
+
     @Override
     protected void calculateCoordonates(final List<Coordinates> coordsToFill) {
-        final Coordinates topLeft = new Coordinates(-0.5f, 0.5f, 0f);
-        final Coordinates bottomRight = new Coordinates(0.5f, -0.5f, 0f);
+        final float half = this.size /2;
 
-        coordsToFill.add(topLeft);
-        coordsToFill.add(new Coordinates(0.5f, 0.5f, 0f)); // TOP RIGHT
-        coordsToFill.add(bottomRight);
+        final Coordinates tL = new Coordinates(this.center.x - half, this.center.y + half, this.center.z);
+        final Coordinates bR = new Coordinates(this.center.x + half, this.center.y - half, this.center.z);
 
-        coordsToFill.add(topLeft);
-        coordsToFill.add(bottomRight);
-        coordsToFill.add(new Coordinates(-0.5f, -0.5f, 0f)); // BOTTOM LEFT
+        coordsToFill.add(tL);
+        coordsToFill.add(new Coordinates(this.center.x + half, this.center.y + half, this.center.z));
+        coordsToFill.add(bR);
+        coordsToFill.add(tL);
+        coordsToFill.add(bR);
+        coordsToFill.add(new Coordinates(this.center.x - half, this.center.y - half, this.center.z));
     }
 
     @Override

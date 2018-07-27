@@ -7,6 +7,7 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Square;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Triangle;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRShaderProgram;
+import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
@@ -52,7 +53,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     @Override
     public void onSurfaceCreated(EGLConfig config) {
         // Classic.
-        this.shape = new Square();
+        this.shape = new Triangle(new Coordinates(), 1.7f);
         this.shaderProgram = new VRShaderProgram(context, this.shape.hasSeveralColors());
     }
 
