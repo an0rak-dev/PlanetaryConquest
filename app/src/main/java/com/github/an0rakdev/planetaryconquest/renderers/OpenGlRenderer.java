@@ -4,9 +4,11 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Square;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Triangle;
+import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Tetrahedron;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations.ScaleShaderProgram;
@@ -30,18 +32,24 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
-        this.model = new Square(new Coordinates(), 2f);
+        this.model = new Tetrahedron();
         this.shaderProgram = new YRotationShaderProgram(this.context, this.model.hasSeveralColors());
     }
 
     @Override
     public void onDrawFrame(final GL10 unused) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); // Reset background
+        /*
         if (this.shaderProgram instanceof YRotationShaderProgram) {
             long time = SystemClock.uptimeMillis() % 4000L;
             float angle = 0.090f * ((int) time);
             ((YRotationShaderProgram) this.shaderProgram).applyRotation(angle);
         }
+        */
+        // FIXME : Rotation 180° on Tetrahedron doesn't show the back of it.
+        ((YRotationShaderProgram) this.shaderProgram).applyRotation(180f);
+
+
         if (0.0f != this.dy && this.shaderProgram instanceof ScaleShaderProgram) {
             final float delta = 1 - this.dy;
             ((ScaleShaderProgram) this.shaderProgram).setScaleTo(delta, delta, delta);
