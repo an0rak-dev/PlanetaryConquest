@@ -2,7 +2,6 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 
 import com.github.an0rakdev.planetaryconquest.graphics.models.MonoColorModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.MultiColorModel;
