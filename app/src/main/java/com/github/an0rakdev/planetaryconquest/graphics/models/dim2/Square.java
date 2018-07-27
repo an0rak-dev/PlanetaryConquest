@@ -1,5 +1,6 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.dim2;
 
+import com.github.an0rakdev.planetaryconquest.graphics.Color;
 import com.github.an0rakdev.planetaryconquest.graphics.models.MonoColorModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.MultiColorModel;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
@@ -32,16 +33,16 @@ public final class Square extends MultiColorModel {
     }
 
     @Override
-    protected List<Float> getColorsComponents() {
-        final List<Float> result = new ArrayList<>();
-        result.add(0.538f);
-        result.add(0.124f);
-        result.add(0.822f);
-        result.add(1f);
-        result.add(0.235f);
-        result.add(0.767f);
-        result.add(0.018f);
-        result.add(1f);
+    protected List<Color> getColorsComponents() {
+        final List<Color> result = new ArrayList<>();
+        final Color first = new Color(0.538f, 0.124f, 0.822f);
+        final Color second = new Color(0.235f, 0.767f, 0.018f);
+        result.add(first);
+        result.add(first);
+        result.add(first);
+        result.add(second);
+        result.add(second);
+        result.add(second);
         return result;
     }
 }

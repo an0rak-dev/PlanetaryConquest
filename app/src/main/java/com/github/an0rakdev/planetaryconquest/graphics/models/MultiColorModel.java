@@ -1,5 +1,7 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models;
 
+import com.github.an0rakdev.planetaryconquest.graphics.Color;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -9,13 +11,16 @@ public abstract class MultiColorModel extends Model {
     private FloatBuffer colorsBuffer;
     public MultiColorModel() {
         super();
-        List<Float> colorsComponents = this.getColorsComponents();
+        List<Color> colorsComponents = this.getColorsComponents();
         final ByteBuffer bb = ByteBuffer.allocateDirect(colorsComponents.size()
-            * Float.BYTES);
+            * Color.SIZE);
         bb.order(ByteOrder.nativeOrder());
         this.colorsBuffer = bb.asFloatBuffer();
-        for (final Float component : colorsComponents) {
-            this.colorsBuffer.put(component);
+        for (final Color component : colorsComponents) {
+            this.colorsBuffer.put(component.r);
+            this.colorsBuffer.put(component.g);
+            this.colorsBuffer.put(component.b);
+            this.colorsBuffer.put(component.a);
         }
         this.colorsBuffer.position(0);
     }
@@ -32,5 +37,5 @@ public abstract class MultiColorModel extends Model {
         return this.colorsBuffer;
     }
 
-    protected abstract List<Float> getColorsComponents();
+    protected abstract List<Color> getColorsComponents();
 }
