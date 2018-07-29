@@ -10,6 +10,7 @@ import java.util.List;
 public class Tetrahedron extends MultiColorModel {
     private final Coordinates center;
     private final float radius;
+    private List<Triangle> triangles;
 
     public Tetrahedron(final Coordinates center, final float radius) {
         this.center = center;
@@ -18,16 +19,29 @@ public class Tetrahedron extends MultiColorModel {
 
     @Override
     protected List<Color> getColorsComponents() {
+        if (null == this.triangles) {
+            this.loadTriangles();
+        }
         final List<Color> colors = new ArrayList<>();
-        colors.add(Color.RED);
-        colors.add(Color.GREEN);
-        colors.add(Color.BLUE);
-        colors.add(Color.PURPLE);
+        for (final Triangle t : this.triangles) {
+            colors.add(t.getColor());
+        }
         return colors;
     }
 
     @Override
     protected void calculateCoordonates(List<Coordinates> coordsToFill) {
+        if (null == this.triangles) {
+            this.loadTriangles();
+        }
+
+        for (final Triangle t : this.triangles) {
+            coordsToFill.addAll(t.getCoordinates());
+        }
+    }
+
+    private void loadTriangles() {
+        this.triangles = new ArrayList<>();
         final Coordinates top = new Coordinates(this.center.x, this.center.y + radius,
                 this.center.z);
 
@@ -37,23 +51,12 @@ public class Tetrahedron extends MultiColorModel {
         final Coordinates bL = new Coordinates(this.center.x - xoffset, this.center.y -yoffset, this.center.z);
         final Coordinates bR = new Coordinates(this.center.x + xoffset, this.center.y -yoffset, this.center.z);
         final Coordinates bBehind = new Coordinates(this.center.x,
-                this.center.y + yoffset / 2,
-                this.center.z + xoffset);
+                this.center.y + yoffset /2,
+                this.center.z + radius);
 
-        coordsToFill.add(top);
-        coordsToFill.add(bR);
-        coordsToFill.add(bL);
-
-        coordsToFill.add(top);
-        coordsToFill.add(bBehind);
-        coordsToFill.add(bR);
-
-        coordsToFill.add(top);
-        coordsToFill.add(bBehind);
-        coordsToFill.add(bL);
-
-        coordsToFill.add(bL);
-        coordsToFill.add(bBehind);
-        coordsToFill.add(bR);
+        this.triangles.addAll(new Triangle(top, bR, bL).split());
+        this.triangles.addAll(new Triangle(top, bBehind, bR).split());
+        this.triangles.addAll(new Triangle(top, bBehind, bL).split());
+        this.triangles.addAll(new Triangle(bL, bBehind, bR).split());
     }
 }
