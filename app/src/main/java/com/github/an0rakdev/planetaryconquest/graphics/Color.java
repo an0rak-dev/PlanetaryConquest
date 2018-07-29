@@ -27,13 +27,13 @@ public class Color {
 
     public static Color random(final boolean opaque) {
         final Color result = new Color();
-        result.r = ((float)Math.random() % 100) / 100;
-        result.g = ((float)Math.random() % 100) / 100;
-        result.b = ((float)Math.random() % 100) / 100;
+        result.r = (float)Math.random();
+        result.g = (float)Math.random();
+        result.b = (float)Math.random();
         if (opaque) {
             result.a = 1f;
         } else {
-            result.a = ((float) Math.random() % 100) / 100;
+            result.a = (float) Math.random();
         }
         return result;
     }
