@@ -32,22 +32,18 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
-        this.model = new Tetrahedron();
+        this.model = new Tetrahedron(new Coordinates(), 0.5f);
         this.shaderProgram = new YRotationShaderProgram(this.context, this.model.hasSeveralColors());
     }
 
     @Override
     public void onDrawFrame(final GL10 unused) {
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT); // Reset background
-        /*
         if (this.shaderProgram instanceof YRotationShaderProgram) {
             long time = SystemClock.uptimeMillis() % 4000L;
             float angle = 0.090f * ((int) time);
             ((YRotationShaderProgram) this.shaderProgram).applyRotation(angle);
         }
-        */
-        // FIXME : Rotation 180° on Tetrahedron doesn't show the back of it.
-        ((YRotationShaderProgram) this.shaderProgram).applyRotation(180f);
 
 
         if (0.0f != this.dy && this.shaderProgram instanceof ScaleShaderProgram) {
