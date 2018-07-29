@@ -33,7 +33,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
-        this.model = new Octahedron();
+        this.model = new Octahedron(new Coordinates(), 0.7f, 1f);
         this.shaderProgram = new YRotationShaderProgram(this.context, this.model.hasSeveralColors());
     }
 

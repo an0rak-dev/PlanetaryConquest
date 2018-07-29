@@ -1,7 +1,6 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.dim3;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
-import com.github.an0rakdev.planetaryconquest.graphics.models.MonoColorModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.MultiColorModel;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 
@@ -9,16 +8,21 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Octahedron extends MultiColorModel {
-    private final List<Color> colors;
+    private final Coordinates center;
+    private final float centerToSquare;
+    private final float centerToTop;
 
-    public Octahedron() {
-        this.colors = new ArrayList<>();
+    public Octahedron(final Coordinates center,
+                      final float centerToSquare, final float centerToTop) {
+        this.center = center;
+        this.centerToSquare = centerToSquare;
+        this.centerToTop = centerToTop;
     }
 
     @Override
     protected List<Color> getColorsComponents() {
         final List<Color> result = new ArrayList<>();
-        for (int i=0; i < 8; i++) {
+        for (int i = 0; i < 8; i++) {
             result.add(Color.random(true));
         }
         return result;
@@ -26,14 +30,19 @@ public class Octahedron extends MultiColorModel {
 
     @Override
     protected void calculateCoordonates(List<Coordinates> coordsToFill) {
-        final float size = 1.0f;
-        final Coordinates top = new Coordinates(0f, size, 0f);
-        final Coordinates bottom = new Coordinates(0f, -size, 0f);
+        final Coordinates top = new Coordinates(this.center.x, this.center.y + this.centerToTop,
+                this.center.z);
+        final Coordinates bottom = new Coordinates(this.center.x, this.center.y - this.centerToTop,
+                this.center.z);
 
-        final Coordinates fLeft = new Coordinates(-size, 0f, -size);
-        final Coordinates fRight = new Coordinates(size, 0f, -size);
-        final Coordinates bRight = new Coordinates(size, 0f, size);
-        final Coordinates bLeft = new Coordinates(-size, 0f, size);
+        final Coordinates fLeft = new Coordinates(this.center.x - this.centerToSquare,
+                this.center.y, this.center.z + this.centerToSquare);
+        final Coordinates fRight = new Coordinates(this.center.x + this.centerToSquare,
+                this.center.y, this.center.z + this.centerToSquare);
+        final Coordinates bRight = new Coordinates(this.center.x + this.centerToSquare,
+                this.center.y, this.center.z - this.centerToSquare);
+        final Coordinates bLeft = new Coordinates(this.center.x - this.centerToSquare,
+                this.center.y, this.center.z - this.centerToSquare);
 
         // Up front triangle
         coordsToFill.add(top);
@@ -68,6 +77,6 @@ public class Octahedron extends MultiColorModel {
         coordsToFill.add(fLeft);
         coordsToFill.add(bottom);
         coordsToFill.add(bLeft);
-       // */
+        // */
     }
 }
