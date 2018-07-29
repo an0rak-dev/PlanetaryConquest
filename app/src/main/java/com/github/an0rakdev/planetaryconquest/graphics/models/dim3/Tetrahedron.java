@@ -8,6 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Tetrahedron extends MultiColorModel {
+    private final Coordinates center;
+    private final float radius;
+
+    public Tetrahedron(final Coordinates center, final float radius) {
+        this.center = center;
+        this.radius = radius;
+    }
 
     @Override
     protected List<Color> getColorsComponents() {
@@ -21,10 +28,17 @@ public class Tetrahedron extends MultiColorModel {
 
     @Override
     protected void calculateCoordonates(List<Coordinates> coordsToFill) {
-        final Coordinates top = new Coordinates(0.0f, 1f, 0.0f);
-        final Coordinates bL = new Coordinates(0.5f, 0f, 0f);
-        final Coordinates bR = new Coordinates(-0.5f, 0f, 0f);
-        final Coordinates bBehind = new Coordinates(0f, 0.4f, 0.7f);
+        final Coordinates top = new Coordinates(this.center.x, this.center.y + radius,
+                this.center.z);
+
+        final float xoffset = (float) Math.cos(Math.PI/6) * this.radius;
+        final float yoffset = (float) Math.sin(Math.PI/6) * this.radius;
+
+        final Coordinates bL = new Coordinates(this.center.x - xoffset, this.center.y -yoffset, this.center.z);
+        final Coordinates bR = new Coordinates(this.center.x + xoffset, this.center.y -yoffset, this.center.z);
+        final Coordinates bBehind = new Coordinates(this.center.x,
+                this.center.y + yoffset / 2,
+                this.center.z + xoffset);
 
         coordsToFill.add(top);
         coordsToFill.add(bR);
