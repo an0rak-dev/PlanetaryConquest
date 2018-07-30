@@ -4,8 +4,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
-import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Square;
-import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Triangle;
+import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRShaderProgram;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.google.vr.sdk.base.Eye;
@@ -18,7 +17,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class FlyingRenderer implements GvrView.StereoRenderer {
     private Context context;
     private VRShaderProgram shaderProgram;
-    private Model shape;
+    private Model moon;
 
     public FlyingRenderer(final Context context) {
         this.context = context;
@@ -37,7 +36,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         // The drawing specifities of your app goes here.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         this.shaderProgram.adaptToEye(eye);
-        this.shaderProgram.draw(this.shape);
+        this.shaderProgram.draw(this.moon);
     }
 
     @Override
@@ -53,7 +52,8 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     @Override
     public void onSurfaceCreated(EGLConfig config) {
         // Classic.
-        this.shape = new Triangle(new Coordinates(), 1.7f);
+        this.moon = new Sphere(new Coordinates(-2.5f, 3f, -6f), 1f);
+        this.moon.precision(2);
         this.shaderProgram = new VRShaderProgram(context);
     }
 

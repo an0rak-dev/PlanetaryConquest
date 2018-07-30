@@ -34,9 +34,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
-        this.model = new Sphere(new Coordinates(), 1f);
-        this.model.precision(2);
-        this.shaderProgram = new YRotationShaderProgram(this.context);
+        this.model = new Sphere(new Coordinates(-0.5f, 0.5f, 0f), 1f);
+        this.model.precision(1);
+        this.shaderProgram = new MVPShaderProgram(this.context);
     }
 
     @Override
