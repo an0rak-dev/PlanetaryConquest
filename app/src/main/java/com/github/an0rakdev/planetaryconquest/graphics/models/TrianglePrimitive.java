@@ -27,18 +27,25 @@ public class TrianglePrimitive {
         return this.color;
     }
 
-    public List<TrianglePrimitive> split() {
+    public List<TrianglePrimitive> split(final int splitCount) {
         final List<TrianglePrimitive> result = new ArrayList<>();
-        final Coordinates top = this.coords.get(0);
-        final Coordinates right = this.coords.get(1);
-        final Coordinates left = this.coords.get(2);
-        final Coordinates middleL = this.findMiddle(top, left);
-        final Coordinates middleR = this.findMiddle(top, right);
-        final Coordinates middleB = this.findMiddle(left, right);
-        result.add(new TrianglePrimitive(top, middleR, middleL));
-        result.add(new TrianglePrimitive(middleR, right, middleB));
-        result.add(new TrianglePrimitive(middleL, middleR, middleB));
-        result.add(new TrianglePrimitive(middleL, middleB, left));
+        if (1 >= splitCount) {
+            final Coordinates top = this.coords.get(0);
+            final Coordinates right = this.coords.get(1);
+            final Coordinates left = this.coords.get(2);
+            final Coordinates middleL = this.findMiddle(top, left);
+            final Coordinates middleR = this.findMiddle(top, right);
+            final Coordinates middleB = this.findMiddle(left, right);
+            result.add(new TrianglePrimitive(top, middleR, middleL));
+            result.add(new TrianglePrimitive(middleR, right, middleB));
+            result.add(new TrianglePrimitive(middleL, middleR, middleB));
+            result.add(new TrianglePrimitive(middleL, middleB, left));
+        } else {
+            List<TrianglePrimitive> currentSplit = this.split(1);
+            for (final TrianglePrimitive cS : currentSplit) {
+                result.addAll(cS.split(splitCount - 1));
+            }
+        }
         return result;
     }
 

@@ -15,13 +15,20 @@ public abstract class Model {
     private FloatBuffer vertices;
     private FloatBuffer colorsBuffer;
     private int nbOfVertices;
+    private int precisionOfEachTriangle;
 
     public Model() {
         this.triangles = new ArrayList<>();
         this.vertices = null;
         this.nbOfVertices = 0;
+        this.precisionOfEachTriangle = 0;
     }
 
+    public void precision(final int precision) {
+        if (precision > 1) {
+            this.precisionOfEachTriangle = precision;
+        }
+    }
     /**
      * @return the number of bytes for one vertex in this model.
      */
@@ -41,6 +48,9 @@ public abstract class Model {
     }
 
     public FloatBuffer getColors() {
+        if (null == this.vertices) {
+            this.populateBuffer();
+        }
         if (null == this.colorsBuffer) {
             final ByteBuffer bb = ByteBuffer.allocateDirect(this.triangles.size()
                     * TrianglePrimitive.NB_VERTEX * Color.SIZE * Float.BYTES);
@@ -63,7 +73,7 @@ public abstract class Model {
      * @return the number of vertices used for drawing this model.
      */
     public int getNbOfVertices() {
-        if (0 == this.nbOfVertices) {
+        if (null == this.vertices) {
             this.populateBuffer();
         }
         return this.nbOfVertices;
@@ -73,6 +83,12 @@ public abstract class Model {
 
     private void populateBuffer() {
         this.calculateTriangles(this.triangles);
+        final ArrayList<TrianglePrimitive> fullTriangles = new ArrayList<>();
+        for (final TrianglePrimitive triangle : this.triangles) {
+            fullTriangles.addAll(triangle.split(this.precisionOfEachTriangle));
+        }
+        this.triangles.clear();
+        this.triangles.addAll(fullTriangles);
         this.nbOfVertices = triangles.size() * TrianglePrimitive.NB_VERTEX;
         final ByteBuffer bb = ByteBuffer.allocateDirect(triangles.size()
                 * TrianglePrimitive.NB_VERTEX * Coordinates.DIMENSION * this.getVerticesStride());
