@@ -3,6 +3,7 @@ package com.github.an0rakdev.planetaryconquest.renderers;
 import android.content.Context;
 import android.opengl.GLES20;
 
+import com.github.an0rakdev.planetaryconquest.graphics.Color;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRShaderProgram;
@@ -53,7 +54,8 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     public void onSurfaceCreated(EGLConfig config) {
         // Classic.
         this.moon = new Sphere(new Coordinates(-2.5f, 3f, -6f), 1f);
-        this.moon.precision(2);
+        this.moon.precision(3);
+        this.moon.setBackgroundColor(new Color(0.545f, 0.533f, 0.513f));
         this.shaderProgram = new VRShaderProgram(context);
     }
 

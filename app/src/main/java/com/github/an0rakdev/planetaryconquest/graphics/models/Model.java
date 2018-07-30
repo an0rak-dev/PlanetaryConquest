@@ -63,18 +63,16 @@ public abstract class Model {
 
     public FloatBuffer getColors() {
         this.calculateAllTriangles();
-        if (null == this.colorsBuffer) {
-            final ByteBuffer bb = ByteBuffer.allocateDirect(this.triangles.size()
-                    * TrianglePrimitive.NB_VERTEX * Color.SIZE * Float.BYTES);
-            bb.order(ByteOrder.nativeOrder());
-            this.colorsBuffer = bb.asFloatBuffer();
-            for (final TrianglePrimitive triangle : this.triangles) {
-                for (int i = 0; i < TrianglePrimitive.NB_VERTEX; i++) {
-                    this.colorsBuffer.put(triangle.getColor().r);
-                    this.colorsBuffer.put(triangle.getColor().g);
-                    this.colorsBuffer.put(triangle.getColor().b);
-                    this.colorsBuffer.put(triangle.getColor().a);
-                }
+        final ByteBuffer bb = ByteBuffer.allocateDirect(this.triangles.size()
+                * TrianglePrimitive.NB_VERTEX * Color.SIZE * Float.BYTES);
+        bb.order(ByteOrder.nativeOrder());
+        this.colorsBuffer = bb.asFloatBuffer();
+        for (final TrianglePrimitive triangle : this.triangles) {
+            for (int i = 0; i < TrianglePrimitive.NB_VERTEX; i++) {
+                this.colorsBuffer.put(triangle.color.r);
+                this.colorsBuffer.put(triangle.color.g);
+                this.colorsBuffer.put(triangle.color.b);
+                this.colorsBuffer.put(triangle.color.a);
             }
         }
         this.colorsBuffer.position(0);
@@ -104,5 +102,12 @@ public abstract class Model {
             }
         }
         return this.triangles;
+    }
+
+    public void setBackgroundColor(final Color c) {
+        this.calculateAllTriangles();
+        for (final TrianglePrimitive t : this.triangles) {
+            t.color = c;
+        }
     }
 }
