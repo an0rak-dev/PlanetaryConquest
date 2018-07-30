@@ -18,7 +18,7 @@ public class Tetrahedron extends Model {
     }
 
     @Override
-    protected void calculateTriangles(List<TrianglePrimitive> triangles) {
+    protected void fillTriangles(List<TrianglePrimitive> triangles) {
         final Coordinates top = new Coordinates(this.center.x, this.center.y + radius,
                 this.center.z);
 

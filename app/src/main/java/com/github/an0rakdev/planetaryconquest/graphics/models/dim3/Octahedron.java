@@ -21,7 +21,7 @@ public class Octahedron extends Model {
     }
 
     @Override
-    protected void calculateTriangles(List<TrianglePrimitive> coordsToFill) {
+    protected void fillTriangles(List<TrianglePrimitive> coordsToFill) {
         final Coordinates top = new Coordinates(this.center.x, this.center.y + this.centerToTop,
                 this.center.z);
         final Coordinates bottom = new Coordinates(this.center.x, this.center.y - this.centerToTop,
