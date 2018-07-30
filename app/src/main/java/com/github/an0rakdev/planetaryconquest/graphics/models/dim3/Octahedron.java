@@ -21,7 +21,7 @@ public class Octahedron extends Model {
     }
 
     @Override
-    protected void fillTriangles(List<TrianglePrimitive> coordsToFill) {
+    protected void fillTriangles(List<TrianglePrimitive> trianglesToFill) {
         final Coordinates top = new Coordinates(this.center.x, this.center.y + this.centerToTop,
                 this.center.z);
         final Coordinates bottom = new Coordinates(this.center.x, this.center.y - this.centerToTop,
@@ -36,13 +36,13 @@ public class Octahedron extends Model {
         final Coordinates bLeft = new Coordinates(this.center.x - this.centerToSquare,
                 this.center.y, this.center.z - this.centerToSquare);
 
-        this.triangles.add(new TrianglePrimitive(top, fRight, fLeft));
-        this.triangles.add(new TrianglePrimitive(top, bRight, fRight));
-        this.triangles.add(new TrianglePrimitive(top, bLeft, bRight));
-        this.triangles.add(new TrianglePrimitive(top, fLeft, bLeft));
-        this.triangles.add(new TrianglePrimitive(fRight, bottom, fLeft));
-        this.triangles.add(new TrianglePrimitive(bRight, bottom, fRight));
-        this.triangles.add(new TrianglePrimitive(bLeft, bottom, bRight));
-        this.triangles.add(new TrianglePrimitive(fLeft, bottom, bLeft));
+        trianglesToFill.add(new TrianglePrimitive(top, fRight, fLeft));
+        trianglesToFill.add(new TrianglePrimitive(top, bRight, fRight));
+        trianglesToFill.add(new TrianglePrimitive(top, bLeft, bRight));
+        trianglesToFill.add(new TrianglePrimitive(top, fLeft, bLeft));
+        trianglesToFill.add(new TrianglePrimitive(fRight, bottom, fLeft));
+        trianglesToFill.add(new TrianglePrimitive(bRight, bottom, fRight));
+        trianglesToFill.add(new TrianglePrimitive(bLeft, bottom, bRight));
+        trianglesToFill.add(new TrianglePrimitive(fLeft, bottom, bLeft));
     }
 }
