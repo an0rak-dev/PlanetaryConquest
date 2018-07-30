@@ -9,7 +9,7 @@ import java.util.List;
 public class TrianglePrimitive {
     public static final int NB_VERTEX = 3;
     private List<Coordinates> coords;
-    private Color color;
+    public Color color;
 
     public TrianglePrimitive(final Coordinates c1, final Coordinates c2, final Coordinates c3) {
         this.coords = new ArrayList<>();
@@ -21,10 +21,6 @@ public class TrianglePrimitive {
 
     public List<Coordinates> getCoordinates() {
         return this.coords;
-    }
-
-    public Color getColor() {
-        return this.color;
     }
 
     public List<TrianglePrimitive> split(final int splitCount) {
