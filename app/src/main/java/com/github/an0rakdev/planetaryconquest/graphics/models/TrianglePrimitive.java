@@ -1,4 +1,4 @@
-package com.github.an0rakdev.planetaryconquest.graphics.models.dim3;
+package com.github.an0rakdev.planetaryconquest.graphics.models;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
@@ -6,10 +6,12 @@ import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import java.util.ArrayList;
 import java.util.List;
 
-class Triangle {
+public class TrianglePrimitive {
+    public static final int NB_VERTEX = 3;
     private List<Coordinates> coords;
     private Color color;
-    Triangle(final Coordinates c1, final Coordinates c2, final Coordinates c3) {
+
+    public TrianglePrimitive(final Coordinates c1, final Coordinates c2, final Coordinates c3) {
         this.coords = new ArrayList<>();
         this.coords.add(c1);
         this.coords.add(c2);
@@ -25,18 +27,18 @@ class Triangle {
         return this.color;
     }
 
-    public List<Triangle> split() {
-        final List<Triangle> result = new ArrayList<>();
+    public List<TrianglePrimitive> split() {
+        final List<TrianglePrimitive> result = new ArrayList<>();
         final Coordinates top = this.coords.get(0);
         final Coordinates right = this.coords.get(1);
         final Coordinates left = this.coords.get(2);
         final Coordinates middleL = this.findMiddle(top, left);
         final Coordinates middleR = this.findMiddle(top, right);
         final Coordinates middleB = this.findMiddle(left, right);
-        result.add(new Triangle(top, middleR, middleL));
-        result.add(new Triangle(middleR, right, middleB));
-        result.add(new Triangle(middleL, middleR, middleB));
-        result.add(new Triangle(middleL, middleB, left));
+        result.add(new TrianglePrimitive(top, middleR, middleL));
+        result.add(new TrianglePrimitive(middleR, right, middleB));
+        result.add(new TrianglePrimitive(middleL, middleR, middleB));
+        result.add(new TrianglePrimitive(middleL, middleB, left));
         return result;
     }
 

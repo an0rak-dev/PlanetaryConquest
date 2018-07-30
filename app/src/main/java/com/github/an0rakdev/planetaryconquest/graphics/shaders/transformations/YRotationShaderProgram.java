@@ -12,8 +12,8 @@ import com.github.an0rakdev.planetaryconquest.math.Rotation;
 public class YRotationShaderProgram extends MVPShaderProgram {
     private final GenericMatrix rotationMatrix;
 
-    public YRotationShaderProgram(Context context, final boolean useSeveralColors) {
-        super(context, useSeveralColors);
+    public YRotationShaderProgram(Context context) {
+        super(context);
         final Coordinates axis = new Coordinates(0f, 1f, 0f);
         this.rotationMatrix = new RotationMatrix(4,4, axis);
     }
