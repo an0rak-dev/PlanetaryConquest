@@ -14,13 +14,11 @@ public abstract class Model {
     protected List<TrianglePrimitive> triangles;
     private FloatBuffer vertices;
     private FloatBuffer colorsBuffer;
-    private int nbOfVertices;
     private int precisionOfEachTriangle;
 
     public Model() {
         this.triangles = new ArrayList<>();
         this.vertices = null;
-        this.nbOfVertices = 0;
         this.precisionOfEachTriangle = 0;
     }
 
@@ -29,6 +27,11 @@ public abstract class Model {
             this.precisionOfEachTriangle = precision;
         }
     }
+
+    protected int getPrecision() {
+        return this.precisionOfEachTriangle;
+    }
+
     /**
      * @return the number of bytes for one vertex in this model.
      */
@@ -41,16 +44,25 @@ public abstract class Model {
      */
     public FloatBuffer getVerticesBuffer() {
         if (null == this.vertices) {
-            this.populateBuffer();
+            this.calculateAllTriangles();
+            final ByteBuffer bb = ByteBuffer.allocateDirect(triangles.size()
+                    * TrianglePrimitive.NB_VERTEX * Coordinates.DIMENSION * this.getVerticesStride());
+            bb.order(ByteOrder.nativeOrder());
+            this.vertices = bb.asFloatBuffer();
+            for (final TrianglePrimitive t : this.triangles) {
+                for (final Coordinates coord : t.getCoordinates()) {
+                    this.vertices.put(coord.x);
+                    this.vertices.put(coord.y);
+                    this.vertices.put(coord.z);
+                }
+            }
         }
         this.vertices.position(0);
         return this.vertices;
     }
 
     public FloatBuffer getColors() {
-        if (null == this.vertices) {
-            this.populateBuffer();
-        }
+        this.calculateAllTriangles();
         if (null == this.colorsBuffer) {
             final ByteBuffer bb = ByteBuffer.allocateDirect(this.triangles.size()
                     * TrianglePrimitive.NB_VERTEX * Color.SIZE * Float.BYTES);
@@ -73,34 +85,24 @@ public abstract class Model {
      * @return the number of vertices used for drawing this model.
      */
     public int getNbOfVertices() {
-        if (null == this.vertices) {
-            this.populateBuffer();
-        }
-        return this.nbOfVertices;
+        this.calculateAllTriangles();
+        return this.triangles.size() * TrianglePrimitive.NB_VERTEX;
     }
 
-    protected abstract void calculateTriangles(final List<TrianglePrimitive> triangles);
+    protected abstract void fillTriangles(final List<TrianglePrimitive> triangles);
 
-    private void populateBuffer() {
-        this.calculateTriangles(this.triangles);
-        final ArrayList<TrianglePrimitive> fullTriangles = new ArrayList<>();
-        for (final TrianglePrimitive triangle : this.triangles) {
-            fullTriangles.addAll(triangle.split(this.precisionOfEachTriangle));
-        }
-        this.triangles.clear();
-        this.triangles.addAll(fullTriangles);
-        this.nbOfVertices = triangles.size() * TrianglePrimitive.NB_VERTEX;
-        final ByteBuffer bb = ByteBuffer.allocateDirect(triangles.size()
-                * TrianglePrimitive.NB_VERTEX * Coordinates.DIMENSION * this.getVerticesStride());
-        bb.order(ByteOrder.nativeOrder());
-        this.vertices = bb.asFloatBuffer();
-        for (final TrianglePrimitive t : this.triangles) {
-            for (final Coordinates coord : t.getCoordinates()) {
-                this.vertices.put(coord.x);
-                this.vertices.put(coord.y);
-                this.vertices.put(coord.z);
+    public List<TrianglePrimitive> calculateAllTriangles() {
+        if (this.triangles.isEmpty()) {
+            final List<TrianglePrimitive> basics = new ArrayList<>();
+            this.fillTriangles(basics);
+            if (0 == this.precisionOfEachTriangle) {
+                this.triangles.addAll(basics);
+            } else {
+                for (final TrianglePrimitive triangle : basics) {
+                    this.triangles.addAll(triangle.split(this.precisionOfEachTriangle));
+                }
             }
         }
-        this.vertices.position(0);
+        return this.triangles;
     }
 }

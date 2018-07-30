@@ -18,7 +18,7 @@ public final class Square extends Model {
     }
 
     @Override
-    protected void calculateTriangles(final List<TrianglePrimitive> triangles) {
+    protected void fillTriangles(final List<TrianglePrimitive> triangles) {
         final float half = this.size /2;
 
         final Coordinates tL = new Coordinates(this.center.x - half, this.center.y + half, this.center.z);

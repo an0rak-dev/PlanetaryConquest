@@ -9,6 +9,7 @@ import android.util.Log;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Square;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Triangle;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Octahedron;
+import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Tetrahedron;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
@@ -33,8 +34,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
-        this.model = new Octahedron(new Coordinates(), 0.7f, 1f);
-        this.model.precision(3);
+        this.model = new Sphere(new Coordinates(), 1f);
+        //this.model.precision(3);
         this.shaderProgram = new YRotationShaderProgram(this.context);
     }
 

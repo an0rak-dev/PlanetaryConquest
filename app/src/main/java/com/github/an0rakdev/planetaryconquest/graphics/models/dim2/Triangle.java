@@ -16,7 +16,7 @@ public final class Triangle extends Model {
     }
 
     @Override
-    protected void calculateTriangles(final List<TrianglePrimitive> triangles) {
+    protected void fillTriangles(final List<TrianglePrimitive> triangles) {
         final Coordinates top = new Coordinates(this.center.x, this.center.y + radius,
                 this.center.z);
 
