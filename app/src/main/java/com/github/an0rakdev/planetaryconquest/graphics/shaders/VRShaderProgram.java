@@ -21,11 +21,8 @@ public class VRShaderProgram extends MVPShaderProgram {
         // This represent your position in the VR world.
         // It needs to be updated when you move.
         final Coordinates eye = new Coordinates(0, 0, 2);
-        final Coordinates up = new Coordinates(1, 0, 0);
+        final Coordinates up = new Coordinates(0, 1, 0);
         this.camera = new CameraMatrix(4,4, eye, up);
-        this.addShader(R.raw.mvp_vertex, GLES20.GL_VERTEX_SHADER);
-        this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
-        this.prepare();
     }
 
     @Override
