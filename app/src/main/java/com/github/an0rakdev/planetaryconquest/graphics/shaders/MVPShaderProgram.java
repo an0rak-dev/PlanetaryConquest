@@ -2,6 +2,7 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;

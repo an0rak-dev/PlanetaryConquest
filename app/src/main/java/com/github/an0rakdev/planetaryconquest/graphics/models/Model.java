@@ -23,7 +23,7 @@ public abstract class Model {
     }
 
     public void precision(final int precision) {
-        if (precision > 1) {
+        if (precision >= 1) {
             this.precisionOfEachTriangle = precision;
         }
     }

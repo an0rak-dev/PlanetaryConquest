@@ -63,4 +63,9 @@ public class TrianglePrimitive {
             return p2 - ((p2 - p1) / 2);
         }
     }
+
+    @Override
+    public String toString() {
+        return "t(cw){" + this.coords.get(0) + " - " + this.coords.get(1) + " - " + this.coords.get(2) + "}";
+    }
 }
