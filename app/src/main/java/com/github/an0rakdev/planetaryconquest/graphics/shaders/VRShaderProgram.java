@@ -15,8 +15,8 @@ public class VRShaderProgram extends MVPShaderProgram {
     private final GenericMatrix camera;
     private final GenericMatrix mvpMatrix;
 
-    public VRShaderProgram(Context context, final boolean useSeveralColors) {
-        super(context, useSeveralColors);
+    public VRShaderProgram(Context context) {
+        super(context);
         this.mvpMatrix = new Dim4Matrix();
         // This represent your position in the VR world.
         // It needs to be updated when you move.

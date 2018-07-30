@@ -54,7 +54,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     public void onSurfaceCreated(EGLConfig config) {
         // Classic.
         this.shape = new Triangle(new Coordinates(), 1.7f);
-        this.shaderProgram = new VRShaderProgram(context, this.shape.hasSeveralColors());
+        this.shaderProgram = new VRShaderProgram(context);
     }
 
     @Override

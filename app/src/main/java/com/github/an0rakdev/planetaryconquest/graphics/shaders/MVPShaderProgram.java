@@ -3,8 +3,6 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 import android.content.Context;
 import android.opengl.GLES20;
 
-import com.github.an0rakdev.planetaryconquest.graphics.models.MonoColorModel;
-import com.github.an0rakdev.planetaryconquest.graphics.models.MultiColorModel;
 import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
@@ -17,18 +15,14 @@ public class MVPShaderProgram extends ShaderProgram {
     private GenericMatrix projectionMatrix;
     private final GenericMatrix viewMatrix;
 
-    public MVPShaderProgram(final Context context, final boolean useSeveralColors) {
+    public MVPShaderProgram(final Context context) {
         super(context);
         this.projectionMatrix = new Dim4Matrix();
         final Coordinates eyePosition = new Coordinates(0f, 0f, -3f);
         final Coordinates upPosition = new Coordinates(0f, 1f, 0f);
         this.viewMatrix = new CameraMatrix(4,4, eyePosition, upPosition);
         this.addShader(R.raw.mvp_vertex, GLES20.GL_VERTEX_SHADER);
-        if (useSeveralColors) {
-            this.addShader(R.raw.multicolor_fragment, GLES20.GL_FRAGMENT_SHADER);
-        } else {
-            this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
-        }
+        this.addShader(R.raw.multicolor_fragment, GLES20.GL_FRAGMENT_SHADER);
         this.prepare();
     }
 
@@ -69,19 +63,12 @@ public class MVPShaderProgram extends ShaderProgram {
     }
 
     final int applyColors(final Model shape) {
-        if (shape.hasSeveralColors()) {
-            final int colorHandler = GLES20.glGetAttribLocation(this.program, "vColors");
-            GLES20.glEnableVertexAttribArray(colorHandler);
-            final MultiColorModel multiColorShape = (MultiColorModel) shape;
-            GLES20.glVertexAttribPointer(colorHandler, 4, GLES20.GL_FLOAT,
-                    false,
-                    0,
-                    multiColorShape.getColorsBuffer());
-            return colorHandler;
-        } else {
-            final int colorHandle = GLES20.glGetUniformLocation(this.program, "vColor");
-            GLES20.glUniform4fv(colorHandle, 1, ((MonoColorModel)shape).getFragmentsColor(), 0);
-            return -1;
-        }
+        final int colorHandler = GLES20.glGetAttribLocation(this.program, "vColors");
+        GLES20.glEnableVertexAttribArray(colorHandler);
+        GLES20.glVertexAttribPointer(colorHandler, 4, GLES20.GL_FLOAT,
+                false,
+                0,
+                shape.getColors());
+        return colorHandler;
     }
 }

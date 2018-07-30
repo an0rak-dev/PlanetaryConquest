@@ -1,5 +1,7 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models;
 
+import com.github.an0rakdev.planetaryconquest.graphics.Color;
+import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Triangle;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 
 import java.nio.ByteBuffer;
@@ -9,12 +11,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Model {
-    protected List<Coordinates> vertexCoords;
+    protected List<TrianglePrimitive> triangles;
     private FloatBuffer vertices;
+    private FloatBuffer colorsBuffer;
     private int nbOfVertices;
 
     public Model() {
-        this.vertexCoords = new ArrayList<>();
+        this.triangles = new ArrayList<>();
         this.vertices = null;
         this.nbOfVertices = 0;
     }
@@ -33,10 +36,28 @@ public abstract class Model {
         if (null == this.vertices) {
             this.populateBuffer();
         }
+        this.vertices.position(0);
         return this.vertices;
     }
 
-    public abstract boolean hasSeveralColors();
+    public FloatBuffer getColors() {
+        if (null == this.colorsBuffer) {
+            final ByteBuffer bb = ByteBuffer.allocateDirect(this.triangles.size()
+                    * TrianglePrimitive.NB_VERTEX * Color.SIZE * Float.BYTES);
+            bb.order(ByteOrder.nativeOrder());
+            this.colorsBuffer = bb.asFloatBuffer();
+            for (final TrianglePrimitive triangle : this.triangles) {
+                for (int i = 0; i < TrianglePrimitive.NB_VERTEX; i++) {
+                    this.colorsBuffer.put(triangle.getColor().r);
+                    this.colorsBuffer.put(triangle.getColor().g);
+                    this.colorsBuffer.put(triangle.getColor().b);
+                    this.colorsBuffer.put(triangle.getColor().a);
+                }
+            }
+        }
+        this.colorsBuffer.position(0);
+        return this.colorsBuffer;
+    }
 
     /**
      * @return the number of vertices used for drawing this model.
@@ -48,19 +69,21 @@ public abstract class Model {
         return this.nbOfVertices;
     }
 
-    protected abstract void calculateCoordonates(final List<Coordinates> coordsToFill);
+    protected abstract void calculateTriangles(final List<TrianglePrimitive> triangles);
 
     private void populateBuffer() {
-        this.calculateCoordonates(this.vertexCoords);
-        this.nbOfVertices = vertexCoords.size();
-        final ByteBuffer bb = ByteBuffer.allocateDirect(vertexCoords.size()
-                * Coordinates.DIMENSION * this.getVerticesStride());
+        this.calculateTriangles(this.triangles);
+        this.nbOfVertices = triangles.size() * TrianglePrimitive.NB_VERTEX;
+        final ByteBuffer bb = ByteBuffer.allocateDirect(triangles.size()
+                * TrianglePrimitive.NB_VERTEX * Coordinates.DIMENSION * this.getVerticesStride());
         bb.order(ByteOrder.nativeOrder());
         this.vertices = bb.asFloatBuffer();
-        for (final Coordinates coord : vertexCoords) {
-            this.vertices.put(coord.x);
-            this.vertices.put(coord.y);
-            this.vertices.put(coord.z);
+        for (final TrianglePrimitive t : this.triangles) {
+            for (final Coordinates coord : t.getCoordinates()) {
+                this.vertices.put(coord.x);
+                this.vertices.put(coord.y);
+                this.vertices.put(coord.z);
+            }
         }
         this.vertices.position(0);
     }
