@@ -40,7 +40,7 @@ public class VRShaderProgram extends MVPShaderProgram {
     public void adaptToEye(final Eye eye) {
         this.mvpMatrix.reset();
         final GenericMatrix realView = new Dim4Matrix();
-        final GenericMatrix eyeView = new Dim4Matrix();
+        final GenericMatrix eyeView = new Dim4Matrix(eye.getEyeView());
         final GenericMatrix eyePerspective = new Dim4Matrix(eye.getPerspective(0.1f, 100f));
         realView.multiply(eyeView, this.camera);
         this.mvpMatrix.multiply(eyePerspective, realView);
