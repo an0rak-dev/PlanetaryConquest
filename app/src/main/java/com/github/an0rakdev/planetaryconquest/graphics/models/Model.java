@@ -1,7 +1,6 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
-import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Triangle;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 
 import java.nio.ByteBuffer;
@@ -11,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public abstract class Model {
-    protected List<TrianglePrimitive> triangles;
+    protected final List<TrianglePrimitive> triangles;
     private FloatBuffer vertices;
     private FloatBuffer colorsBuffer;
     private int precisionOfEachTriangle;
@@ -28,15 +27,11 @@ public abstract class Model {
         }
     }
 
-    protected int getPrecision() {
-        return this.precisionOfEachTriangle;
-    }
-
     /**
      * @return the number of bytes for one vertex in this model.
      */
     public int getVerticesStride() {
-        return Float.BYTES;
+        return Float.SIZE / Byte.SIZE;
     }
 
     /**
@@ -64,7 +59,7 @@ public abstract class Model {
     public FloatBuffer getColors() {
         this.calculateAllTriangles();
         final ByteBuffer bb = ByteBuffer.allocateDirect(this.triangles.size()
-                * TrianglePrimitive.NB_VERTEX * Color.SIZE * Float.BYTES);
+                * TrianglePrimitive.NB_VERTEX * Color.SIZE * (Float.SIZE / Byte.SIZE));
         bb.order(ByteOrder.nativeOrder());
         this.colorsBuffer = bb.asFloatBuffer();
         for (final TrianglePrimitive triangle : this.triangles) {
@@ -87,27 +82,32 @@ public abstract class Model {
         return this.triangles.size() * TrianglePrimitive.NB_VERTEX;
     }
 
-    protected abstract void fillTriangles(final List<TrianglePrimitive> triangles);
-
-    public List<TrianglePrimitive> calculateAllTriangles() {
-        if (this.triangles.isEmpty()) {
-            final List<TrianglePrimitive> basics = new ArrayList<>();
-            this.fillTriangles(basics);
-            if (0 == this.precisionOfEachTriangle) {
-                this.triangles.addAll(basics);
-            } else {
-                for (final TrianglePrimitive triangle : basics) {
-                    this.triangles.addAll(triangle.split(this.precisionOfEachTriangle));
-                }
-            }
-        }
-        return this.triangles;
-    }
-
     public void setBackgroundColor(final Color c) {
         this.calculateAllTriangles();
         for (final TrianglePrimitive t : this.triangles) {
             t.color = c;
+        }
+    }
+
+    protected abstract void fillTriangles(final List<TrianglePrimitive> triangles);
+
+    protected List<TrianglePrimitive> generate() {
+        final List<TrianglePrimitive> result = new ArrayList<>();
+        final List<TrianglePrimitive> basics = new ArrayList<>();
+        this.fillTriangles(basics);
+        if (0 == this.precisionOfEachTriangle) {
+            result.addAll(basics);
+        } else {
+            for (final TrianglePrimitive triangle : basics) {
+                result.addAll(triangle.split(this.precisionOfEachTriangle));
+            }
+        }
+        return result;
+    }
+
+    private void calculateAllTriangles() {
+        if (this.triangles.isEmpty()) {
+            this.triangles.addAll(this.generate());
         }
     }
 }
