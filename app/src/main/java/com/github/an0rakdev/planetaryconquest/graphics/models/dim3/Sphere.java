@@ -1,28 +1,28 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.dim3;
 
-import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.models.TrianglePrimitive;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class Sphere extends Model {
-    final Coordinates center;
-    final float radius;
-
+public class Sphere extends Octahedron {
+    private final Coordinates center;
+    private final float radius;
     public Sphere(final Coordinates center, final float radius) {
+        super(center, radius, radius);
         this.center = center;
         this.radius = radius;
     }
 
     @Override
-    protected void fillTriangles(List<TrianglePrimitive> triangles) {
-        final Octahedron octahedron = new Octahedron(this.center, this.radius, this.radius);
-        octahedron.precision(this.getPrecision());
-        final List<TrianglePrimitive> points = octahedron.calculateAllTriangles();
-        for (final TrianglePrimitive t : points) {
-            triangles.add(normalizeTriangle(t));
+    protected List<TrianglePrimitive> generate() {
+        final List<TrianglePrimitive> old = super.generate();
+        final List<TrianglePrimitive> result = new ArrayList<>();
+        for (final TrianglePrimitive tp : old) {
+            result.add(this.normalizeTriangle(tp));
         }
+        return result;
     }
 
     private TrianglePrimitive normalizeTriangle(final TrianglePrimitive tP) {
