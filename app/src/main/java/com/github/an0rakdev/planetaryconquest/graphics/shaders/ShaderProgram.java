@@ -1,9 +1,7 @@
 package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
-import android.graphics.Shader;
 import android.opengl.GLES20;
-import android.opengl.Matrix;
 import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
@@ -15,16 +13,18 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class ShaderProgram {
+public abstract class ShaderProgram<T extends Model> {
     private static final String TAG = "ShaderProgram";
+    private final Context context;
     final int program;
-    final Context context;
+    int drawType;
     private final List<Integer> shaders;
 
     ShaderProgram(final Context context) {
         this.context = context;
         this.shaders = new ArrayList<>();
         this.program = GLES20.glCreateProgram();
+        this.drawType = GLES20.GL_TRIANGLES;
         if (0 == this.program) {
             throw new ShaderException("Can't create a new Shader Program");
         }
@@ -45,11 +45,10 @@ public abstract class ShaderProgram {
         int compileStatus[] = new int[1];
         GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compileStatus, 0);
         if (GLES20.GL_FALSE == compileStatus[0]) {
-            final StringBuilder msg = new StringBuilder("Can't compile the shader of type ");
-            msg.append(type);
-            msg.append(" - infos : ").append(GLES20.glGetShaderInfoLog(shader));
+            final String msg = "Can't compile the shader of type "
+                    + type + " - infos : " + GLES20.glGetShaderInfoLog(shader);
             GLES20.glDeleteShader(shader);
-            throw new ShaderException(msg.toString());
+            throw new ShaderException(msg);
         }
         this.shaders.add(shader);
     }
@@ -71,7 +70,7 @@ public abstract class ShaderProgram {
         }
     }
 
-    public abstract void draw(final Model shape);
+    public abstract void draw(final T shape);
 
     private String readContentOf(final int fd) {
         final InputStream inputStream = this.context.getResources().openRawResource(fd);
@@ -92,7 +91,7 @@ public abstract class ShaderProgram {
     }
 
     final void render(final Model shape, final int verticesHandle, final int colorHandler) {
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, shape.getNbOfVertices());
+        GLES20.glDrawArrays(drawType, 0, shape.getNbOfElements());
         GLES20.glDisableVertexAttribArray(verticesHandle);
         if (0 < colorHandler) {
             GLES20.glDisableVertexAttribArray(colorHandler);

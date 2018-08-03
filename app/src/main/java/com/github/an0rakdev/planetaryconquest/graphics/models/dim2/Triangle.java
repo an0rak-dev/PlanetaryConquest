@@ -1,12 +1,12 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.dim2;
 
-import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
+import com.github.an0rakdev.planetaryconquest.graphics.models.TriangleBasedModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.TrianglePrimitive;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 
 import java.util.List;
 
-public final class Triangle extends Model {
+public final class Triangle extends TriangleBasedModel {
     private final Coordinates center;
     private final float radius;
 

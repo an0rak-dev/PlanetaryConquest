@@ -2,17 +2,16 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
-import android.util.Log;
 
-import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
+import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.graphics.models.TriangleBasedModel;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
-import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.FrustumPerspectiveMatrix;
 import com.github.an0rakdev.planetaryconquest.math.matrix.GenericMatrix;
-import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
+import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
+import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.FrustumPerspectiveMatrix;
 
-public class MVPShaderProgram extends ShaderProgram {
+public class MVPShaderProgram extends ShaderProgram<TriangleBasedModel> {
     private GenericMatrix projectionMatrix;
     private final GenericMatrix viewMatrix;
 
@@ -33,7 +32,7 @@ public class MVPShaderProgram extends ShaderProgram {
     }
 
     @Override
-    public void draw(Model shape) {
+    public void draw(TriangleBasedModel shape) {
         GLES20.glUseProgram(this.program);
         // Apply the model's vertices and the color
         final int verticesHandle = this.applyVertices(shape);
@@ -53,7 +52,7 @@ public class MVPShaderProgram extends ShaderProgram {
         return transformationMatrix;
     }
 
-    final int applyVertices(final Model shape) {
+    final int applyVertices(final TriangleBasedModel shape) {
         // Add the vertices position to the shader's program.
         final int positionHandle = GLES20.glGetAttribLocation(this.program, "vPosition");
         GLES20.glEnableVertexAttribArray(positionHandle);
@@ -63,7 +62,7 @@ public class MVPShaderProgram extends ShaderProgram {
         return positionHandle;
     }
 
-    final int applyColors(final Model shape) {
+    final int applyColors(final TriangleBasedModel shape) {
         final int colorHandler = GLES20.glGetAttribLocation(this.program, "vColors");
         GLES20.glEnableVertexAttribArray(colorHandler);
         GLES20.glVertexAttribPointer(colorHandler, 4, GLES20.GL_FLOAT,

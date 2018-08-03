@@ -4,15 +4,10 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.os.SystemClock;
-import android.util.Log;
 
-import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Square;
-import com.github.an0rakdev.planetaryconquest.graphics.models.dim2.Triangle;
-import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Octahedron;
+import com.github.an0rakdev.planetaryconquest.graphics.models.TriangleBasedModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Sphere;
-import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Tetrahedron;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.MVPShaderProgram;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations.ScaleShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.transformations.YRotationShaderProgram;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
@@ -22,7 +17,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 public class OpenGlRenderer implements GLSurfaceView.Renderer {
     private final Context context;
-    private Model model;
+    private TriangleBasedModel shape;
     private MVPShaderProgram shaderProgram;
     private float dy;
 
@@ -34,8 +29,8 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
-        this.model = new Sphere(new Coordinates(-0.5f, 0.5f, 0f), 1f);
-        this.model.precision(1);
+        this.shape = new Sphere(new Coordinates(-0.5f, 0.5f, 0f), 1f);
+        this.shape.precision(1);
         this.shaderProgram = new MVPShaderProgram(this.context);
     }
 
@@ -54,7 +49,7 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
             ((ScaleShaderProgram) this.shaderProgram).setScaleTo(delta, delta, delta);
             this.dy = 0f;
         }
-        this.shaderProgram.draw(this.model);
+        this.shaderProgram.draw(this.shape);
 
     }
 
