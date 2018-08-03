@@ -37,5 +37,9 @@
             android:name=".activities.OpenGlActivity"
             android:parentActivityName=".activities.MainActivity"
             android:screenOrientation="landscape"/>
+        <activity
+            android:name=".activities.PanoramicActivity"
+            android:parentActivityName=".activities.MainActivity"
+            android:screenOrientation="landscape"/>
     </application>
 </manifest>
