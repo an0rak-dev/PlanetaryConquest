@@ -4,7 +4,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
+import com.github.an0rakdev.planetaryconquest.graphics.models.TriangleBasedModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRShaderProgram;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
@@ -18,7 +18,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class FlyingRenderer implements GvrView.StereoRenderer {
     private Context context;
     private VRShaderProgram shaderProgram;
-    private Model moon;
+    private TriangleBasedModel moon;
 
     public FlyingRenderer(final Context context) {
         this.context = context;

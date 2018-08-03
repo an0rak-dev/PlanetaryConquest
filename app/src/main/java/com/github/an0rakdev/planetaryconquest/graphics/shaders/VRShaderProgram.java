@@ -3,12 +3,11 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 import android.content.Context;
 import android.opengl.GLES20;
 
-import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
+import com.github.an0rakdev.planetaryconquest.graphics.models.TriangleBasedModel;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
 import com.github.an0rakdev.planetaryconquest.math.matrix.GenericMatrix;
-import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
+import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMatrix;
 import com.google.vr.sdk.base.Eye;
 
 public class VRShaderProgram extends MVPShaderProgram {
@@ -26,7 +25,7 @@ public class VRShaderProgram extends MVPShaderProgram {
     }
 
     @Override
-    public void draw(final Model shape) {
+    public void draw(final TriangleBasedModel shape) {
         GLES20.glUseProgram(this.program);
         final int verticesHandle = this.applyVertices(shape);
         final int colorHandle = this.applyColors(shape);
