@@ -19,6 +19,11 @@ public class MainActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    public void startPanoramicDemo(final View view) {
+        final Intent intent = new Intent(this, PanoramicActivity.class);
+        startActivity(intent);
+    }
+
     public void startFlyingDemo(final View view) {
         final Intent intent = new Intent(this, FlyingActivity.class);
         startActivity(intent);

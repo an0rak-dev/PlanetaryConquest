@@ -19,6 +19,13 @@
             android:text="@string/menu_openglbutton" />
 
         <Button
+            android:id="@+id/panoramicDemoButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="startPanoramicDemo"
+            android:text="@string/menu_panoramicbutton" />
+
+        <Button
             android:id="@+id/flyingDemoButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

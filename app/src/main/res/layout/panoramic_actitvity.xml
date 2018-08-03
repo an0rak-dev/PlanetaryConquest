@@ -5,10 +5,10 @@
     android:orientation="vertical">
 
     <!-- Any VR activity only contains one view, the Google VR one. -->
-    <com.google.vr.sdk.base.GvrView
-        android:id="@+id/flying_gvr_view"
+    <com.google.vr.sdk.widgets.pano.VrPanoramaView
+        android:id="@+id/pano_view"
+        android:layout_margin="5dip"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true" />
+        android:scrollbars="@null"
+        android:layout_height="match_parent"/>
 </RelativeLayout>

@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">PlanetaryConquest</string>
     <string name="menu_openglbutton">OpenGL ES</string>
+    <string name="menu_panoramicbutton">Panoramic VR</string>
     <string name="menu_flyingbutton">Flying</string>
     <string name="menu_asteroidsbutton">Asteroids</string>
     <string name="menu_aliensbutton">Aliens</string>
