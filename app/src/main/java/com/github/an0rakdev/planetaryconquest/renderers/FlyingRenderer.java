@@ -8,7 +8,6 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.PointBasedModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.StarsModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.TriangleBasedModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Sphere;
-import com.github.an0rakdev.planetaryconquest.graphics.shaders.PointShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRPointShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRShaderProgram;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
@@ -67,7 +66,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.moon.setBackgroundColor(new Color(0.545f, 0.533f, 0.513f));
         this.vrShaderProgram = new VRShaderProgram(this.context);
 
-        this.stars = new StarsModel(200, 1,1,1);
+        this.stars = new StarsModel(200, 1, 1, 1, 3);
         this.starsShaderProgram = new VRPointShaderProgram(this.context, 4);
     }
 
