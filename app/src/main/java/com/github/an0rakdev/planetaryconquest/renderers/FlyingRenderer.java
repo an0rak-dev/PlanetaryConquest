@@ -9,6 +9,7 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.StarsModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.TriangleBasedModel;
 import com.github.an0rakdev.planetaryconquest.graphics.models.dim3.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.PointShaderProgram;
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRPointShaderProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.VRShaderProgram;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.google.vr.sdk.base.Eye;
@@ -20,7 +21,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 
 public class FlyingRenderer implements GvrView.StereoRenderer {
     private Context context;
-    private PointShaderProgram starsShaderProgram;
+    private VRPointShaderProgram starsShaderProgram;
     private PointBasedModel stars;
     private VRShaderProgram vrShaderProgram;
     private TriangleBasedModel moon;
@@ -41,6 +42,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         // The given eye param offers the possibility to adapt perspective.
         // The drawing specifities of your app goes here.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+        this.starsShaderProgram.adaptToEye(eye);
         this.starsShaderProgram.draw(this.stars);
 
         this.vrShaderProgram.adaptToEye(eye);
@@ -66,7 +68,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.vrShaderProgram = new VRShaderProgram(this.context);
 
         this.stars = new StarsModel(200, 1,1,1);
-        this.starsShaderProgram = new PointShaderProgram(this.context, 4);
+        this.starsShaderProgram = new VRPointShaderProgram(this.context, 4);
     }
 
     @Override
