@@ -66,7 +66,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.moon.setBackgroundColor(new Color(0.545f, 0.533f, 0.513f));
         this.vrShaderProgram = new VRShaderProgram(this.context);
 
-        this.stars = new StarsModel(200, 1, 1, 1, 3);
+        this.stars = new StarsModel(320, 3, 1, 1, 3);
         this.starsShaderProgram = new VRPointShaderProgram(this.context, 4);
     }
 
