@@ -7,9 +7,11 @@ import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.PointBasedModel;
 
 public class PointShaderProgram extends ShaderProgram<PointBasedModel> {
-    public PointShaderProgram(final Context context) {
+    private final int pointSize;
+    public PointShaderProgram(final Context context, final int pointSize) {
         super(context);
         this.drawType = GLES20.GL_POINTS;
+        this.pointSize = pointSize;
         this.addShader(R.raw.point_vertex, GLES20.GL_VERTEX_SHADER);
         this.addShader(R.raw.simple_fragment, GLES20.GL_FRAGMENT_SHADER);
         this.prepare();
@@ -28,7 +30,7 @@ public class PointShaderProgram extends ShaderProgram<PointBasedModel> {
         GLES20.glUniform4fv(colorHandle, 1, shape.getColor(), 0);
 
         int pointHandler = GLES20.glGetUniformLocation(this.program, "vPointSize");
-        GLES20.glUniform1f(pointHandler, 1);
+        GLES20.glUniform1f(pointHandler, this.pointSize);
         // Draw
         this.render(shape, positionHandle, -1);
     }
