@@ -12,17 +12,22 @@ import java.util.List;
 public class StarsModel extends PointBasedModel {
     private List<Coordinates> stars;
     private FloatBuffer vertices;
-    public StarsModel(final int starsCount, final float maxX, final float maxY, final float zPos) {
+
+    public StarsModel(final int starsCount, final float maxX, final float maxY,
+                      final float frontZ, final float backZ) {
         super();
-        this.stars = new ArrayList<Coordinates>();
+        this.stars = new ArrayList<>();
         this.vertices = null;
         this.color = Color.WHITE;
-        final float dx = 2* maxX;
-        final float dy = 2* maxY;
-        while (this.stars.size() < starsCount) {
-            final float x = -maxX + ((float) Math.random() * dx);
-            final float y = -maxY + ((float) Math.random() * dy);
-            this.stars.add(new Coordinates(x, y, zPos));
+        final float dx = 2 * maxX;
+        final float dy = 2 * maxY;
+        for (int i = 0; i < starsCount; i++) {
+            float x = -maxX + ((float) Math.random() * dx);
+            float y = -maxY + ((float) Math.random() * dy);
+            this.stars.add(new Coordinates(x, y, frontZ));
+            x = -maxX + ((float) Math.random() * dx);
+            y = -maxY + ((float) Math.random() * dy);
+            this.stars.add(new Coordinates(x, y, backZ));
         }
     }
 
