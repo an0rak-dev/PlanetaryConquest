@@ -2,10 +2,8 @@ package com.github.an0rakdev.planetaryconquest.graphics;
 
 public class Color {
     public static final int SIZE = Float.BYTES * 4;
-    public static final Color RED = new Color(1f, 0f, 0f);
-    public static final Color GREEN = new Color(0f, 1f, 0f);
-    public static final Color BLUE = new Color(0f, 0f, 1f);
-    public static final Color PURPLE = new Color(1f, 0f, 1f);
+    public static final Color BLACK = new Color(0f, 0f, 0f);
+    public static final Color WHITE = new Color(1f, 1f, 1f);
     public float r;
     public float g;
     public float b;
