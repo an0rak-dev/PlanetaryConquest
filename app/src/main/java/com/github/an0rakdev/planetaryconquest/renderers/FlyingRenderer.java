@@ -20,6 +20,9 @@ import com.google.vr.sdk.base.Viewport;
 import javax.microedition.khronos.egl.EGLConfig;
 
 public class FlyingRenderer implements GvrView.StereoRenderer {
+    private static final int FPS = 90;
+    private static final long DELAY_BETWEEN_FRAMES = (1000 / FPS) - 1L;
+    private static final float SPEED_M_PER_MS = 0.005f;
     private Context context;
     private PointShaderProgram starsShaderProgram;
     private PointBasedModel stars;
@@ -32,8 +35,8 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
-        // Called when a new frame is calculated and needs to be rendered.
-        // The logic of your app goes here.
+        long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
+        this.vrShaderProgram.moveCameraOf(0f, 0f, SPEED_M_PER_MS * time);
     }
 
     @Override
@@ -43,10 +46,6 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         // The drawing specifities of your app goes here.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
         this.starsShaderProgram.draw(this.stars);
-        if (eye.getType() == Eye.Type.LEFT) {
-            long time = SystemClock.uptimeMillis() % 4000l;
-            this.vrShaderProgram.moveCameraOf(0f, 0f, 0.0001f * time);
-        }
 
         this.vrShaderProgram.adaptToEye(eye);
         this.vrShaderProgram.draw(this.moon);
