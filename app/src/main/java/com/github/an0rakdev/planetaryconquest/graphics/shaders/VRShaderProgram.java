@@ -11,14 +11,14 @@ import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMat
 import com.google.vr.sdk.base.Eye;
 
 public class VRShaderProgram extends MVPShaderProgram {
-    private final GenericMatrix camera;
+    private final CameraMatrix camera;
     private final GenericMatrix mvpMatrix;
 
     public VRShaderProgram(Context context) {
         super(context);
         this.mvpMatrix = new Dim4Matrix();
         // This represent your position in the VR world.
-        // It needs to be updated when you move.
+        // It needs to be updated when you translate.
         final Coordinates eye = new Coordinates(0, 0, 2);
         final Coordinates up = new Coordinates(0, 1, 0);
         this.camera = new CameraMatrix(4,4, eye, up);
@@ -43,5 +43,9 @@ public class VRShaderProgram extends MVPShaderProgram {
         final GenericMatrix eyePerspective = new Dim4Matrix(eye.getPerspective(0.1f, 100f));
         realView.multiply(eyeView, this.camera);
         this.mvpMatrix.multiply(eyePerspective, realView);
+    }
+
+    public void moveCameraOf(final float x, final float y, final float z) {
+        this.camera.translate(x, y, z);
     }
 }

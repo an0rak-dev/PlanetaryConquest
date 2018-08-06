@@ -2,6 +2,7 @@ package com.github.an0rakdev.planetaryconquest.renderers;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
 import com.github.an0rakdev.planetaryconquest.graphics.models.PointBasedModel;
@@ -19,6 +20,9 @@ import com.google.vr.sdk.base.Viewport;
 import javax.microedition.khronos.egl.EGLConfig;
 
 public class FlyingRenderer implements GvrView.StereoRenderer {
+    private static final int FPS = 90;
+    private static final long DELAY_BETWEEN_FRAMES = (1000 / FPS) - 1L;
+    private static final float SPEED_M_PER_MS = 0.005f;
     private Context context;
     private VRPointShaderProgram starsShaderProgram;
     private PointBasedModel stars;
@@ -31,8 +35,8 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
-        // Called when a new frame is calculated and needs to be rendered.
-        // The logic of your app goes here.
+        long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
+        this.vrShaderProgram.moveCameraOf(0f, 0f, SPEED_M_PER_MS * time);
     }
 
     @Override
@@ -61,7 +65,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     @Override
     public void onSurfaceCreated(EGLConfig config) {
         // Classic.
-        this.moon = new Sphere(new Coordinates(-2.5f, 3f, -6f), 1f);
+        this.moon = new Sphere(new Coordinates(-2.5f, 3f, -16f), 1f);
         this.moon.precision(3);
         this.moon.setBackgroundColor(new Color(0.545f, 0.533f, 0.513f));
         this.vrShaderProgram = new VRShaderProgram(this.context);
