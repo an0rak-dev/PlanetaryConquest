@@ -3,7 +3,6 @@ package com.github.an0rakdev.planetaryconquest.renderers;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.os.SystemClock;
-import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
 import com.github.an0rakdev.planetaryconquest.graphics.models.PointBasedModel;
@@ -23,9 +22,9 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class FlyingRenderer implements GvrView.StereoRenderer {
     private static final int FPS = 90;
     private static final long DELAY_BETWEEN_FRAMES = (1000 / FPS) - 1L;
-    private static final float SPEED_M_PER_MS = 0.003f;
+    private static final float SPEED_M_PER_MS = 0.005f;
     private Context context;
-    private PointShaderProgram starsShaderProgram;
+    private PointShaderProgram pointShaderProgram;
     private PointBasedModel stars;
     private VRShaderProgram vrShaderProgram;
     private TriangleBasedModel moon;
@@ -66,7 +65,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         // The given eye param offers the possibility to adapt perspective.
         // The drawing specifities of your app goes here.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-        this.starsShaderProgram.draw(this.stars);
+        this.pointShaderProgram.draw(this.stars);
 
         this.vrShaderProgram.adaptToEye(eye);
         this.vrShaderProgram.draw(this.moon);
@@ -91,7 +90,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.vrShaderProgram = new VRShaderProgram(this.context);
 
         this.stars = new StarsModel(200, 1,1,1);
-        this.starsShaderProgram = new PointShaderProgram(this.context, 4);
+        this.pointShaderProgram = new PointShaderProgram(this.context, 4);
     }
 
     @Override
