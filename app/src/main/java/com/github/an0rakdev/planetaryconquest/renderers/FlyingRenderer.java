@@ -34,7 +34,6 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.context = context;
     }
 
-    private TriangleBasedModel shape2;
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
@@ -71,7 +70,6 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
 
         this.vrShaderProgram.adaptToEye(eye);
         this.vrShaderProgram.draw(this.moon);
-        this.vrShaderProgram.draw(this.shape2);
     }
 
     @Override
@@ -94,9 +92,6 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
 
         this.stars = new StarsModel(200, 1,1,1);
         this.starsShaderProgram = new PointShaderProgram(this.context, 4);
-
-        this.shape2 = new Sphere(new Coordinates(2f, 5f, 0f), 1f);
-        this.shape2.setBackgroundColor(Color.WHITE);
     }
 
     @Override
