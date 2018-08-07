@@ -3,6 +3,7 @@ package com.github.an0rakdev.planetaryconquest.renderers;
 import android.content.Context;
 import android.opengl.GLES20;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
 import com.github.an0rakdev.planetaryconquest.graphics.models.PointBasedModel;
@@ -22,7 +23,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class FlyingRenderer implements GvrView.StereoRenderer {
     private static final int FPS = 90;
     private static final long DELAY_BETWEEN_FRAMES = (1000 / FPS) - 1L;
-    private static final float SPEED_M_PER_MS = 0.005f;
+    private static final float SPEED_M_PER_MS = 0.003f;
     private Context context;
     private PointShaderProgram starsShaderProgram;
     private PointBasedModel stars;
@@ -33,10 +34,31 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.context = context;
     }
 
+    private TriangleBasedModel shape2;
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
-        this.vrShaderProgram.moveCameraOf(0f, 0f, SPEED_M_PER_MS * time);
+        final float headRotation[] = new float[4];
+        headTransform.getQuaternion(headRotation, 0);
+
+        float x = 0f;
+        float y = 0f;
+        float z = 0f;
+
+        float yRotation = Math.abs(headRotation[1]);
+        if (Math.abs(headRotation[0]) > 0.25) {
+            y = SPEED_M_PER_MS * time;
+            if (0f < headRotation[0]) { y = -y; }
+        }
+        if (yRotation > 0.25 && yRotation < 0.8) {
+            x = SPEED_M_PER_MS * time;
+            if (0f > yRotation) { x = -x; }
+        }
+        if (x == 0f && y == 0f) {
+            z = SPEED_M_PER_MS * time;
+            if (yRotation >= 0.8) { z = -z; }
+        }
+        this.vrShaderProgram.moveCameraOf(x,y,z);
     }
 
     @Override
@@ -49,6 +71,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
 
         this.vrShaderProgram.adaptToEye(eye);
         this.vrShaderProgram.draw(this.moon);
+        this.vrShaderProgram.draw(this.shape2);
     }
 
     @Override
@@ -71,6 +94,9 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
 
         this.stars = new StarsModel(200, 1,1,1);
         this.starsShaderProgram = new PointShaderProgram(this.context, 4);
+
+        this.shape2 = new Sphere(new Coordinates(2f, 5f, 0f), 1f);
+        this.shape2.setBackgroundColor(Color.WHITE);
     }
 
     @Override
