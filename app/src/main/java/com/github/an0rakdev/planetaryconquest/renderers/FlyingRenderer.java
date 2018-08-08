@@ -22,7 +22,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class FlyingRenderer implements GvrView.StereoRenderer {
     private static final int FPS = 90;
     private static final long DELAY_BETWEEN_FRAMES = (1000 / FPS) - 1L;
-    private static final float SPEED_M_PER_MS = 0.005f;
+    private static final float SPEED_M_PER_MS = 0.003f;
     private Context context;
     private PointShaderProgram pointShaderProgram;
     private PointBasedModel stars;
@@ -33,30 +33,19 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.context = context;
     }
 
+    private float previousYRotation = 0f;
+
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
         final float headRotation[] = new float[4];
         headTransform.getQuaternion(headRotation, 0);
-
-        float x = 0f;
-        float y = 0f;
-        float z = 0f;
-
-        float yRotation = Math.abs(headRotation[1]);
-        if (Math.abs(headRotation[0]) > 0.25) {
-            y = SPEED_M_PER_MS * time;
-            if (0f < headRotation[0]) { y = -y; }
+        if (Math.abs(headRotation[1] - previousYRotation) > 0.1) {
+            final float angle = (headRotation[1]- previousYRotation) * 180;
+            this.vrShaderProgram.rotateCamera(angle, 0f, 1, 0f);
+            previousYRotation = headRotation[1];
         }
-        if (yRotation > 0.25 && yRotation < 0.8) {
-            x = SPEED_M_PER_MS * time;
-            if (0f > yRotation) { x = -x; }
-        }
-        if (x == 0f && y == 0f) {
-            z = SPEED_M_PER_MS * time;
-            if (yRotation >= 0.8) { z = -z; }
-        }
-        this.vrShaderProgram.moveCameraOf(x,y,z);
+        this.vrShaderProgram.moveCameraOf(0f, 0f, SPEED_M_PER_MS * time);
     }
 
     @Override

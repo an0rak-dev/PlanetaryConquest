@@ -17,4 +17,8 @@ public class CameraMatrix extends GenericMatrix {
     public void translate(final float x, final float y, final float z) {
         Matrix.translateM(this.values, 0, x, y, z);
     }
+
+    public void rotate(final float angle, final float x, final float y, final float z) {
+        Matrix.rotateM(this.values, 0, angle, x, y, z);
+    }
 }

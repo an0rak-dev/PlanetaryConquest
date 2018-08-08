@@ -48,4 +48,8 @@ public class VRShaderProgram extends MVPShaderProgram {
     public void moveCameraOf(final float x, final float y, final float z) {
         this.camera.translate(x, y, z);
     }
+
+    public void rotateCamera(final float angle, final float x, final float y, final float z) {
+        this.camera.rotate(angle, x, y, z);
+    }
 }
