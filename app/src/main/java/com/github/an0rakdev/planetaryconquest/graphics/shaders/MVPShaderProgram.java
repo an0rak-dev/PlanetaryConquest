@@ -13,7 +13,7 @@ import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.FrustumPe
 
 public class MVPShaderProgram extends ShaderProgram<TriangleBasedModel> {
     private GenericMatrix projectionMatrix;
-    private final CameraMatrix viewMatrix;
+    protected final CameraMatrix viewMatrix;
 
     public MVPShaderProgram(final Context context) {
         super(context);
@@ -21,6 +21,7 @@ public class MVPShaderProgram extends ShaderProgram<TriangleBasedModel> {
         final Coordinates eyePosition = new Coordinates(0f, 0f, -3f);
         final Coordinates upPosition = new Coordinates(0f, 1f, 0f);
         this.viewMatrix = new CameraMatrix(4,4, eyePosition, upPosition);
+        this.viewMatrix.setCenter(new Coordinates(0f, 0f , 1f));
         this.addShader(R.raw.mvp_vertex, GLES20.GL_VERTEX_SHADER);
         this.addShader(R.raw.multicolor_fragment, GLES20.GL_FRAGMENT_SHADER);
         this.prepare();
@@ -81,5 +82,9 @@ public class MVPShaderProgram extends ShaderProgram<TriangleBasedModel> {
         final float camZ = (float) Math.cos(vRradians) * (float) Math.sin(hRradians);
         Coordinates center = new Coordinates(camX, camY, camZ);
         this.viewMatrix.setCenter(center);
+    }
+
+    public void moveCamera(final float speed) {
+        this.viewMatrix.moveForward(speed);
     }
 }

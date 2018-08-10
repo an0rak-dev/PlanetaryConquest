@@ -28,9 +28,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     public void onSurfaceCreated(final GL10 unused, final EGLConfig config) {
         GLES20.glClearColor(0f, 0f, 0f, 1f);
         this.shape = new Octahedron(new Coordinates(
-                1, 0, -5
+                1, 0, -10
         ), 1f,1f);
-        this.shape2 = new Tetrahedron(new Coordinates(-1, 0, -5), 1f);
+        this.shape2 = new Tetrahedron(new Coordinates(-1, 0,-10), 1f);
         this.shaderProgram = new MVPShaderProgram(this.context);
     }
 
@@ -57,5 +57,9 @@ public class OpenGlRenderer implements GLSurfaceView.Renderer {
     public void rotateRight() {
         this.currentHRotation += 5;
         this.shaderProgram.rotateCamera(this.currentHRotation, 0);
+    }
+
+    public void move() {
+        this.shaderProgram.moveCamera(0.3f);
     }
 }
