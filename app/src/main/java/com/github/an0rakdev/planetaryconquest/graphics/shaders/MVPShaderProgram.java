@@ -13,7 +13,7 @@ import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.FrustumPe
 
 public class MVPShaderProgram extends ShaderProgram<TriangleBasedModel> {
     private GenericMatrix projectionMatrix;
-    private final GenericMatrix viewMatrix;
+    private final CameraMatrix viewMatrix;
 
     public MVPShaderProgram(final Context context) {
         super(context);
@@ -70,5 +70,16 @@ public class MVPShaderProgram extends ShaderProgram<TriangleBasedModel> {
                 0,
                 shape.getColors());
         return colorHandler;
+    }
+
+    public void rotateCamera(final float horizontalRotation, final float verticalRotation) {
+        final float hRradians = (horizontalRotation / 180) * (float) Math.PI;
+        final float vRradians = (verticalRotation / 180) * (float) Math.PI;
+
+        final float camX = (float) Math.cos(vRradians) * (float) Math.cos(hRradians);
+        final float camY = (float) Math.sin(vRradians);
+        final float camZ = (float) Math.cos(vRradians) * (float) Math.sin(hRradians);
+        Coordinates center = new Coordinates(camX, camY, camZ);
+        this.viewMatrix.setCenter(center);
     }
 }

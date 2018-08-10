@@ -22,7 +22,11 @@ public abstract class GenericMatrix {
         Matrix.multiplyMM(this.values, 0, m1.values, 0, m2.values, 0);
     }
 
-    public void reset() {
+    public final void translate(final float x, final float y, final float z) {
+        Matrix.translateM(this.values, 0, x, y, z);
+    }
+
+    public void reset() {;
         Matrix.setIdentityM(this.values, 0);
     }
 }

@@ -18,11 +18,10 @@ public class OpenGlSurfaceView extends GLSurfaceView {
 
     @Override
     public boolean onTouchEvent(final MotionEvent event) {
-        final float vScreenMiddle = getHeight() / 2;
-        if (MotionEvent.ACTION_MOVE == event.getAction()) {
-            float y = event.getY() - vScreenMiddle;
-            y /= vScreenMiddle;
-            this.openGlRenderer.setVTouchMovement(y);
+        if (event.getX() > getWidth() / 2) {
+            this.openGlRenderer.rotateLeft();
+        } else {
+            this.openGlRenderer.rotateRight();
         }
         return true;
     }
