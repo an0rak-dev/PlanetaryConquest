@@ -3,6 +3,7 @@ package com.github.an0rakdev.planetaryconquest.math.matrix.perspectives;
 import android.opengl.Matrix;
 
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
+import com.github.an0rakdev.planetaryconquest.math.matrix.Dim4Matrix;
 import com.github.an0rakdev.planetaryconquest.math.matrix.GenericMatrix;
 
 public class CameraMatrix extends GenericMatrix {
@@ -22,12 +23,15 @@ public class CameraMatrix extends GenericMatrix {
         this.recalculate();
     }
 
-    public void move(final float xSpeed, final float ySpeed, final float zSpeed) {
-        this.eye = new Coordinates(
-            this.eye.x + xSpeed,
-            this.eye.y + ySpeed,
-            this.eye.z + zSpeed
-        );
+    public void moveForward(final float speed) {
+        Coordinates centerWithSpeed = new Coordinates(
+                speed * this.center.x,
+                speed * this.center.y,
+                speed * this.center.z);
+        this.eye.x += centerWithSpeed.x;
+        this.eye.y += centerWithSpeed.y;
+        this.eye.z += centerWithSpeed.z;
+
         this.recalculate();
     }
 

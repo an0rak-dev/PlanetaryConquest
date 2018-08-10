@@ -23,7 +23,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class FlyingRenderer implements GvrView.StereoRenderer {
     private static final int FPS = 90;
     private static final long DELAY_BETWEEN_FRAMES = (1000 / FPS) - 1L;
-    private static final float SPEED_M_PER_MS = 0.001f;
+    private static final float SPEED_M_PER_MS = 0.003f;
     private Context context;
     private VRPointShaderProgram starsShaderProgram;
     private PointBasedModel stars;
@@ -44,11 +44,11 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
 
         if (Math.abs(headRotation[1] - oldHeadRotation[1]) > 0.1) {
             final float hRotationAngle = (headRotation[1] - oldHeadRotation[1]) * 180;
-            this.vrShaderProgram.rotateCamera(hRotationAngle, 0);
+   //         this.vrShaderProgram.rotateCamera(hRotationAngle, 0);
         }
 
         long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
-        this.vrShaderProgram.move(-SPEED_M_PER_MS * time);
+        this.vrShaderProgram.moveCamera(SPEED_M_PER_MS * time);
     }
 
     @Override
@@ -77,7 +77,7 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     @Override
     public void onSurfaceCreated(EGLConfig config) {
         // Classic.
-        this.moon = new Sphere(new Coordinates(-2.5f, 3f, -10f), 1f);
+        this.moon = new Sphere(new Coordinates(2.5f, 3.5f, 10f), 1f);
         this.moon.precision(3);
         this.moon.setBackgroundColor(new Color(0.545f, 0.533f, 0.513f));
         this.vrShaderProgram = new VRShaderProgram(this.context);
