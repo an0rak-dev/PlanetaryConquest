@@ -2,6 +2,7 @@ package com.github.an0rakdev.planetaryconquest.graphics.shaders;
 
 import android.content.Context;
 import android.opengl.GLES20;
+import android.opengl.Matrix;
 
 import com.github.an0rakdev.planetaryconquest.graphics.models.TriangleBasedModel;
 import com.github.an0rakdev.planetaryconquest.math.Coordinates;
@@ -11,7 +12,7 @@ import com.github.an0rakdev.planetaryconquest.math.matrix.perspectives.CameraMat
 import com.google.vr.sdk.base.Eye;
 
 public class VRShaderProgram extends MVPShaderProgram {
-    private final GenericMatrix camera;
+    private final CameraMatrix camera;
     private final GenericMatrix mvpMatrix;
 
     public VRShaderProgram(Context context) {

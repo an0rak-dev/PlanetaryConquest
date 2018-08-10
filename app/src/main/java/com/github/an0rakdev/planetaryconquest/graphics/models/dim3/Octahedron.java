@@ -11,7 +11,7 @@ public class Octahedron extends TriangleBasedModel {
     private final float centerToSquare;
     private final float centerToTop;
 
-    Octahedron(final Coordinates center,
+    public Octahedron(final Coordinates center,
                final float centerToSquare, final float centerToTop) {
         this.center = center;
         this.centerToSquare = centerToSquare;
