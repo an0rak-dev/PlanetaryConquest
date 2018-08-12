@@ -4,6 +4,8 @@ public class Color {
     public static final int SIZE = Float.BYTES * 4;
     public static final Color BLACK = new Color(0f, 0f, 0f);
     public static final Color WHITE = new Color(1f, 1f, 1f);
+    public static final Color LUNAR_GREY = new Color(0.545f, 0.533f, 0.513f);
+    public static final Color EARTH_BLUE = new Color(0.129f, 0.470f, 0.937f);
     public float r;
     public float g;
     public float b;

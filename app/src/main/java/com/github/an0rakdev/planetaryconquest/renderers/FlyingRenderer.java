@@ -30,12 +30,27 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     private VRShaderProgram vrShaderProgram;
     private TriangleBasedModel moon;
     private TriangleBasedModel earth;
+    private float distanceElapsed;
 
     public FlyingRenderer(final Context context) {
         this.context = context;
+        this.distanceElapsed = 25f;
     }
 
-    private float distanceElapsed = 25f;
+    @Override
+    public void onSurfaceCreated(EGLConfig config) {
+        // Classic.
+        this.moon = new Sphere(new Coordinates(2.5f, 3.5f, 20f), 1f);
+        this.moon.precision(3);
+        this.moon.setBackgroundColor(Color.LUNAR_GREY);
+        this.earth = new Sphere(new Coordinates(0f, -8f, 10f), 5f);
+        this.earth.precision(3);
+        this.earth.setBackgroundColor(Color.EARTH_BLUE);
+        this.stars = new StarsModel(320, 5, 3, 3, -3);
+        this.vrShaderProgram = new VRShaderProgram(this.context);
+        this.starsShaderProgram = new VRPointShaderProgram(this.context, 4);
+    }
+
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
@@ -48,14 +63,9 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
 
     @Override
     public void onDrawEye(final Eye eye) {
-        // This method is called twice (one for each eye) to draw the frame.
-        // The given eye param offers the possibility to adapt perspective.
-        // The drawing specifities of your app goes here.
         GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
-
         this.vrShaderProgram.adaptToEye(eye);
         this.starsShaderProgram.adaptToEye(eye);
-
         this.starsShaderProgram.draw(this.stars);
         this.vrShaderProgram.draw(this.moon);
         this.vrShaderProgram.draw(this.earth);
@@ -69,21 +79,6 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
     @Override
     public void onSurfaceChanged(int width, int height) {
         // Classic one.
-    }
-
-    @Override
-    public void onSurfaceCreated(EGLConfig config) {
-        // Classic.
-        this.moon = new Sphere(new Coordinates(2.5f, 3.5f, 20f), 1f);
-        this.moon.precision(3);
-        this.moon.setBackgroundColor(new Color(0.545f, 0.533f, 0.513f));
-        this.vrShaderProgram = new VRShaderProgram(this.context);
-        this.earth = new Sphere(new Coordinates(0f, -8f, 10f), 5f);
-        this.earth.precision(3);
-        this.earth.setBackgroundColor(new Color(0.129f, 0.470f, 0.937f));
-
-        this.stars = new StarsModel(320, 5, 3, 3, -3);
-        this.starsShaderProgram = new VRPointShaderProgram(this.context, 4);
     }
 
     @Override
