@@ -34,21 +34,18 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.context = context;
     }
 
-    private float[] oldHeadRotation = {0f, 0f, 0f, 0f};
+    private boolean rotated;
+    private float distanceMade = 0f;
     @Override
     public void onNewFrame(HeadTransform headTransform) {
-        // Called when a new frame is calculated and needs to be rendered.
-        // The logic of your app goes here.
-        final float[] headRotation = new float[4];
-        headTransform.getQuaternion(headRotation, 0);
-
-        if (Math.abs(headRotation[1] - oldHeadRotation[1]) > 0.1) {
-            final float hRotationAngle = (headRotation[1] - oldHeadRotation[1]) * 180;
-   //         this.vrShaderProgram.rotateCamera(hRotationAngle, 0);
-        }
-
         long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
-        this.vrShaderProgram.moveCamera(SPEED_M_PER_MS * time);
+        final float currentDistance = SPEED_M_PER_MS * time;
+//        this.vrShaderProgram.moveCamera(currentDistance);
+        this.distanceMade += currentDistance;
+        if (!rotated && this.distanceMade >= 3f) {
+            this.vrShaderProgram.rotateCamera(-50);
+            this.rotated = true;
+        }
     }
 
     @Override
