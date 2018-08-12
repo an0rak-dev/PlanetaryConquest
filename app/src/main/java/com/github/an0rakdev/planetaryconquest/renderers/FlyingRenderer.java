@@ -23,7 +23,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class FlyingRenderer implements GvrView.StereoRenderer {
     private static final int FPS = 90;
     private static final long DELAY_BETWEEN_FRAMES = (1000 / FPS) - 1L;
-    private static final float SPEED_M_PER_MS = 0.003f;
+    private static final float SPEED_M_PER_MS = 0.005f;
     private Context context;
     private VRPointShaderProgram starsShaderProgram;
     private PointBasedModel stars;
@@ -34,18 +34,11 @@ public class FlyingRenderer implements GvrView.StereoRenderer {
         this.context = context;
     }
 
-    private boolean rotated;
-    private float distanceMade = 0f;
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         long time = SystemClock.uptimeMillis() % DELAY_BETWEEN_FRAMES;
         final float currentDistance = SPEED_M_PER_MS * time;
-//        this.vrShaderProgram.moveCamera(currentDistance);
-        this.distanceMade += currentDistance;
-        if (!rotated && this.distanceMade >= 3f) {
-            this.vrShaderProgram.rotateCamera(-50);
-            this.rotated = true;
-        }
+        this.vrShaderProgram.moveCamera(currentDistance);
     }
 
     @Override
