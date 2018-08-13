@@ -20,7 +20,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".activities.MainActivity">
+        <activity android:name=".activities.Main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <!-- Enable the Cardboard category -->
@@ -29,13 +29,9 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activities.FlyingActivity"
-            android:parentActivityName=".activities.MainActivity"
+            android:name=".activities.Flying"
+            android:parentActivityName=".activities.Main"
             android:screenOrientation="landscape"> <!-- Landscape required in VR -->
         </activity>
-        <activity
-            android:name=".activities.OpenGlActivity"
-            android:parentActivityName=".activities.MainActivity"
-            android:screenOrientation="landscape"/>
     </application>
 </manifest>
