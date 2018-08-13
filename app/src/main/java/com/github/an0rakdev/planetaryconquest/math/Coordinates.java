@@ -1,25 +1,38 @@
 package com.github.an0rakdev.planetaryconquest.math;
 
-public class Coordinates {
+/**
+ * A 3dimensional coordinates object.
+ *
+ * @author  Sylvain Nieuwlandt
+ * @version 1.0
+ */
+public final class Coordinates {
+	/** The dimension used by those Coordinates. */
     public static final int DIMENSION = 3;
+    /** The horizontal axis position. */
     public float x;
+	/** The vertical axis position. */
     public float y;
+	/** The depth axis position. */
     public float z;
 
-    public Coordinates() {
-        this.x = 0f;
-        this.y = 0f;
-        this.z = 0f;
+	/**
+	 * Create a new Coordinates object at position <code>(0,0,0)</code>.
+	 */
+	public Coordinates() {
+        this(0,0,0);
     }
 
+	/**
+	 * Create a new Coordinates object at the given position.
+	 *
+	 * @param x the horizontal axis position.
+	 * @param y the vertical axis position.
+	 * @param z the depth axis position.
+	 */
     public Coordinates(final float x, final float y, final float z) {
         this.x = x;
         this.y = y;
         this.z = z;
-    }
-
-    @Override
-    public String toString() {
-        return "(" + this.x + "," + this.y + "," + this.z + ")";
     }
 }
