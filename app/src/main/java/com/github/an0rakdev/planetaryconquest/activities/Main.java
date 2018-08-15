@@ -27,4 +27,9 @@ public final class Main extends AppCompatActivity {
         final Intent intent = new Intent(this, Flying.class);
         this.startActivity(intent);
     }
+
+    public void startAsteroidsDemo(final View view) {
+        final Intent intent = new Intent(this, Asteroids.class);
+        this.startActivity(intent);
+    }
 }
