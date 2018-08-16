@@ -3,46 +3,44 @@ package com.github.an0rakdev.planetaryconquest.demos.renderers;
 import android.content.Context;
 
 import com.google.vr.sdk.base.Eye;
-import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
 import com.google.vr.sdk.base.Viewport;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
-public class AsteroidsRenderer implements GvrView.StereoRenderer {
-	private final Context context;
+public class AsteroidsRenderer extends SpaceRenderer {
 
 	public AsteroidsRenderer(final Context context) {
-		this.context = context;
+		super(context, new AsteroidsProperties(context));
 	}
 
 	@Override
-	public void onSurfaceCreated(EGLConfig config) {
-
-	}
-
-	@Override
-	public void onNewFrame(HeadTransform headTransform) {
+	public void onSurfaceCreated(final EGLConfig config) {
 
 	}
 
 	@Override
-	public void onDrawEye(Eye eye) {
+	public void onNewFrame(final HeadTransform headTransform) {
 
 	}
 
 	@Override
-	public void onFinishFrame(Viewport viewport) {
+	public void onDrawEye(final Eye eye) {
 
 	}
 
 	@Override
-	public void onSurfaceChanged(int width, int height) {
+	public void onFinishFrame(final Viewport viewport) {
+		// Do nothing.
+	}
 
+	@Override
+	public void onSurfaceChanged(final int width, final int height) {
+		// Do nothing.
 	}
 
 	@Override
 	public void onRendererShutdown() {
-
+		// Do nothing.
 	}
 }
