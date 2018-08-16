@@ -4,14 +4,20 @@ import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 
 import java.util.Properties;
 
-public class SpaceProperties extends Properties {
+/**
+ * The base class for the configurations of demo in Space.
+ *
+ * @author Sylvain Nieuwlandt
+ * @version 1.0
+ */
+public abstract class SpaceProperties extends Properties {
 
 	/**
 	 * Return the number of frames per second used for a Space Demo.
 	 *
 	 * (key : space.fps)
 	 *
-	 * @return the FPS of the Flying Demo.
+	 * @return the FPS of the Demo.
 	 */
 	public long getFps() {
 		return Long.valueOf(this.getProperty("space.fps", "60"));
