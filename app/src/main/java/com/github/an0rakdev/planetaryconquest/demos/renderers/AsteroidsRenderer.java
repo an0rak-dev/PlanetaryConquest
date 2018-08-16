@@ -8,39 +8,36 @@ import com.google.vr.sdk.base.Viewport;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
+/**
+ * This renderer manages the second demo of the application which
+ * make the user croos an asteroid fields and shoot them.
+ *
+ * @author Sylvain Nieuwlandt
+ * @version 1.0
+ */
 public class AsteroidsRenderer extends SpaceRenderer {
 
+    /**
+     * Create a new Asteroids Renderer with the given Android Context.
+     *
+     * @param context the current Android context.
+     */
 	public AsteroidsRenderer(final Context context) {
 		super(context, new AsteroidsProperties(context));
 	}
 
 	@Override
 	public void onSurfaceCreated(final EGLConfig config) {
-
+		super.onSurfaceCreated(config);
 	}
 
 	@Override
 	public void onNewFrame(final HeadTransform headTransform) {
-
+		super.onNewFrame(headTransform);
 	}
 
 	@Override
 	public void onDrawEye(final Eye eye) {
-
-	}
-
-	@Override
-	public void onFinishFrame(final Viewport viewport) {
-		// Do nothing.
-	}
-
-	@Override
-	public void onSurfaceChanged(final int width, final int height) {
-		// Do nothing.
-	}
-
-	@Override
-	public void onRendererShutdown() {
-		// Do nothing.
+		super.onDrawEye(eye);
 	}
 }
