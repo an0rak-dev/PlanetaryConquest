@@ -34,6 +34,12 @@ public class Sphere extends Polyhedron {
         }
     }
 
+    public void move(final float xDistance, final float yDistance, final float zDistance) {
+        this.center.x += xDistance;
+        this.center.y += yDistance;
+        this.center.z += zDistance;
+        this.reset();
+    }
 
     @Override
     protected void fillTriangles(final List<Triangle> triangles) {

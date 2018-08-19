@@ -25,8 +25,8 @@ public final class Octahedron extends Polyhedron {
 	 * @param centerToTop the distance between the center and the point above
 	 *                    the square.
 	 */
-    Octahedron(final Coordinates center,
-			   final float centerToSquare, final float centerToTop) {
+    public Octahedron(final Coordinates center,
+                      final float centerToSquare, final float centerToTop) {
         this.center = center;
         this.centerToSquareDistance = centerToSquare;
         this.centerToTopDistance = centerToTop;
