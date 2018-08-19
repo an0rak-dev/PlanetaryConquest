@@ -55,6 +55,5 @@ public class EarthConfiguration extends Configuration {
 		final float g = this.getFloat("earth.color.g", 1f);
 		final float b = this.getFloat("earth.color.b", 1f);
 		return new Color(r,g,b);
-
 	}
 }

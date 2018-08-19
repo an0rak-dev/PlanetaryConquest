@@ -78,6 +78,15 @@ public final class Triangle {
         return result;
     }
 
+    public void move(final float hSpeed, final float ySpeed, final float zSpeed) {
+    	for (final Coordinates c : this.coords) {
+    		c.x += hSpeed;
+    		c.y += ySpeed;
+
+    		c.z += zSpeed;
+		}
+	}
+
     private Coordinates middleOf(final Coordinates c1, final Coordinates c2) {
         return new Coordinates(this.middleOf(c1.x, c2.x),
                 this.middleOf(c1.y, c2.y),

@@ -18,6 +18,7 @@ public abstract class Polyhedron extends Model {
     private final List<Triangle> triangles;
     private FloatBuffer vertices;
     private int precisionOfEachTriangle;
+    private Color color;
 
     /**
      * Default constructor of a polyhedron.
@@ -86,10 +87,10 @@ public abstract class Polyhedron extends Model {
                 * FLOAT_BYTE_SIZE);
         for (final Triangle triangle : this.triangles) {
             for (int i = 0; i < Triangle.NB_VERTEX; i++) {
-                colorsBuffer.put(triangle.color.r);
-                colorsBuffer.put(triangle.color.g);
-                colorsBuffer.put(triangle.color.b);
-                colorsBuffer.put(triangle.color.a);
+                colorsBuffer.put(this.color.r);
+                colorsBuffer.put(this.color.g);
+                colorsBuffer.put(this.color.b);
+                colorsBuffer.put(this.color.a);
             }
         }
         colorsBuffer.position(0);
@@ -102,10 +103,7 @@ public abstract class Polyhedron extends Model {
      * @param c the wanted background
      */
     public void background(final Color c) {
-        this.precalculate();
-        for (final Triangle t : this.triangles) {
-            t.color = c;
-        }
+        this.color = c;
     }
 
     /**
@@ -132,6 +130,11 @@ public abstract class Polyhedron extends Model {
             }
         }
         return result;
+    }
+
+    final void reset() {
+        this.vertices = null;
+        this.triangles.clear();
     }
 
     private void precalculate() {
