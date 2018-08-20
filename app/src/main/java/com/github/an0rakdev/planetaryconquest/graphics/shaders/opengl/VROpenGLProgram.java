@@ -60,7 +60,6 @@ public abstract class VROpenGLProgram<T extends Model> extends OpenGLProgram<T> 
 
 
 	public void move(final float xDistance, final float yDistance, final float zDistance) {
-		//this.translationMatrix.reset();
 		this.translationMatrix.translate(xDistance, yDistance, zDistance);
 	}
 }

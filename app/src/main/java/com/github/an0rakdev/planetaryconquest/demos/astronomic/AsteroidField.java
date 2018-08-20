@@ -51,12 +51,6 @@ public class AsteroidField {
         return this.asteroids;
     }
 
-    public void moveH(final float distance) {
-    	for (final Polyhedron asteroid : this.asteroids) {
-            ((Sphere)asteroid).move(distance, 0, 0);
-		}
-	}
-
     private void fill() {
         while (this.asteroids.size() < this.count) {
             final Coordinates center = new Coordinates(
@@ -66,7 +60,7 @@ public class AsteroidField {
             );
             final float radius = this.random(this.minSize, this.maxSize);
             final Polyhedron asteroid = new Sphere(center, radius);
-            asteroid.precision(3);
+            asteroid.precision(1);
             asteroid.background(this.color);
             this.asteroids.add(asteroid);
         }
