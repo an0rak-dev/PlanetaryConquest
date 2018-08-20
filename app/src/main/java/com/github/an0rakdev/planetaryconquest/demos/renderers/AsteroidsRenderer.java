@@ -22,6 +22,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private VRProgram vrShader;
 	private AsteroidsProperties config;
 	private AsteroidField field;
+	private final float asteroidsSpeed;
 
     /**
      * Create a new Asteroids Renderer with the given Android Context.
@@ -37,6 +38,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.field.setMinSize(this.config.getMinAsteroidSize());
 		this.field.setMaxSize(this.config.getMaxAsteroidSize());
 		this.field.setDefaultColor(this.config.getAsteroidsColor());
+		this.asteroidsSpeed = this.config.getAsteroidsSpeed() / 1000;
 	}
 
 	@Override
@@ -50,7 +52,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	public void onNewFrame(final HeadTransform headTransform) {
 		super.onNewFrame(headTransform);
 		long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-		this.field.moveH(this.config.getAsteroidsSpeed() / 1000 * time);
+		this.vrShader.move(this.asteroidsSpeed * time, 0f, 0f);
 	}
 
 	@Override

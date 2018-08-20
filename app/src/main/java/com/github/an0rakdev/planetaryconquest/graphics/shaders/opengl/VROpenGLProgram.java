@@ -17,6 +17,7 @@ import com.google.vr.sdk.base.Eye;
  */
 public abstract class VROpenGLProgram<T extends Model> extends OpenGLProgram<T> {
 	private final GenericMatrix mvpMatrix;
+	private final GenericMatrix translationMatrix;
 
 	/**
 	 * Create a new VROpenGLProgram which will draw with the given type.
@@ -30,6 +31,7 @@ public abstract class VROpenGLProgram<T extends Model> extends OpenGLProgram<T> 
 	public VROpenGLProgram(final Context context, final Coordinates cameraPos, final DrawType type) {
 		super(context, cameraPos, type);
 		this.mvpMatrix = new Dim4Matrix();
+		this.translationMatrix = new Dim4Matrix();
 	}
 
 	/**
@@ -42,7 +44,8 @@ public abstract class VROpenGLProgram<T extends Model> extends OpenGLProgram<T> 
 		final GenericMatrix realView = new Dim4Matrix();
 		final GenericMatrix eyeView = new Dim4Matrix(eye.getEyeView());
 		final GenericMatrix eyePerspective = new  Dim4Matrix(eye.getPerspective(0.1f, 100f));
-		realView.multiply(eyeView, this.getCamera());
+		realView.multiply(this.translationMatrix, this.getCamera());
+		realView.multiply(eyeView, realView);
 		this.mvpMatrix.multiply(eyePerspective, realView);
 	}
 
@@ -53,5 +56,11 @@ public abstract class VROpenGLProgram<T extends Model> extends OpenGLProgram<T> 
 	 */
 	protected final GenericMatrix getViewProjection() {
 		return this.mvpMatrix;
+	}
+
+
+	public void move(final float xDistance, final float yDistance, final float zDistance) {
+		//this.translationMatrix.reset();
+		this.translationMatrix.translate(xDistance, yDistance, zDistance);
 	}
 }

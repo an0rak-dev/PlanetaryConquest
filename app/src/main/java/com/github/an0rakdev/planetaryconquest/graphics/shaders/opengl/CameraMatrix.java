@@ -44,14 +44,10 @@ public class CameraMatrix extends Dim4Matrix {
 	 *
 	 * @param speed the speed used to move the camera.
 	 */
-	public void move(final float speed) {
-		final Coordinates centerWithSpeed = new Coordinates(
-                speed * this.lookAt.x,
-                speed * this.lookAt.y,
-                speed * this.lookAt.z);
-        this.position.x += centerWithSpeed.x;
-        this.position.y += centerWithSpeed.y;
-        this.position.z += centerWithSpeed.z;
+	public void move(final float xDistance, final float yDistance, final float zDistance) {
+        this.position.x += xDistance;
+        this.position.y += yDistance;
+        this.position.z += zDistance;
 		this.recalculate();
 	}
 
