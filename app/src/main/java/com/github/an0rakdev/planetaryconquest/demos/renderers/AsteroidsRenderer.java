@@ -23,6 +23,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private AsteroidsProperties config;
 	private AsteroidField field;
 	private final float asteroidsSpeed;
+	private final float cameraSpeed;
+	private float distanceElapsed;
 
     /**
      * Create a new Asteroids Renderer with the given Android Context.
@@ -39,6 +41,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.field.setMaxSize(this.config.getMaxAsteroidSize());
 		this.field.setDefaultColor(this.config.getAsteroidsColor());
 		this.asteroidsSpeed = this.config.getAsteroidsSpeed() / 1000;
+		this.cameraSpeed = this.config.getCameraSpeed() / 1000;
+		this.distanceElapsed = this.config.getDistanceToTravel();
 	}
 
 	@Override
@@ -52,8 +56,13 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	public void onNewFrame(final HeadTransform headTransform) {
 		super.onNewFrame(headTransform);
 		long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-		float xDistance = this.asteroidsSpeed * time;
-		this.vrShader.move(xDistance, 0f,0f);
+		float asteroidsDistance = this.asteroidsSpeed * time;
+		this.vrShader.move(asteroidsDistance, 0f,0f);
+		final float cameraDistance = this.cameraSpeed * time;
+		if (distanceElapsed >0f) {
+			this.vrShader.getCamera().move(0f, 0f, cameraDistance);
+			distanceElapsed -= cameraDistance;
+		}
 	}
 
 	@Override

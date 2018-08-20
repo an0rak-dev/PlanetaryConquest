@@ -82,4 +82,23 @@ final class AsteroidsProperties extends SpaceProperties {
 				Float.valueOf(this.getProperty("asteroids.field.unit.color.b", "0"))
 		);
 	}
+
+    /**
+     * Return the camera movement's speed for the Asteroids Demo.
+     *
+     * @return the speed of the Camera movement.
+     */
+    public float getCameraSpeed() {
+        return Float.valueOf(this.getProperty("asteroids.camera.speed.meter.per.s", "3"));
+    }
+
+    /**
+     * Return the total distance to travel by the Camera in the Asteroids Demo.
+     *
+     * @return the total distance made by the Camera.
+     */
+    public long getDistanceToTravel() {
+        return Long.valueOf(this.getProperty("asteroids.distance.to.travel.in.meters", "10"));
+    }
+
 }
