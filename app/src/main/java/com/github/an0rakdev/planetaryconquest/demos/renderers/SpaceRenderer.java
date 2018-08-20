@@ -44,7 +44,7 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
 	@Override
 	public void onNewFrame(final HeadTransform headTransform) {
 		this.frameCounter++;
-		final long now = SystemClock.uptimeMillis();
+		final long now = SystemClock.currentThreadTimeMillis();
 		if ((now - this.lastTimer) >= 1000) {
 			Log.i("FrameCounter", ""+ this.frameCounter + "fps");
 			this.lastTimer = now;

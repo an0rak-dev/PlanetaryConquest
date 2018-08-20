@@ -13,7 +13,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 
 /**
  * This renderer manages the second demo of the application which
- * make the user croos an asteroid fields and shoot them.
+ * make the user across an asteroid fields and shoot them.
  *
  * @author Sylvain Nieuwlandt
  * @version 1.0
@@ -52,7 +52,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	public void onNewFrame(final HeadTransform headTransform) {
 		super.onNewFrame(headTransform);
 		long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-		this.vrShader.move(this.asteroidsSpeed * time, 0f, 0f);
+		float xDistance = this.asteroidsSpeed * time;
+		this.vrShader.move(xDistance, 0f,0f);
 	}
 
 	@Override

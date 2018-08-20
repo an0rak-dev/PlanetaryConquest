@@ -132,11 +132,6 @@ public abstract class Polyhedron extends Model {
         return result;
     }
 
-    final void reset() {
-        this.vertices = null;
-        this.triangles.clear();
-    }
-
     private void precalculate() {
         if (this.triangles.isEmpty()) {
             this.triangles.addAll(this.generate());
