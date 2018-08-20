@@ -64,4 +64,8 @@ public abstract class GenericMatrix {
 	public void reset() {
 		Matrix.setIdentityM(this.values, 0);
 	}
+
+	public void translate(final float x, final float y, final float z) {
+		Matrix.translateM(this.values, 0, x, y, z);
+	}
 }

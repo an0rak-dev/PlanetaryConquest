@@ -52,7 +52,7 @@ public class FlyingRenderer extends SpaceRenderer {
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
         final float currentDistance = (this.properties.getCameraSpeed() / 1000f) * time;
         if (distanceElapsed >0f) {
-			this.vrShaderProgram.getCamera().move(currentDistance);
+			this.vrShaderProgram.getCamera().move(0f, 0f, currentDistance);
             distanceElapsed -= currentDistance;
         }
     }
