@@ -4,8 +4,15 @@ import android.content.Context;
 import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.AsteroidField;
+import com.github.an0rakdev.planetaryconquest.graphics.Color;
+import com.github.an0rakdev.planetaryconquest.graphics.models.lines.Cross;
+import com.github.an0rakdev.planetaryconquest.graphics.models.lines.Lines;
+import com.github.an0rakdev.planetaryconquest.graphics.models.points.Points;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.programs.VRLineProgram;
+import com.github.an0rakdev.planetaryconquest.graphics.shaders.programs.VRPointProgram;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.programs.VRProgram;
+import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
@@ -20,8 +27,10 @@ import javax.microedition.khronos.egl.EGLConfig;
  */
 public class AsteroidsRenderer extends SpaceRenderer {
 	private VRProgram vrShader;
+	private VRLineProgram vrLineShader;
 	private AsteroidsProperties config;
 	private AsteroidField field;
+	private Lines cross;
 	private final float asteroidsSpeed;
 	private final float cameraSpeed;
 	private float distanceElapsed;
@@ -43,6 +52,9 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.asteroidsSpeed = this.config.getAsteroidsSpeed() / 1000;
 		this.cameraSpeed = this.config.getCameraSpeed() / 1000;
 		this.distanceElapsed = this.config.getDistanceToTravel();
+		this.cross = new Cross(new Coordinates(0,0,3), 0.5f);
+		this.cross.width(4);
+		this.cross.color(Color.WHITE);
 	}
 
 	@Override
@@ -50,6 +62,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		super.onSurfaceCreated(config);
 		this.vrShader = new VRProgram(this.getContext(), this.config.getCameraPosition());
 		this.vrShader.getCamera().setLookAt(this.config.getCameraDirection());
+		this.vrLineShader = new VRLineProgram(this.getContext(), this.config.getCameraPosition(), 6f);
+		this.vrLineShader.getCamera().setLookAt(this.config.getCameraDirection());
 	}
 
 	@Override
@@ -57,10 +71,10 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		super.onNewFrame(headTransform);
 		long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
 		float asteroidsDistance = this.asteroidsSpeed * time;
-		this.vrShader.move(asteroidsDistance, 0f,0f);
+	//	this.vrShader.move(asteroidsDistance, 0f,0f);
 		final float cameraDistance = this.cameraSpeed * time;
 		if (distanceElapsed >0f) {
-			this.vrShader.getCamera().move(0f, 0f, cameraDistance);
+	//		this.vrShader.getCamera().move(0f, 0f, cameraDistance);
 			distanceElapsed -= cameraDistance;
 		}
 	}
@@ -70,7 +84,10 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		super.onDrawEye(eye);
 		this.vrShader.adaptToEye(eye);
 		for (final Polyhedron asteroid : this.field.asteroids()) {
-			this.vrShader.draw(asteroid);
+	//		this.vrShader.draw(asteroid);
 		}
+
+		this.vrLineShader.adaptToEye(eye);
+		this.vrLineShader.draw(this.cross);
 	}
 }

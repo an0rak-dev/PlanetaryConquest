@@ -1,6 +1,7 @@
 package com.github.an0rakdev.planetaryconquest.graphics.shaders.programs;
 
 import android.content.Context;
+import android.opengl.GLES20;
 
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.points.Points;
@@ -35,7 +36,7 @@ public final class VRPointProgram extends VROpenGLProgram<Points> {
     }
 
 	@Override
-	public void render(final Points shape) {
+	protected void render(final Points shape) {
 		// Apply the model's vertices and the background
 		this.attachBuffer("vPosition", shape.bufferize(), 3, 3);
 		this.attachMatrix("vMatrix", this.getViewProjection().values(), 4);

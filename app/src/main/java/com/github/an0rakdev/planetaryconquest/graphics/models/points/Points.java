@@ -16,7 +16,7 @@ public abstract class Points extends Model {
 	/**
 	 * Create a points model with a default background of Black.
 	 */
-	Points() {
+	protected Points() {
         this.color = Color.BLACK;
     }
 
@@ -33,4 +33,8 @@ public abstract class Points extends Model {
         result[3] = this.color.a;
         return result;
     }
+
+    public void color(final Color c) {
+		this.color = c;
+	}
 }

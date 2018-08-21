@@ -129,4 +129,6 @@ public abstract class Program<T extends Model> {
 	 * @param values the values to attach
 	 */
 	protected abstract void attachValues(final String attribName, final float... values);
+
+	protected abstract void setLineWidth(final float value);
 }

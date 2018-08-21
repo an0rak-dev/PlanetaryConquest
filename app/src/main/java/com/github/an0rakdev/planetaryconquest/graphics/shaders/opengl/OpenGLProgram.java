@@ -155,6 +155,11 @@ public abstract class OpenGLProgram<T extends Model> extends Program<T> {
 		}
 	}
 
+	@Override
+	protected final void setLineWidth(final float width) {
+		GLES20.glLineWidth(width);
+	}
+
 	private int newShaderOf(final ShadersType type) {
 		int shader;
 		switch (type) {
