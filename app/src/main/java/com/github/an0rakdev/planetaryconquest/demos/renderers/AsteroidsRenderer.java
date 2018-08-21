@@ -71,10 +71,10 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		super.onNewFrame(headTransform);
 		long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
 		float asteroidsDistance = this.asteroidsSpeed * time;
-	//	this.vrShader.move(asteroidsDistance, 0f,0f);
+		this.vrShader.move(asteroidsDistance, 0f,0f);
 		final float cameraDistance = this.cameraSpeed * time;
 		if (distanceElapsed >0f) {
-	//		this.vrShader.getCamera().move(0f, 0f, cameraDistance);
+			this.vrShader.getCamera().move(0f, 0f, cameraDistance);
 			distanceElapsed -= cameraDistance;
 		}
 	}
@@ -84,7 +84,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		super.onDrawEye(eye);
 		this.vrShader.adaptToEye(eye);
 		for (final Polyhedron asteroid : this.field.asteroids()) {
-	//		this.vrShader.draw(asteroid);
+			this.vrShader.draw(asteroid);
 		}
 
 		this.vrLineShader.adaptToEye(eye);
