@@ -13,8 +13,6 @@ import com.github.an0rakdev.planetaryconquest.math.Coordinates;
 
 public class VRLineProgram extends VROpenGLProgram<Lines> {
 
-    private final float lineWidth;
-
     /**
      * Create a new VRLineProgram which will draw with the given type.
      *
@@ -22,12 +20,11 @@ public class VRLineProgram extends VROpenGLProgram<Lines> {
      * @param cameraPos the initial position of the Camera in this program.
      * @see DrawType
      */
-    public VRLineProgram(Context context, Coordinates cameraPos, final float lineWidth) {
+    public VRLineProgram(Context context, Coordinates cameraPos) {
         super(context, cameraPos, DrawType.LINES);
 
         this.compile(R.raw.mvp_vertex, ShadersType.VERTEX);
         this.compile(R.raw.simple_fragment, ShadersType.FRAGMENT);
-        this.lineWidth = lineWidth;
     }
 
     @Override

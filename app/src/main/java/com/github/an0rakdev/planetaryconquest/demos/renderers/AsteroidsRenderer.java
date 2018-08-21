@@ -62,7 +62,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		super.onSurfaceCreated(config);
 		this.vrShader = new VRProgram(this.getContext(), this.config.getCameraPosition());
 		this.vrShader.getCamera().setLookAt(this.config.getCameraDirection());
-		this.vrLineShader = new VRLineProgram(this.getContext(), this.config.getCameraPosition(), 6f);
+		this.vrLineShader = new VRLineProgram(this.getContext(), this.config.getCameraPosition());
 		this.vrLineShader.getCamera().setLookAt(this.config.getCameraDirection());
 	}
 
