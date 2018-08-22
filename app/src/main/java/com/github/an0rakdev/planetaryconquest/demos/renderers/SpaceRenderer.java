@@ -147,6 +147,10 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
         return this.context;
     }
 
+    protected final SpaceProperties getProperties() {
+        return this.properties;
+    }
+
     private void initializeStars() {
         final int starsCount = this.properties.getStarsCount();
         starsVertices = this.createFloatBuffer(starsCount * DIMENSION * FLOAT_BYTES);
