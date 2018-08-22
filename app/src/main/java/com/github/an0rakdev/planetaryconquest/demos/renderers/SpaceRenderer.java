@@ -5,6 +5,7 @@ import android.opengl.GLES20;
 import android.os.SystemClock;
 import android.util.Log;
 
+import com.github.an0rakdev.planetaryconquest.FrameCounter;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.Stars;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.programs.VRPointProgram;
 import com.google.vr.sdk.base.Eye;
@@ -20,15 +21,13 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
 	private final long timeBetweenFrames;
 	private VRPointProgram starsShaderProgram;
 	private static Stars stars = null;
-	private int frameCounter;
-	private long lastTimer;
+	private FrameCounter frameCounter;
 
 	SpaceRenderer(final Context context, final SpaceProperties properties) {
 		this.context = context;
 		this.properties = properties;
 		this.timeBetweenFrames = (1000 / this.properties.getFps()) - 1L;
-		this.frameCounter = 0;
-		this.lastTimer = 0l;
+		this.frameCounter = new FrameCounter(1000);
 	}
 
 	@Override
@@ -43,13 +42,8 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
 
 	@Override
 	public void onNewFrame(final HeadTransform headTransform) {
-		this.frameCounter++;
-		final long now = SystemClock.currentThreadTimeMillis();
-		if ((now - this.lastTimer) >= 1000) {
-			Log.i("FrameCounter", ""+ this.frameCounter + "fps");
-			this.lastTimer = now;
-			this.frameCounter = 0;
-		}
+		this.frameCounter.increase();
+		this.frameCounter.log();
 	}
 
 	@Override
