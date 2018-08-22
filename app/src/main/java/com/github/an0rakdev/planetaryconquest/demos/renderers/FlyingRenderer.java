@@ -20,7 +20,6 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @version 1.0
  */
 public class FlyingRenderer extends SpaceRenderer {
-    private final FlyingProperties properties;
     private VRProgram vrShaderProgram;
     private StationaryBody moon;
     private StationaryBody earth;
@@ -33,8 +32,7 @@ public class FlyingRenderer extends SpaceRenderer {
 	 */
 	public FlyingRenderer(final Context context) {
 		super(context, new FlyingProperties(context));
-		this.properties = new FlyingProperties(context);
-		this.distanceElapsed = this.properties.getDistanceToTravel();
+		this.distanceElapsed = ((FlyingProperties) this.getProperties()).getDistanceToTravel();
 	}
 
     @Override
@@ -42,15 +40,17 @@ public class FlyingRenderer extends SpaceRenderer {
 		super.onSurfaceCreated(config);
         this.moon = new StationaryBody(new MoonConfiguration(this.getContext()));
         this.earth = new StationaryBody(new EarthConfiguration(this.getContext()));
-        this.vrShaderProgram = new VRProgram(this.getContext(), this.properties.getCameraPosition());
-        this.vrShaderProgram.getCamera().setLookAt(this.properties.getCameraDirection());
+        final FlyingProperties properties = (FlyingProperties) this.getProperties();
+        this.vrShaderProgram = new VRProgram(this.getContext(), properties.getCameraPosition());
+        this.vrShaderProgram.getCamera().setLookAt(properties.getCameraDirection());
     }
 
     @Override
     public void onNewFrame(final HeadTransform headTransform) {
 		super.onNewFrame(headTransform);
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-        final float currentDistance = (this.properties.getCameraSpeed() / 1000f) * time;
+        final FlyingProperties properties = (FlyingProperties) this.getProperties();
+        final float currentDistance = (properties.getCameraSpeed() / 1000f) * time;
         if (distanceElapsed >0f) {
 			this.vrShaderProgram.getCamera().move(0f, 0f, currentDistance);
             distanceElapsed -= currentDistance;

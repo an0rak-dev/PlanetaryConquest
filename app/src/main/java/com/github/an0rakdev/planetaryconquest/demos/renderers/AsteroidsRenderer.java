@@ -20,7 +20,6 @@ import javax.microedition.khronos.egl.EGLConfig;
  */
 public class AsteroidsRenderer extends SpaceRenderer {
 	private VRProgram vrShader;
-	private AsteroidsProperties config;
 	private AsteroidField field;
 	private final float asteroidsSpeed;
 	private final float cameraSpeed;
@@ -33,23 +32,24 @@ public class AsteroidsRenderer extends SpaceRenderer {
      */
 	public AsteroidsRenderer(final Context context) {
 		super(context, new AsteroidsProperties(context));
-		this.config = new AsteroidsProperties(context);
-		this.field = new AsteroidField(this.config.getAsteroidsCount());
-		this.field.setBounds(this.config.getAsteroidsFieldMin(),
-				this.config.getAsteroidsFieldMax());
-		this.field.setMinSize(this.config.getMinAsteroidSize());
-		this.field.setMaxSize(this.config.getMaxAsteroidSize());
-		this.field.setDefaultColor(this.config.getAsteroidsColor());
-		this.asteroidsSpeed = this.config.getAsteroidsSpeed() / 1000;
-		this.cameraSpeed = this.config.getCameraSpeed() / 1000;
-		this.distanceElapsed = this.config.getDistanceToTravel();
+		final AsteroidsProperties config = (AsteroidsProperties) this.getProperties();
+		this.field = new AsteroidField(config.getAsteroidsCount());
+		this.field.setBounds(config.getAsteroidsFieldMin(),
+				config.getAsteroidsFieldMax());
+		this.field.setMinSize(config.getMinAsteroidSize());
+		this.field.setMaxSize(config.getMaxAsteroidSize());
+		this.field.setDefaultColor(config.getAsteroidsColor());
+		this.asteroidsSpeed = config.getAsteroidsSpeed() / 1000;
+		this.cameraSpeed = config.getCameraSpeed() / 1000;
+		this.distanceElapsed = config.getDistanceToTravel();
 	}
 
 	@Override
 	public void onSurfaceCreated(final EGLConfig config) {
 		super.onSurfaceCreated(config);
-		this.vrShader = new VRProgram(this.getContext(), this.config.getCameraPosition());
-		this.vrShader.getCamera().setLookAt(this.config.getCameraDirection());
+		final AsteroidsProperties conf = (AsteroidsProperties) this.getProperties();
+		this.vrShader = new VRProgram(this.getContext(), conf.getCameraPosition());
+		this.vrShader.getCamera().setLookAt(conf.getCameraDirection());
 	}
 
 	@Override
