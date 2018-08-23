@@ -7,6 +7,7 @@ import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.FrameCounter;
 import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.graphics.OpenGLUtils;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
@@ -52,29 +53,12 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
             initializeStars();
         }
 
-        this.starsShader = GLES20.glCreateProgram();
-        checkError(0 == this.starsShader, "Unable to create the stars program !");
-        int status[] = new int[1];
-        // Vertex Shader
         final String vertexSources = readContentOf(R.raw.point_vertex);
-        final int vertexShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
-        checkError(0 == vertexShader, "Unable to create the stars vertex shader!");
-        GLES20.glShaderSource(vertexShader, vertexSources);
-        GLES20.glCompileShader(vertexShader);
-        GLES20.glAttachShader(this.starsShader, vertexShader);
-        // Fragment Shader
         final String fragmentSources = readContentOf(R.raw.simple_fragment);
-        final int fragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
-        checkError(0 == fragmentShader, "Unable to create the stars fragment shader !");
-        GLES20.glShaderSource(fragmentShader, fragmentSources);
-        GLES20.glCompileShader(fragmentShader);
-        GLES20.glAttachShader(this.starsShader, fragmentShader);
-        // Prepare Program
-        GLES20.glLinkProgram(this.starsShader);
-        GLES20.glDetachShader(this.starsShader, fragmentShader);
-        GLES20.glDeleteShader(fragmentShader);
-        GLES20.glDetachShader(this.starsShader, vertexShader);
-        GLES20.glDeleteShader(vertexShader);
+        this.starsShader = OpenGLUtils.newProgram();
+        final int vertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.starsShader);
+        final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.starsShader);
+        OpenGLUtils.linkProgram(this.starsShader, vertexShader, fragmentShader);
     }
 
     @Override

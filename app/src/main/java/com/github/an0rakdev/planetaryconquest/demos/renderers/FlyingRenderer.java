@@ -8,6 +8,7 @@ import android.os.SystemClock;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.StationaryBody;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.configs.EarthConfiguration;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.configs.MoonConfiguration;
+import com.github.an0rakdev.planetaryconquest.graphics.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
@@ -56,35 +57,12 @@ public class FlyingRenderer extends SpaceRenderer {
         this.moon = new StationaryBody(new MoonConfiguration(this.getContext()));
         this.earth = new StationaryBody(new EarthConfiguration(this.getContext()));
 
-        this.celestialProgram = GLES20.glCreateProgram();
-        checkError(this.celestialProgram == 0, "Unable to create the celestial program.");
-        final int[] status = new int[1];
-        // Vertex Shader
+        this.celestialProgram = OpenGLUtils.newProgram();
         final String vertexSources = readContentOf(R.raw.mvp_vertex);
-        final int vertexShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
-        checkError(0 == vertexShader, "Unable to create the celestial vertex shader!");
-        GLES20.glShaderSource(vertexShader, vertexSources);
-        GLES20.glCompileShader(vertexShader);
-        GLES20.glGetShaderiv(vertexShader, GLES20.GL_COMPILE_STATUS, status, 0);
-        checkError(GLES20.GL_FALSE == status[0], "Unable to compile the celestial vertex shader !");
-        GLES20.glAttachShader(this.celestialProgram, vertexShader);
-        // Fragment Shader
         final String fragmentSources = readContentOf(R.raw.multicolor_fragment);
-        final int fragmentShader = GLES20.glCreateShader(GLES20.GL_FRAGMENT_SHADER);
-        checkError(0 == fragmentShader, "Unable to create the celestial fragment shader !");
-        GLES20.glShaderSource(fragmentShader, fragmentSources);
-        GLES20.glCompileShader(fragmentShader);
-        GLES20.glGetShaderiv(fragmentShader, GLES20.GL_COMPILE_STATUS, status, 0);
-        checkError(GLES20.GL_FALSE == status[0], "Unable to compile the celestial fragment shader !");
-        GLES20.glAttachShader(this.celestialProgram, fragmentShader);
-        // Prepare Program
-        GLES20.glLinkProgram(this.celestialProgram);
-        GLES20.glGetProgramiv(this.celestialProgram, GLES20.GL_LINK_STATUS, status, 0);
-        checkError(GLES20.GL_FALSE == status[0], "Unable to link the celestial program.");
-        GLES20.glDetachShader(this.celestialProgram, fragmentShader);
-        GLES20.glDeleteShader(fragmentShader);
-        GLES20.glDetachShader(this.celestialProgram, vertexShader);
-        GLES20.glDeleteShader(vertexShader);
+        final int vertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.celestialProgram);
+        final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.celestialProgram);
+        OpenGLUtils.linkProgram(this.celestialProgram, vertexShader, fragmentShader);
     }
 
     @Override
