@@ -91,7 +91,6 @@ public class FlyingRenderer extends SpaceRenderer {
         super.onDrawEye(eye);
 
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
-        Matrix.multiplyMM(this.modelView, 0, this.view, 0, this.model, 0);
         Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
         OpenGLUtils.use(this.celestialProgram);
         OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
