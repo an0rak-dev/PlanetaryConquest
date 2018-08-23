@@ -1,4 +1,4 @@
-package com.github.an0rakdev.planetaryconquest.math;
+package com.github.an0rakdev.planetaryconquest.graphics.models;
 
 /**
  * A 3dimensional coordinates object.

@@ -2,7 +2,7 @@ package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
-import com.github.an0rakdev.planetaryconquest.math.Coordinates;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public abstract class Polyhedron extends Model {
     private final List<Triangle> triangles;
     private FloatBuffer vertices;
     private int precisionOfEachTriangle;
-    private Color color;
+    private float[] color;
 
     /**
      * Default constructor of a polyhedron.
@@ -87,10 +87,7 @@ public abstract class Polyhedron extends Model {
                 * FLOAT_BYTE_SIZE);
         for (final Triangle triangle : this.triangles) {
             for (int i = 0; i < Triangle.NB_VERTEX; i++) {
-                colorsBuffer.put(this.color.r);
-                colorsBuffer.put(this.color.g);
-                colorsBuffer.put(this.color.b);
-                colorsBuffer.put(this.color.a);
+                colorsBuffer.put(this.color);
             }
         }
         colorsBuffer.position(0);
@@ -102,7 +99,7 @@ public abstract class Polyhedron extends Model {
      *
      * @param c the wanted background
      */
-    public void background(final Color c) {
+    public void background(final float[] c) {
         this.color = c;
     }
 

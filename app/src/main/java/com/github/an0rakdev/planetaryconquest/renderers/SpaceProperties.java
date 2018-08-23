@@ -1,6 +1,4 @@
-package com.github.an0rakdev.planetaryconquest.demos.renderers;
-
-import com.github.an0rakdev.planetaryconquest.math.Coordinates;
+package com.github.an0rakdev.planetaryconquest.renderers;
 
 import java.util.Properties;
 

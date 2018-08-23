@@ -1,12 +1,12 @@
-package com.github.an0rakdev.planetaryconquest.demos.renderers;
+package com.github.an0rakdev.planetaryconquest.renderers;
 
 import android.content.Context;
-import android.opengl.GLES20;
-import android.os.SystemClock;
+import android.opengl.Matrix;
 import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.FrameCounter;
 import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.RandomUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.OpenGLUtils;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
@@ -145,19 +145,14 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
         final float maxY = this.properties.getStarsYBound();
         final float front = this.properties.getStarsZBound();
         final float back = -this.properties.getStarsZBound();
-        final float dx = maxX - minX;
-        final float dy = maxY - minY;
 
         for (int i = 0; i < starsCount / 2; i++) {
-            float x = minX + ((float) Math.random() * dx);
-            float y = minY + ((float) Math.random() * dy);
-            starsVertices.put(x);
-            starsVertices.put(y);
+            starsVertices.put(RandomUtils.randRange(minX, maxX));
+            starsVertices.put(RandomUtils.randRange(minY, maxY));
             starsVertices.put(front);
-            x = minX + ((float) Math.random() * dx);
-            y = minY + ((float) Math.random() * dy);
-            starsVertices.put(x);
-            starsVertices.put(y);
+
+            starsVertices.put(RandomUtils.randRange(minX, maxX));
+            starsVertices.put(RandomUtils.randRange(minY, maxY));
             starsVertices.put(back);
         }
         starsVertices.position(0);

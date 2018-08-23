@@ -1,10 +1,9 @@
-package com.github.an0rakdev.planetaryconquest.demos.renderers;
+package com.github.an0rakdev.planetaryconquest.renderers;
 
 import android.content.Context;
 import android.util.Log;
 
-import com.github.an0rakdev.planetaryconquest.graphics.Color;
-import com.github.an0rakdev.planetaryconquest.math.Coordinates;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 
 import java.io.IOException;
 
@@ -50,21 +49,28 @@ final class AsteroidsProperties extends SpaceProperties {
 		return Float.valueOf(this.getProperty("asteroids.field.speed.meter.per.second", "1"));
 	}
 
-
-	public Coordinates getAsteroidsFieldMin() {
-		return new Coordinates(
-				Float.valueOf(this.getProperty("asteroids.field.bound.min.x", "0")),
-				Float.valueOf(this.getProperty("asteroids.field.bound.min.y", "0")),
-				Float.valueOf(this.getProperty("asteroids.field.bound.min.z", "0"))
-		);
+	public float getAsteroidMinX() {
+		return Float.valueOf(this.getProperty("asteroids.field.min.x", "0"));
 	}
 
-	public Coordinates getAsteroidsFieldMax() {
-		return new Coordinates(
-				Float.valueOf(this.getProperty("asteroids.field.bound.max.x", "0")),
-				Float.valueOf(this.getProperty("asteroids.field.bound.max.y", "0")),
-				Float.valueOf(this.getProperty("asteroids.field.bound.max.z", "0"))
-		);
+	public float getAsteroidMinY() {
+		return Float.valueOf(this.getProperty("asteroids.field.min.y", "0"));
+	}
+
+	public float getAsteroidMinZ() {
+		return Float.valueOf(this.getProperty("asteroids.field.min.z", "1"));
+	}
+
+	public float getAsteroidMaxX() {
+		return Float.valueOf(this.getProperty("asteroids.field.max.x", "5"));
+	}
+
+	public float getAsteroidMaxY() {
+		return Float.valueOf(this.getProperty("asteroids.field.max.y", "2"));
+	}
+
+	public float getAsteroidMaxZ() {
+		return Float.valueOf(this.getProperty("asteroids.field.max.z", "2"));
 	}
 
 	public float getMinAsteroidSize() {
@@ -75,12 +81,16 @@ final class AsteroidsProperties extends SpaceProperties {
 		return Float.valueOf(this.getProperty("asteroids.field.unit.max.size", "0"));
 	}
 
-	public Color getAsteroidsColor() {
-		return new Color(
-				Float.valueOf(this.getProperty("asteroids.field.unit.color.r", "0")),
-				Float.valueOf(this.getProperty("asteroids.field.unit.color.g", "0")),
-				Float.valueOf(this.getProperty("asteroids.field.unit.color.b", "0"))
-		);
+	public float getAsteroidsColorR() {
+		return Float.valueOf(this.getProperty("asteroids.field.color.r", "100"));
+	}
+
+	public float getAsteroidsColorG() {
+		return Float.valueOf(this.getProperty("asteroids.field.color.g", "100"));
+	}
+
+	public float getAsteroidsColorB() {
+		return Float.valueOf(this.getProperty("asteroids.field.color.b", "100"));
 	}
 
     /**
