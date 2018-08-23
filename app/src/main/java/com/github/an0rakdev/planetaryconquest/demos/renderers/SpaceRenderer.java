@@ -15,9 +15,9 @@ import com.google.vr.sdk.base.Viewport;
 import javax.microedition.khronos.egl.EGLConfig;
 
 public abstract class SpaceRenderer implements GvrView.StereoRenderer {
-    private static final int FLOAT_BYTES = (Float.SIZE / Byte.SIZE);
-    private static final int DIMENSION = 3;
-    private static final String TAG = "SpaceRenderer";
+    protected static final int FLOAT_BYTES = (Float.SIZE / Byte.SIZE);
+    protected static final int DIMENSION = 3;
+    private static final String TAG = "Renderer";
     private static FloatBuffer starsVertices = null;
     private final float[] starColor;
     private final Context context;
@@ -54,6 +54,7 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
 
         this.starsShader = GLES20.glCreateProgram();
         checkError(0 == this.starsShader, "Unable to create the stars program !");
+        int status[] = new int[1];
         // Vertex Shader
         final String vertexSources = readContentOf(R.raw.point_vertex);
         final int vertexShader = GLES20.glCreateShader(GLES20.GL_VERTEX_SHADER);
