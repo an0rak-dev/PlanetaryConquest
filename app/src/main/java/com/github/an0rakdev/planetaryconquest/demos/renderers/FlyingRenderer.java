@@ -9,8 +9,6 @@ import com.github.an0rakdev.planetaryconquest.demos.astronomic.StationaryBody;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.configs.EarthConfiguration;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.configs.MoonConfiguration;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
-import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
-import com.github.an0rakdev.planetaryconquest.graphics.shaders.programs.VRProgram;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
