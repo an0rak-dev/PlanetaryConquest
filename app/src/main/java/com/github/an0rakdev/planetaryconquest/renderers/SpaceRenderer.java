@@ -5,13 +5,21 @@ import android.opengl.Matrix;
 import android.util.Log;
 
 import com.github.an0rakdev.planetaryconquest.FrameCounter;
+import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.RandomUtils;
-import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
 import com.google.vr.sdk.base.Viewport;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.FloatBuffer;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
@@ -110,10 +118,6 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
         return this.timeBetweenFrames;
     }
 
-    final Context getContext() {
-        return this.context;
-    }
-
     final SpaceProperties getProperties() {
         return this.properties;
     }
@@ -158,7 +162,7 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
         starsVertices.position(0);
     }
 
-    private FloatBuffer createFloatBuffer(final int size) {
+    FloatBuffer createFloatBuffer(final int size) {
         final ByteBuffer bb = ByteBuffer.allocateDirect(size);
         bb.order(ByteOrder.nativeOrder());
         return bb.asFloatBuffer();

@@ -102,6 +102,12 @@ public class OpenGLUtils {
         drawShape(GLES20.GL_TRIANGLES, count, handlesToDisabled);
     }
 
+    public static void drawLines(final int count, final float width, final int... handlesToDisabled) {
+        GLES20.glLineWidth(width);
+        drawShape(GLES20.GL_LINES, count, handlesToDisabled);
+    }
+
+
     private static int compileShader(final String source, final int type, final int program) {
         final int[] status = new int[1];
         final int shader = GLES20.glCreateShader(type);

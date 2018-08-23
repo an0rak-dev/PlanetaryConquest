@@ -111,4 +111,19 @@ final class AsteroidsProperties extends SpaceProperties {
         return Long.valueOf(this.getProperty("asteroids.distance.to.travel.in.meters", "10"));
     }
 
+    public float getCrossSize() {
+    	return Float.valueOf(this.getProperty("asteroids.hud.cross.size", "1"));
+	}
+
+	public float getCrossColorR() {
+		return Float.valueOf(this.getProperty("asteroids.hud.cross.color.r", "255"));
+	}
+
+	public float getCrossColorG() {
+		return Float.valueOf(this.getProperty("asteroids.hud.cross.color.g", "255"));
+	}
+
+	public float getCrossColorB() {
+		return Float.valueOf(this.getProperty("asteroids.hud.cross.color.b", "255"));
+	}
 }
