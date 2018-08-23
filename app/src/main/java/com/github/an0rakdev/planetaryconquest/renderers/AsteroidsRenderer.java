@@ -13,6 +13,7 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,6 +41,12 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private final float[] modelView;
 	private final float[] mvp;
 
+	private int hudProgram;
+	private final float[] crossPosition;
+	private final float[] hudCamera;
+	private FloatBuffer crossColor;
+	private FloatBuffer crossVertices;
+
     /**
      * Create a new Asteroids Renderer with the given Android Context.
      *
@@ -59,7 +66,10 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.model = new float[16];
 		this.modelView = new float[16];
 		this.mvp = new float[16];
+		this.crossPosition = new float[3];
+		this.hudCamera = new float[16];
 		initializeAsteroidField(config);
+		initializeHud(config);
 	}
 
 	@Override
@@ -72,6 +82,11 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final int vertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.celestialProgram);
 		final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.celestialProgram);
 		OpenGLUtils.linkProgram(this.celestialProgram, vertexShader, fragmentShader);
+
+		this.hudProgram = OpenGLUtils.newProgram();
+		final int hudVertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.hudProgram);
+		final int hudFragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.hudProgram);
+		OpenGLUtils.linkProgram(this.hudProgram, hudVertexShader, hudFragmentShader);
 	}
 
 	@Override
@@ -86,15 +101,19 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float cameraDirY = getProperties().getCameraDirectionY();
 		final float cameraDirZ = getProperties().getCameraDirectionZ();
 
-		cameraPosX += asteroidsDistance;
+	//	cameraPosX += asteroidsDistance;
 		if (distanceElapsed >0f) {
-			cameraPosZ += cameraDistance;
+	//		cameraPosZ += cameraDistance;
 			distanceElapsed -= cameraDistance;
 		}
 
 		Matrix.setLookAtM(this.camera, 0,
 				cameraPosX, cameraPosY, cameraPosZ,
 				cameraPosX + cameraDirX, cameraPosY + cameraDirY, cameraPosZ + cameraDirZ,
+				0, 1, 0);
+		Matrix.setLookAtM(this.hudCamera, 0,
+				getProperties().getCameraPositionX(), cameraPosY, getProperties().getCameraPositionZ(),
+				cameraDirX, cameraDirY, cameraDirZ,
 				0, 1, 0);
 		Matrix.setIdentityM(this.model, 0);
 	}
@@ -114,6 +133,16 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, asteroid.colors(), "vColors");
 			OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorHandle);
 		}
+
+		OpenGLUtils.use(this.hudProgram);
+		Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.hudCamera, 0);
+		Matrix.multiplyMM(this.modelView, 0, this.view, 0, this.model, 0);
+		Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
+
+		OpenGLUtils.bindMVPToProgram(this.hudProgram, this.mvp, "vMatrix");
+		final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.hudProgram, this.crossVertices, "vVertices");
+		final int colorHandle = OpenGLUtils.bindColorToProgram(this.hudProgram, this.crossColor, "vColors");
+		OpenGLUtils.drawLines(4, 14, verticesHandle, colorHandle);
 	}
 
 	private void initializeAsteroidField(final AsteroidsProperties config) {
@@ -141,5 +170,35 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			asteroid.background(asteroidColor);
 			this.field.add(asteroid);
 		}
+	}
+
+	private void initializeHud(final AsteroidsProperties config) {
+		this.crossPosition[0] = 0f;
+		this.crossPosition[1] = 0f;
+		this.crossPosition[2] = 6f;
+		final float crossSize = config.getCrossSize();
+		this.crossVertices = createFloatBuffer(4 * DIMENSION * FLOAT_BYTES);
+		this.crossVertices.put(this.crossPosition[0] - crossSize);
+		this.crossVertices.put(this.crossPosition[1]);
+		this.crossVertices.put(this.crossPosition[2]);
+		this.crossVertices.put(this.crossPosition[0] + crossSize);
+		this.crossVertices.put(this.crossPosition[1]);
+		this.crossVertices.put(this.crossPosition[2]);
+		this.crossVertices.put(this.crossPosition[0]);
+		this.crossVertices.put(this.crossPosition[1] - crossSize);
+		this.crossVertices.put(this.crossPosition[2]);
+		this.crossVertices.put(this.crossPosition[0]);
+		this.crossVertices.put(this.crossPosition[1] + crossSize);
+		this.crossVertices.put(this.crossPosition[2]);
+		this.crossVertices.position(0);
+		this.crossColor = createFloatBuffer(4 * 4 * FLOAT_BYTES);
+		final float[] color = OpenGLUtils.toOpenGLColor(
+				config.getCrossColorR(),
+				config.getCrossColorG(),
+				config.getCrossColorB());
+		for (int i=0; i < 4; i++) {
+			this.crossColor.put(color);
+		}
+		this.crossColor.position(0);
 	}
 }
