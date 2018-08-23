@@ -1,6 +1,5 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
 
-import com.github.an0rakdev.planetaryconquest.graphics.Color;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 
 import java.util.ArrayList;
@@ -19,10 +18,6 @@ public final class Triangle {
      */
     public static final int NB_VERTEX = 3;
     private final List<Coordinates> coords;
-    /**
-     * The color used to draw this Triangle.
-     */
-    public Color color;
 
     /**
      * Create a new Triangle with the given 3 coordinates.
@@ -36,7 +31,6 @@ public final class Triangle {
         this.coords.add(c1);
         this.coords.add(c2);
         this.coords.add(c3);
-        this.color = Color.random(true);
     }
 
     /**
@@ -77,15 +71,6 @@ public final class Triangle {
         }
         return result;
     }
-
-    public void move(final float hSpeed, final float ySpeed, final float zSpeed) {
-    	for (final Coordinates c : this.coords) {
-    		c.x += hSpeed;
-    		c.y += ySpeed;
-
-    		c.z += zSpeed;
-		}
-	}
 
     private Coordinates middleOf(final Coordinates c1, final Coordinates c2) {
         return new Coordinates(this.middleOf(c1.x, c2.x),

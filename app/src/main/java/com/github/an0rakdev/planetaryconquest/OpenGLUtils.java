@@ -1,4 +1,4 @@
-package com.github.an0rakdev.planetaryconquest.graphics;
+package com.github.an0rakdev.planetaryconquest;
 
 import android.opengl.GLES20;
 import android.util.Log;
