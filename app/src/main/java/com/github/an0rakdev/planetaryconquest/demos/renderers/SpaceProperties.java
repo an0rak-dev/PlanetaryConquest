@@ -24,28 +24,59 @@ public abstract class SpaceProperties extends Properties {
 	}
 
 	/**
-	 * Return the initial camera direction in Space Demo.
-	 *
-	 * (keys : space.camera.direction.{x|y|z} )
-	 *
-	 * @return the inital camera direction.
-	 */
-	public Coordinates getCameraDirection() {
-		return new Coordinates(
-				Float.valueOf(this.getProperty("space.camera.direction.x", "0")),
-				Float.valueOf(this.getProperty("space.camera.direction.y", "0")),
-				Float.valueOf(this.getProperty("space.camera.direction.z", "0"))
-		);
-	}
-
-	/**
-	 * Return the size of each stars to display.
+	 * Return the number of stars to display in the view.
 	 *
 	 * (key : space.stars.size)
 	 *
 	 * @return the stars size.
 	 */
-	public int getStarsSize() {
-		return Integer.valueOf(this.getProperty("space.stars.size", "1"));
+	public int getStarsCount() { return Integer.valueOf(this.getProperty("space.stars.count", "10")); }
+
+	public float getStarsXBound() {
+		return Float.valueOf(this.getProperty("space.stars.bounds.x", "5.0"));
+	}
+
+	public float getStarsYBound() {
+		return Float.valueOf(this.getProperty("space.stars.bounds.y", "4.0"));
+	}
+
+	public float getStarsZBound() {
+		return Float.valueOf(this.getProperty("space.stars.bounds.z", "3.0"));
+	}
+
+	public float getStarsColorR() {
+		return Float.valueOf(this.getProperty("space.stars.color.r", "255.0"));
+	}
+
+	public float getStarsColorG() {
+		return Float.valueOf(this.getProperty("space.stars.color.g", "255.0"));
+	}
+
+	public float getStarsColorB() {
+		return Float.valueOf(this.getProperty("space.stars.color.b", "255.0"));
+	}
+
+	public float getCameraPositionX() {
+		return Float.valueOf(this.getProperty("space.camera.position.x", "0"));
+	}
+
+	public float getCameraPositionY() {
+		return Float.valueOf(this.getProperty("space.camera.position.y", "0"));
+	}
+
+	public float getCameraPositionZ() {
+		return Float.valueOf(this.getProperty("space.camera.position.z", "0"));
+	}
+
+	public float getCameraDirectionX() {
+		return Float.valueOf(this.getProperty("space.camera.direction.x", "0"));
+	}
+
+	public float getCameraDirectionY() {
+		return Float.valueOf(this.getProperty("space.camera.direction.y", "0"));
+	}
+
+	public float getCameraDirectionZ() {
+		return Float.valueOf(this.getProperty("space.camera.direction.z", "1"));
 	}
 }

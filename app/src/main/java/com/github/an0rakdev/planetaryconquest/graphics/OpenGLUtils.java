@@ -3,7 +3,11 @@ package com.github.an0rakdev.planetaryconquest.graphics;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import java.nio.FloatBuffer;
+
 public class OpenGLUtils {
+    private static final int DIMENSION = 3;
+    private static final int FLOAT_BYTES = (Float.SIZE / Byte.SIZE);
 
     private static final String TAG = "OpenGLUtils";
 
@@ -44,6 +48,60 @@ public class OpenGLUtils {
         return result;
     }
 
+    public static float[] toOpenGLColor(final float r, final float g, final float b) {
+        final float[] result = new float[4];
+        result[0] = r / 255f;
+        result[1] = g / 255f;
+        result[2] = b / 255f;
+        result[3] = 1f;
+        return result;
+    }
+
+    public static void clear() {
+        GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT | GLES20.GL_DEPTH_BUFFER_BIT);
+    }
+
+    public static void use(final int program) {
+        GLES20.glUseProgram(program);
+    }
+
+    public static int bindVerticesToProgram(final int program, final FloatBuffer vertices, final String attribName) {
+        int verticesHandle = GLES20.glGetAttribLocation(program, attribName);
+        GLES20.glEnableVertexAttribArray(verticesHandle);
+        GLES20.glVertexAttribPointer(verticesHandle, DIMENSION, GLES20.GL_FLOAT, false, 3 *FLOAT_BYTES, vertices);
+        return verticesHandle;
+    }
+
+    public static void bindMVPToProgram(final int program, final float[] mvp, final String attribName) {
+        final int mvpHandle = GLES20.glGetUniformLocation(program, attribName);
+        GLES20.glUniformMatrix4fv(mvpHandle, 1, false, mvp, 0);
+    }
+
+    public static void setPointSizeOf(final int program, final float pointSize, final String attribName) {
+        final int pointSizeHandle = GLES20.glGetUniformLocation(program, attribName);
+        GLES20.glUniform1f(pointSizeHandle, pointSize);
+    }
+
+    public static void bindColorToProgram(final int program, final float[] color, final String attribName) {
+        final int colorHandle = GLES20.glGetUniformLocation(program, attribName);
+        GLES20.glUniform4fv(colorHandle, 1, color, 0);
+    }
+
+    public static int bindColorToProgram(final int program, final FloatBuffer colors, final String attribName) {
+        final int colorHandle = GLES20.glGetAttribLocation(program, attribName);
+        GLES20.glEnableVertexAttribArray(colorHandle);
+        GLES20.glVertexAttribPointer(colorHandle, 4, GLES20.GL_FLOAT, false, 0, colors);
+        return colorHandle;
+    }
+
+    public static void drawPoints(final int count, final int... handlesToDisabled) {
+        drawShape(GLES20.GL_POINTS, count, handlesToDisabled);
+    }
+
+    public static void drawTriangles(final int count, final int... handlesToDisabled) {
+        drawShape(GLES20.GL_TRIANGLES, count, handlesToDisabled);
+    }
+
     private static int compileShader(final String source, final int type, final int program) {
         final int[] status = new int[1];
         final int shader = GLES20.glCreateShader(type);
@@ -65,5 +123,12 @@ public class OpenGLUtils {
     private static void logOpenGLError(final String message) {
         Log.e(TAG, message);
         Log.e(TAG, "OpenGL error code : " + GLES20.glGetError());
+    }
+
+    private static void drawShape(final int shapeType, final int count, final int... handlesToDisabled) {
+        GLES20.glDrawArrays(shapeType, 0, count);
+        for (final int handle : handlesToDisabled) {
+            GLES20.glDisableVertexAttribArray(handle);
+        }
     }
 }
