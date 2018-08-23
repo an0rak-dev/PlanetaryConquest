@@ -1,8 +1,8 @@
-uniform mat4 uMatrix;
-attribute vec4 vPosition;
+uniform mat4 vMatrix;
+attribute vec4 vVertices;
 attribute vec4 vColors;
 varying vec4 color;
 void main() {
   color = vColors;
-  gl_Position = uMatrix * vPosition;
+  gl_Position = vMatrix * vVertices;
 }
