@@ -37,15 +37,16 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private float cameraPosZ;
 	private final float[] camera;
 	private final float[] view;
-	private final float[] model;
 	private final float[] modelView;
 	private final float[] mvp;
 
 	private int hudProgram;
 	private final float[] crossPosition;
+	private final float[] modelHud;
 	private final float[] hudCamera;
 	private FloatBuffer crossColor;
 	private FloatBuffer crossVertices;
+	private final float[] headView;
 
     /**
      * Create a new Asteroids Renderer with the given Android Context.
@@ -63,11 +64,12 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.cameraPosZ = getProperties().getCameraPositionZ();
 		this.camera = new float[16];
 		this.view = new float[16];
-		this.model = new float[16];
 		this.modelView = new float[16];
 		this.mvp = new float[16];
 		this.crossPosition = new float[3];
+		this.modelHud = new float[16];
 		this.hudCamera = new float[16];
+		this.headView = new float[16];
 		initializeAsteroidField(config);
 		initializeHud(config);
 	}
@@ -115,7 +117,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 				getProperties().getCameraPositionX(), cameraPosY, getProperties().getCameraPositionZ(),
 				cameraDirX, cameraDirY, cameraDirZ,
 				0, 1, 0);
-		Matrix.setIdentityM(this.model, 0);
+
+		headTransform.getHeadView(this.headView, 0);
 	}
 
 	@Override
@@ -123,7 +126,6 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		super.onDrawEye(eye);
 
 		Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
-		Matrix.multiplyMM(this.modelView, 0, this.view, 0, this.model, 0);
 		Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
 		OpenGLUtils.use(this.celestialProgram);
 		OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
@@ -136,8 +138,11 @@ public class AsteroidsRenderer extends SpaceRenderer {
 
 		OpenGLUtils.use(this.hudProgram);
 		Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.hudCamera, 0);
-		Matrix.multiplyMM(this.modelView, 0, this.view, 0, this.model, 0);
-		Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
+		final float[] staticModel = new float[16];
+		// FIXME invert the rotation on the Y axis.
+		Matrix.multiplyMM(staticModel, 0, this.headView, 0, this.modelHud, 0);
+		Matrix.multiplyMM(this.modelView, 0, this.view, 0, staticModel, 0);
+		Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.modelView, 0);
 
 		OpenGLUtils.bindMVPToProgram(this.hudProgram, this.mvp, "vMatrix");
 		final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.hudProgram, this.crossVertices, "vVertices");
@@ -200,5 +205,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			this.crossColor.put(color);
 		}
 		this.crossColor.position(0);
+		Matrix.setIdentityM(this.modelHud, 0);
+		Matrix.translateM(this.modelHud, 0,
+				this.crossPosition[0], this.crossPosition[1], this.crossPosition[2]);
 	}
 }
