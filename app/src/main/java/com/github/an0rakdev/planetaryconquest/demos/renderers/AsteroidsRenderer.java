@@ -8,7 +8,6 @@ import android.os.SystemClock;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.AsteroidField;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
-import com.github.an0rakdev.planetaryconquest.graphics.shaders.programs.VRProgram;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
