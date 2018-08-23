@@ -1,16 +1,20 @@
-package com.github.an0rakdev.planetaryconquest.demos.renderers;
+package com.github.an0rakdev.planetaryconquest.renderers;
 
 import android.content.Context;
-import android.opengl.GLES20;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.demos.astronomic.AsteroidField;
+import com.github.an0rakdev.planetaryconquest.RandomUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
+import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
@@ -22,7 +26,7 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @version 1.0
  */
 public class AsteroidsRenderer extends SpaceRenderer {
-	private AsteroidField field;
+	private final List<Polyhedron> field;
 	private final float asteroidsSpeed;
 	private final float cameraSpeed;
 	private float distanceElapsed;
@@ -44,12 +48,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	public AsteroidsRenderer(final Context context) {
 		super(context, new AsteroidsProperties(context));
 		final AsteroidsProperties config = (AsteroidsProperties) this.getProperties();
-		this.field = new AsteroidField(config.getAsteroidsCount());
-		this.field.setBounds(config.getAsteroidsFieldMin(),
-				config.getAsteroidsFieldMax());
-		this.field.setMinSize(config.getMinAsteroidSize());
-		this.field.setMaxSize(config.getMaxAsteroidSize());
-		this.field.setDefaultColor(config.getAsteroidsColor());
+		this.field = new ArrayList<>();
 		this.asteroidsSpeed = config.getAsteroidsSpeed() / 1000;
 		this.cameraSpeed = config.getCameraSpeed() / 1000;
 		this.distanceElapsed = config.getDistanceToTravel();
@@ -60,6 +59,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.model = new float[16];
 		this.modelView = new float[16];
 		this.mvp = new float[16];
+		initializeAsteroidField(config);
 	}
 
 	@Override
@@ -109,10 +109,37 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		OpenGLUtils.use(this.celestialProgram);
 		OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
 
-		for (final Polyhedron asteroid : this.field.asteroids()) {
+		for (final Polyhedron asteroid : this.field) {
 			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, asteroid.bufferize(), "vVertices");
 			final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, asteroid.colors(), "vColors");
 			OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorHandle);
+		}
+	}
+
+	private void initializeAsteroidField(final AsteroidsProperties config) {
+		final int asteroidsCount = config.getAsteroidsCount();
+		final float[] asteroidColor = OpenGLUtils.toOpenGLColor(
+				config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB()
+		);
+		final float minSize = config.getMinAsteroidSize();
+		final float maxSize = config.getMaxAsteroidSize();
+		final float minX = config.getAsteroidMinX();
+		final float minY = config.getAsteroidMinY();
+		final float minZ = config.getAsteroidMinZ();
+		final float maxX = config.getAsteroidMaxX();
+		final float maxY = config.getAsteroidMaxY();
+		final float maxZ = config.getAsteroidMaxZ();
+
+		while (this.field.size() < asteroidsCount) {
+			final float radius = RandomUtils.randRange(minSize, maxSize);
+			final Coordinates center = new Coordinates(
+				RandomUtils.randRange(minX, maxX),
+				RandomUtils.randRange(minY, maxY),
+				RandomUtils.randRange(minZ, maxZ));
+			final Polyhedron asteroid = new Sphere(center, radius);
+			asteroid.precision(1);
+			asteroid.background(asteroidColor);
+			this.field.add(asteroid);
 		}
 	}
 }

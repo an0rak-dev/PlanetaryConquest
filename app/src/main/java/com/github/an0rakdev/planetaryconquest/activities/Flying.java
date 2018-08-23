@@ -3,7 +3,7 @@ package com.github.an0rakdev.planetaryconquest.activities;
 import android.os.Bundle;
 
 import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.demos.renderers.FlyingRenderer;
+import com.github.an0rakdev.planetaryconquest.renderers.FlyingRenderer;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
 

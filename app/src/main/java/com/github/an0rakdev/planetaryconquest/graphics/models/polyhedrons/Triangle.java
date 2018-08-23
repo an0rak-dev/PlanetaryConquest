@@ -1,7 +1,7 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
 
 import com.github.an0rakdev.planetaryconquest.graphics.Color;
-import com.github.an0rakdev.planetaryconquest.math.Coordinates;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 
 import java.util.ArrayList;
 import java.util.List;
