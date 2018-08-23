@@ -8,6 +8,8 @@ import android.os.SystemClock;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.StationaryBody;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.configs.EarthConfiguration;
 import com.github.an0rakdev.planetaryconquest.demos.astronomic.configs.MoonConfiguration;
+import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
+import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.shaders.programs.VRProgram;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
@@ -117,22 +119,26 @@ public class FlyingRenderer extends SpaceRenderer {
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
         Matrix.multiplyMM(this.modelView, 0, this.view, 0, this.model, 0);
         Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
-
-
-        // Pass the vertices to the shader.
-        final int verticesHandle = GLES20.glGetAttribLocation(this.celestialProgram, "vVertices");
-        GLES20.glEnableVertexAttribArray(verticesHandle);
-        GLES20.glVertexAttribPointer(verticesHandle, DIMENSION, GLES20.GL_FLOAT, false, 3* FLOAT_BYTES, moon.model().bufferize());
         // Pass the MVP to the shader.
         final int mvpHandle = GLES20.glGetUniformLocation(this.celestialProgram, "vMatrix");
         GLES20.glUniformMatrix4fv(mvpHandle, 1, false, this.mvp, 0);
+
+        draw(moon.model());
+        draw(earth.model());
+    }
+
+    private void draw(final Polyhedron sphere)  {
+        // Pass the vertices to the shader.
+        final int verticesHandle = GLES20.glGetAttribLocation(this.celestialProgram, "vVertices");
+        GLES20.glEnableVertexAttribArray(verticesHandle);
+        GLES20.glVertexAttribPointer(verticesHandle, DIMENSION, GLES20.GL_FLOAT, false, 3* FLOAT_BYTES, sphere.bufferize());
         // Pass the color to the shader.
         final int colorHandle = GLES20.glGetAttribLocation(this.celestialProgram, "vColors");
         GLES20.glEnableVertexAttribArray(colorHandle);
-        GLES20.glVertexAttribPointer(colorHandle, 4, GLES20.GL_FLOAT, false, 0, moon.model().colors());
+        GLES20.glVertexAttribPointer(colorHandle, 4, GLES20.GL_FLOAT, false, 0, sphere.colors());
 
         // Draw.
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, moon.model().size());
+        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, sphere.size());
         GLES20.glDisableVertexAttribArray(colorHandle);
         GLES20.glDisableVertexAttribArray(verticesHandle);
     }
