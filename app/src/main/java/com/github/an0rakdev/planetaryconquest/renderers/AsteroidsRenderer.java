@@ -6,7 +6,7 @@ import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.RandomUtils;
-import com.github.an0rakdev.planetaryconquest.graphics.OpenGLUtils;
+import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;

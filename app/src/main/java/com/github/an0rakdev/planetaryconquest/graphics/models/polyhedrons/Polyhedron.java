@@ -1,8 +1,8 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
 
-import com.github.an0rakdev.planetaryconquest.graphics.Color;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
+import com.github.an0rakdev.planetaryconquest.RandomUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
@@ -15,6 +15,7 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class Polyhedron extends Model {
+    public static final int COLOR_SIZE = 4;
     private final List<Triangle> triangles;
     private FloatBuffer vertices;
     private int precisionOfEachTriangle;
@@ -27,6 +28,7 @@ public abstract class Polyhedron extends Model {
         this.triangles = new ArrayList<>();
         this.precisionOfEachTriangle = 0;
         this.vertices = null;
+        this.color = RandomUtils.randOpenGlColor();
     }
 
     /**
@@ -83,10 +85,10 @@ public abstract class Polyhedron extends Model {
         this.precalculate();
         final FloatBuffer colorsBuffer = this.createFloatBuffer(
                 this.size()
-                * Color.SIZE
+                * COLOR_SIZE
                 * FLOAT_BYTE_SIZE);
-        for (final Triangle triangle : this.triangles) {
-            for (int i = 0; i < Triangle.NB_VERTEX; i++) {
+        for (int i =0; i < this.triangles.size(); i++) {
+            for (int j = 0; j < Triangle.NB_VERTEX; j++) {
                 colorsBuffer.put(this.color);
             }
         }

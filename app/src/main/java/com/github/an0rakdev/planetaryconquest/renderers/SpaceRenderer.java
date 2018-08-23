@@ -7,7 +7,7 @@ import android.util.Log;
 import com.github.an0rakdev.planetaryconquest.FrameCounter;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.RandomUtils;
-import com.github.an0rakdev.planetaryconquest.graphics.OpenGLUtils;
+import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
