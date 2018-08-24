@@ -33,6 +33,11 @@ public final class Octahedron extends Polyhedron {
     }
 
     @Override
+    public Coordinates getPosition() {
+        return this.center;
+    }
+
+    @Override
     protected void fillTriangles(final List<Triangle> trianglesToFill) {
 		final float front = this.center.z + this.centerToSquareDistance;
 		final float back = this.center.z - this.centerToSquareDistance;

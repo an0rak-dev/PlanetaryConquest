@@ -7,7 +7,7 @@ import android.util.Log;
 import com.github.an0rakdev.planetaryconquest.FrameCounter;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.RandomUtils;
+import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
@@ -151,12 +151,12 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
         final float back = -this.properties.getStarsZBound();
 
         for (int i = 0; i < starsCount / 2; i++) {
-            starsVertices.put(RandomUtils.randRange(minX, maxX));
-            starsVertices.put(RandomUtils.randRange(minY, maxY));
+            starsVertices.put(MathUtils.randRange(minX, maxX));
+            starsVertices.put(MathUtils.randRange(minY, maxY));
             starsVertices.put(front);
 
-            starsVertices.put(RandomUtils.randRange(minX, maxX));
-            starsVertices.put(RandomUtils.randRange(minY, maxY));
+            starsVertices.put(MathUtils.randRange(minX, maxX));
+            starsVertices.put(MathUtils.randRange(minY, maxY));
             starsVertices.put(back);
         }
         starsVertices.position(0);
