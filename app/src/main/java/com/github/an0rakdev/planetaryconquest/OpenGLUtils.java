@@ -107,6 +107,13 @@ public class OpenGLUtils {
         drawShape(GLES20.GL_LINES, count, handlesToDisabled);
     }
 
+    public static float[] randOpenGlColor() {
+        return OpenGLUtils.toOpenGLColor(
+                MathUtils.randRange(0f, 255f),
+                MathUtils.randRange(0f, 255f),
+                MathUtils.randRange(0f, 255f)
+        );
+    }
 
     private static int compileShader(final String source, final int type, final int program) {
         final int[] status = new int[1];

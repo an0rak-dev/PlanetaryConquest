@@ -35,6 +35,15 @@ public class Sphere extends Polyhedron {
     }
 
     @Override
+    public Coordinates getPosition() {
+        return this.center;
+    }
+
+    public float getRadius() {
+        return this.radius;
+    }
+
+    @Override
     protected void fillTriangles(final List<Triangle> triangles) {
         final Octahedron octahedron = new Octahedron(this.center, this.radius, this.radius);
         octahedron.precision(this.realPrecision);

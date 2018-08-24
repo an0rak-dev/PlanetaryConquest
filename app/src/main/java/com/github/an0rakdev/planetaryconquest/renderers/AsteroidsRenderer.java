@@ -5,9 +5,8 @@ import android.opengl.Matrix;
 import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.RandomUtils;
+import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
-import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.google.vr.sdk.base.Eye;
@@ -27,7 +26,7 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @version 1.0
  */
 public class AsteroidsRenderer extends SpaceRenderer {
-	private final List<Polyhedron> field;
+	private final List<Sphere> field;
 	private final float asteroidsSpeed;
 	private final float cameraSpeed;
 	private float distanceElapsed;
@@ -130,24 +129,19 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		OpenGLUtils.use(this.celestialProgram);
 		OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
 
-		for (final Polyhedron asteroid : this.field) {
-			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, asteroid.bufferize(), "vVertices");
-			final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, asteroid.colors(), "vColors");
-			OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorHandle);
+		final List<Sphere> destroyed = new ArrayList<>();
+		for (final Sphere asteroid : this.field) {
+			if (isLookingAt(asteroid)) {
+	//			destroyed.add(asteroid);
+			} else {
+				final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, asteroid.bufferize(), "vVertices");
+				final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, asteroid.colors(), "vColors");
+				OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorHandle);
+			}
 		}
+		this.field.removeAll(destroyed);
 
-		OpenGLUtils.use(this.hudProgram);
-		Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.hudCamera, 0);
-		final float[] staticModel = new float[16];
-		// FIXME invert the rotation on the Y axis.
-		Matrix.multiplyMM(staticModel, 0, this.headView, 0, this.modelHud, 0);
-		Matrix.multiplyMM(this.modelView, 0, this.view, 0, staticModel, 0);
-		Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.modelView, 0);
-
-		OpenGLUtils.bindMVPToProgram(this.hudProgram, this.mvp, "vMatrix");
-		final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.hudProgram, this.crossVertices, "vVertices");
-		final int colorHandle = OpenGLUtils.bindColorToProgram(this.hudProgram, this.crossColor, "vColors");
-		OpenGLUtils.drawLines(4, 14, verticesHandle, colorHandle);
+		displayHud(eye);
 	}
 
 	private void initializeAsteroidField(final AsteroidsProperties config) {
@@ -155,6 +149,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float[] asteroidColor = OpenGLUtils.toOpenGLColor(
 				config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB()
 		);
+		/*
 		final float minSize = config.getMinAsteroidSize();
 		final float maxSize = config.getMaxAsteroidSize();
 		final float minX = config.getAsteroidMinX();
@@ -165,16 +160,22 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float maxZ = config.getAsteroidMaxZ();
 
 		while (this.field.size() < asteroidsCount) {
-			final float radius = RandomUtils.randRange(minSize, maxSize);
+			final float radius = MathUtils.randRange(minSize, maxSize);
 			final Coordinates center = new Coordinates(
-				RandomUtils.randRange(minX, maxX),
-				RandomUtils.randRange(minY, maxY),
-				RandomUtils.randRange(minZ, maxZ));
-			final Polyhedron asteroid = new Sphere(center, radius);
+				MathUtils.randRange(minX, maxX),
+				MathUtils.randRange(minY, maxY),
+				MathUtils.randRange(minZ, maxZ));
+			final Sphere asteroid = new Sphere(center, radius);
 			asteroid.precision(1);
 			asteroid.background(asteroidColor);
 			this.field.add(asteroid);
 		}
+
+		 */
+		Sphere a = new Sphere(new Coordinates(5, 1, 6), 1);
+		a.precision(1);
+		a.background(asteroidColor);
+		this.field.add(a);
 	}
 
 	private void initializeHud(final AsteroidsProperties config) {
@@ -208,5 +209,43 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		Matrix.setIdentityM(this.modelHud, 0);
 		Matrix.translateM(this.modelHud, 0,
 				this.crossPosition[0], this.crossPosition[1], this.crossPosition[2]);
+	}
+
+	private void displayHud(final Eye eye) {
+		OpenGLUtils.use(this.hudProgram);
+		final float[] symetry = new float[16];
+		Matrix.setIdentityM(symetry, 0);
+		symetry[0] *= -1;
+		Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.hudCamera, 0);
+		final float[] staticModel = new float[16];
+		Matrix.multiplyMM(staticModel, 0, this.headView, 0, this.modelHud, 0);
+		Matrix.multiplyMM(staticModel, 0, symetry, 0, staticModel, 0);
+
+		Matrix.multiplyMM(this.modelView, 0, this.view, 0, staticModel, 0);
+		Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.modelView, 0);
+
+		OpenGLUtils.bindMVPToProgram(this.hudProgram, this.mvp, "vMatrix");
+		final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.hudProgram, this.crossVertices, "vVertices");
+		final int colorHandle = OpenGLUtils.bindColorToProgram(this.hudProgram, this.crossColor, "vColors");
+		OpenGLUtils.drawLines(4, 14, verticesHandle, colorHandle);
+	}
+
+	private boolean isLookingAt(final Sphere shape) {
+		final float[] asteroidModel = new float[16];
+		Matrix.setIdentityM(asteroidModel, 0);
+		Matrix.translateM(asteroidModel, 0, shape.getPosition().x, shape.getPosition().y, shape.getPosition().z);
+		final float[] modelView = new float[16];
+		Matrix.multiplyMM(modelView, 0, this.headView, 0, asteroidModel, 0);
+
+		final float[] position = new float[4];
+		Matrix.multiplyMV(position,0, modelView, 0, new float[] {0f,0f,0f,1f}, 0);
+
+		final float[] forwardVec = new float[] {0f,0f,1f,1f};
+		final float angle = MathUtils.angleBetween(position, forwardVec);
+		final float targetPerimeter = MathUtils.angleBetween(
+				new float[] {shape.getPosition().x, shape.getPosition().y, shape.getPosition().z, 1},
+				new float[] {shape.getPosition().x + shape.getRadius(), shape.getPosition().y, shape.getPosition().z, 1}
+		);
+		return angle <= targetPerimeter;
 	}
 }

@@ -1,6 +1,7 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
 
-import com.github.an0rakdev.planetaryconquest.RandomUtils;
+import com.github.an0rakdev.planetaryconquest.MathUtils;
+import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 
@@ -28,7 +29,7 @@ public abstract class Polyhedron extends Model {
         this.triangles = new ArrayList<>();
         this.precisionOfEachTriangle = 0;
         this.vertices = null;
-        this.color = RandomUtils.randOpenGlColor();
+        this.color = OpenGLUtils.randOpenGlColor();
     }
 
     /**
@@ -105,6 +106,8 @@ public abstract class Polyhedron extends Model {
         this.color = c;
     }
 
+    public abstract Coordinates getPosition();
+
     /**
      * Fill the given list with the triangles which composed this model.
      *
@@ -135,5 +138,15 @@ public abstract class Polyhedron extends Model {
         if (this.triangles.isEmpty()) {
             this.triangles.addAll(this.generate());
         }
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (null == o || !(o instanceof Polyhedron)) {
+            return false;
+        }
+
+        final Polyhedron that = (Polyhedron)o;
+        return this.getPosition().equals(that.getPosition());
     }
 }
