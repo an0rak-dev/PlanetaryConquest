@@ -152,7 +152,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float[] asteroidColor = OpenGLUtils.toOpenGLColor(
 				config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB()
 		);
-		/*
+		//*
 		final float minSize = config.getMinAsteroidSize();
 		final float maxSize = config.getMaxAsteroidSize();
 		final float minX = config.getAsteroidMinX();
@@ -173,12 +173,6 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			asteroid.background(asteroidColor);
 			this.field.add(asteroid);
 		}
-
-		 */
-		Sphere a = new Sphere(new Coordinates(10, 0.5f, 6), 1);
-		a.precision(1);
-		a.background(asteroidColor);
-		this.field.add(a);
 	}
 
 	private void initializeHud(final AsteroidsProperties config) {
