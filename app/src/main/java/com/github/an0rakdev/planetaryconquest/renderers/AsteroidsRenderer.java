@@ -28,6 +28,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class AsteroidsRenderer extends SpaceRenderer {
 	private final List<Sphere> field;
 	private final float asteroidsSpeed;
+	private float asteroidMvt;
 	private final float cameraSpeed;
 	private float distanceElapsed;
 
@@ -57,6 +58,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final AsteroidsProperties config = (AsteroidsProperties) this.getProperties();
 		this.field = new ArrayList<>();
 		this.asteroidsSpeed = config.getAsteroidsSpeed() / 1000;
+		this.asteroidMvt = 0f;
 		this.cameraSpeed = config.getCameraSpeed() / 1000;
 		this.distanceElapsed = config.getDistanceToTravel();
 		this.cameraPosX = getProperties().getCameraPositionX();
@@ -102,7 +104,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float cameraDirY = getProperties().getCameraDirectionY();
 		final float cameraDirZ = getProperties().getCameraDirectionZ();
 
-	//	cameraPosX += asteroidsDistance;
+		this.asteroidMvt += asteroidsDistance;
+		this.cameraPosX += asteroidsDistance;
 		if (distanceElapsed >0f) {
 	//		cameraPosZ += cameraDistance;
 			distanceElapsed -= cameraDistance;
@@ -172,7 +175,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		}
 
 		 */
-		Sphere a = new Sphere(new Coordinates(5, 1, 6), 1);
+		Sphere a = new Sphere(new Coordinates(10, 0.5f, 6), 1);
 		a.precision(1);
 		a.background(asteroidColor);
 		this.field.add(a);
@@ -233,7 +236,9 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private boolean isLookingAt(final Sphere shape) {
 		final float[] asteroidModel = new float[16];
 		Matrix.setIdentityM(asteroidModel, 0);
-		Matrix.translateM(asteroidModel, 0, shape.getPosition().x, shape.getPosition().y, shape.getPosition().z);
+		//FIXME(SNI) : Substract because a bug cause the X-axis to be revert.
+		final float realXPos = shape.getPosition().x - this.asteroidMvt;
+		Matrix.translateM(asteroidModel, 0, realXPos, shape.getPosition().y, shape.getPosition().z);
 		final float[] modelView = new float[16];
 		Matrix.multiplyMM(modelView, 0, this.headView, 0, asteroidModel, 0);
 
@@ -243,8 +248,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float[] forwardVec = new float[] {0f,0f,1f,1f};
 		final float angle = MathUtils.angleBetween(position, forwardVec);
 		final float targetPerimeter = MathUtils.angleBetween(
-				new float[] {shape.getPosition().x, shape.getPosition().y, shape.getPosition().z, 1},
-				new float[] {shape.getPosition().x + shape.getRadius(), shape.getPosition().y, shape.getPosition().z, 1}
+				new float[] {realXPos, shape.getPosition().y, shape.getPosition().z, 1},
+				new float[] {realXPos + shape.getRadius(), shape.getPosition().y, shape.getPosition().z, 1}
 		);
 		return angle <= targetPerimeter;
 	}
