@@ -126,4 +126,12 @@ final class AsteroidsProperties extends SpaceProperties {
 	public float getCrossColorB() {
 		return Float.valueOf(this.getProperty("asteroids.hud.cross.color.b", "255"));
 	}
+
+	public float getLaserSpeed() {
+    	return Float.valueOf(this.getProperty("asteroids.laser.speed", "10"));
+	}
+
+	public long getLaserCoolDown() {
+    	return Long.valueOf(this.getProperty("asteroids.laser.cooldown.in.ms", "250"));
+	}
 }
