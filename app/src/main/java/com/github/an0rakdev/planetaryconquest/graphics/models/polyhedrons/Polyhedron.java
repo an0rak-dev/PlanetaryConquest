@@ -16,7 +16,6 @@ import java.util.List;
  * @version 1.0
  */
 public abstract class Polyhedron extends Model {
-    public static final int COLOR_SIZE = 4;
     private final List<Triangle> triangles;
     private FloatBuffer vertices;
     private int precisionOfEachTriangle;
@@ -72,16 +71,7 @@ public abstract class Polyhedron extends Model {
         return this.triangles.size() * Triangle.NB_VERTEX;
     }
 
-    /**
-     * Create and return a float buffer which contains the colors of each vertices in
-     * the same order as <code>bufferize</code>.
-     *
-     * A background is represented has 4 consecutive values in the resulting buffers (rgba)
-     * so the total size of this buffer will be :
-     * <code>this.getSize() * 4 * FLOAT_BYTE_SIZE</code>.
-     *
-     * @return the bufferized colors to apply to this model.
-     */
+    @Override
     public FloatBuffer colors() {
         this.precalculate();
         final FloatBuffer colorsBuffer = this.createFloatBuffer(

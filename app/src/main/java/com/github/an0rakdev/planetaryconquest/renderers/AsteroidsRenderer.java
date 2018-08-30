@@ -1,12 +1,15 @@
 package com.github.an0rakdev.planetaryconquest.renderers;
 
 import android.content.Context;
+import android.graphics.CornerPathEffect;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
+import com.github.an0rakdev.planetaryconquest.activities.Asteroids;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Line;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.google.vr.sdk.base.Eye;
@@ -30,7 +33,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private final float asteroidsSpeed;
 	private float asteroidMvt;
 	private final float cameraSpeed;
-	private float distanceElapsed;
+	private float cameraMvt;
 
 	private int celestialProgram;
 	private float cameraPosX;
@@ -48,6 +51,9 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private FloatBuffer crossVertices;
 	private final float[] headView;
 
+	private List<Line> lasers;
+	private int lasersProgram;
+
     /**
      * Create a new Asteroids Renderer with the given Android Context.
      *
@@ -60,7 +66,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.asteroidsSpeed = config.getAsteroidsSpeed() / 1000;
 		this.asteroidMvt = 0f;
 		this.cameraSpeed = config.getCameraSpeed() / 1000;
-		this.distanceElapsed = config.getDistanceToTravel();
+		this.cameraMvt = 0f;
 		this.cameraPosX = getProperties().getCameraPositionX();
 		this.cameraPosZ = getProperties().getCameraPositionZ();
 		this.camera = new float[16];
@@ -71,6 +77,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.modelHud = new float[16];
 		this.hudCamera = new float[16];
 		this.headView = new float[16];
+		this.lasers = new ArrayList<>();
 		initializeAsteroidField(config);
 		initializeHud(config);
 	}
@@ -90,6 +97,11 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final int hudVertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.hudProgram);
 		final int hudFragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.hudProgram);
 		OpenGLUtils.linkProgram(this.hudProgram, hudVertexShader, hudFragmentShader);
+
+		this.lasersProgram = OpenGLUtils.newProgram();
+		final int lasersVertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.lasersProgram);
+		final int lasersFragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.lasersProgram);
+		OpenGLUtils.linkProgram(this.lasersProgram, lasersVertexShader, lasersFragmentShader);
 	}
 
 	@Override
@@ -103,14 +115,14 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float cameraDirX = getProperties().getCameraDirectionX();
 		final float cameraDirY = getProperties().getCameraDirectionY();
 		final float cameraDirZ = getProperties().getCameraDirectionZ();
-
+/*
 		this.asteroidMvt += asteroidsDistance;
 		this.cameraPosX += asteroidsDistance;
-		if (distanceElapsed >0f) {
-	//		cameraPosZ += cameraDistance;
-			distanceElapsed -= cameraDistance;
+		if (this.cameraMvt < ((AsteroidsProperties) getProperties()).getDistanceToTravel()) {
+			cameraPosZ += cameraDistance;
+			this.cameraMvt += cameraDistance;
 		}
-
+*/
 		Matrix.setLookAtM(this.camera, 0,
 				cameraPosX, cameraPosY, cameraPosZ,
 				cameraPosX + cameraDirX, cameraPosY + cameraDirY, cameraPosZ + cameraDirZ,
@@ -133,17 +145,17 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
 
 		final List<Sphere> destroyed = new ArrayList<>();
-		for (final Sphere asteroid : this.field) {
+		for (int i=0; i < this.field.size(); i++) {
+			final Sphere asteroid = this.field.get(i);
 			if (isLookingAt(asteroid)) {
-	//			destroyed.add(asteroid);
-			} else {
-				final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, asteroid.bufferize(), "vVertices");
-				final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, asteroid.colors(), "vColors");
-				OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorHandle);
+				fireAt(i);
 			}
+			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, asteroid.bufferize(), "vVertices");
+			final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, asteroid.colors(), "vColors");
+			OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorHandle);
 		}
-		this.field.removeAll(destroyed);
 
+		displayLasers(eye);
 		displayHud(eye);
 	}
 
@@ -152,7 +164,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float[] asteroidColor = OpenGLUtils.toOpenGLColor(
 				config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB()
 		);
-		//*
+		/*
 		final float minSize = config.getMinAsteroidSize();
 		final float maxSize = config.getMaxAsteroidSize();
 		final float minX = config.getAsteroidMinX();
@@ -173,6 +185,11 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			asteroid.background(asteroidColor);
 			this.field.add(asteroid);
 		}
+		*/
+		final Sphere asteroid = new Sphere(new Coordinates(1, 0.2f, 5), 0.5f);
+		asteroid.precision(1);
+		asteroid.background(asteroidColor);
+		this.field.add(asteroid);
 	}
 
 	private void initializeHud(final AsteroidsProperties config) {
@@ -232,7 +249,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		Matrix.setIdentityM(asteroidModel, 0);
 		//FIXME(SNI) : Substract because a bug cause the X-axis to be revert.
 		final float realXPos = shape.getPosition().x - this.asteroidMvt;
-		Matrix.translateM(asteroidModel, 0, realXPos, shape.getPosition().y, shape.getPosition().z);
+		final float realZPos = shape.getPosition().z - this.cameraMvt;
+		Matrix.translateM(asteroidModel, 0, realXPos, shape.getPosition().y, realZPos);
 		final float[] modelView = new float[16];
 		Matrix.multiplyMM(modelView, 0, this.headView, 0, asteroidModel, 0);
 
@@ -242,9 +260,38 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float[] forwardVec = new float[] {0f,0f,1f,1f};
 		final float angle = MathUtils.angleBetween(position, forwardVec);
 		final float targetPerimeter = MathUtils.angleBetween(
-				new float[] {realXPos, shape.getPosition().y, shape.getPosition().z, 1},
-				new float[] {realXPos + shape.getRadius(), shape.getPosition().y, shape.getPosition().z, 1}
+				new float[] {realXPos, shape.getPosition().y, realZPos, 1},
+				new float[] {realXPos + shape.getRadius(), shape.getPosition().y, realZPos, 1}
 		);
 		return angle <= targetPerimeter;
+	}
+
+	private void fireAt(final int asteroidIdx) {
+		//final Sphere target = this.field.get(asteroidIdx);
+		final Coordinates start = new Coordinates(0, -1, this.cameraPosZ - 1);
+		final Coordinates end = new Coordinates(0, -1, start.z + 0.3f);
+		final Line laser = new Line(start, end);
+		laser.color(253,106,2);
+		lasers.add(laser);
+	}
+
+	private void displayLasers(final Eye eye) {
+		final float[] lasersCamera = new float[16];
+		final float[] lasersView = new float[16];
+		final float[] lasersMvp = new float[16];
+		Matrix.setLookAtM(lasersCamera, 0,
+				getProperties().getCameraPositionX(), getProperties().getCameraPositionY(), getProperties().getCameraPositionZ(),
+				getProperties().getCameraDirectionX(), getProperties().getCameraDirectionY(), getProperties().getCameraDirectionZ(),
+				0, 1, 0);
+		Matrix.multiplyMM(lasersView, 0, eye.getEyeView(), 0, lasersCamera, 0);
+		Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, lasersView, 0);
+		OpenGLUtils.use(this.lasersProgram);
+		OpenGLUtils.bindMVPToProgram(this.lasersProgram, lasersMvp, "vMatrix");
+
+		for (final Line laser : this.lasers) {
+			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.lasersProgram, laser.bufferize(), "vVertices");
+			final int colorHandle = OpenGLUtils.bindColorToProgram(this.lasersProgram, laser.colors(), "vColors");
+			OpenGLUtils.drawLines(laser.size(), 120, verticesHandle, colorHandle);
+		}
 	}
 }
