@@ -267,18 +267,24 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		Matrix.multiplyMM(lasersView, 0, eye.getEyeView(), 0, lasersCamera, 0);
 		OpenGLUtils.use(this.lasersProgram);
 
+		final List<Laser> oldLasers = new ArrayList<>();
 		for (final Laser laser : this.lasers) {
 			Matrix.setIdentityM(laserModel, 0);
 			Matrix.translateM(laserModel, 0, laser.getPosition().x, laser.getPosition().y, laser.getPosition().z);
 			Matrix.multiplyMM(laserModel, 0, laser.translations(), 0, laserModel, 0);
 			Matrix.multiplyMM(laserModel, 0, laser.rotation(), 0, laserModel, 0);
-			Matrix.multiplyMM(laserModelView, 0, lasersView, 0, laserModel, 0);
-			Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, laserModelView, 0);
-			OpenGLUtils.bindMVPToProgram(this.lasersProgram, lasersMvp, "vMatrix");
-			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.lasersProgram, laser.bufferize(), "vVertices");
-			final int colorHandle = OpenGLUtils.bindColorToProgram(this.lasersProgram, laser.colors(), "vColors");
-			OpenGLUtils.drawLines(laser.size(), 120, verticesHandle, colorHandle);
+			if (laserModel[14] > 30) {
+				oldLasers.add(laser);
+			} else {
+				Matrix.multiplyMM(laserModelView, 0, lasersView, 0, laserModel, 0);
+				Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, laserModelView, 0);
+				OpenGLUtils.bindMVPToProgram(this.lasersProgram, lasersMvp, "vMatrix");
+				final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.lasersProgram, laser.bufferize(), "vVertices");
+				final int colorHandle = OpenGLUtils.bindColorToProgram(this.lasersProgram, laser.colors(), "vColors");
+				OpenGLUtils.drawLines(laser.size(), 120, verticesHandle, colorHandle);
+			}
 		}
+		this.lasers.removeAll(oldLasers);
 	}
 
 	private boolean isLookingAt(final Sphere shape) {
