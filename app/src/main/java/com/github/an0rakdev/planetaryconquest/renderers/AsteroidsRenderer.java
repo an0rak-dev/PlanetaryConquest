@@ -194,7 +194,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			this.field.add(asteroid);
 		}
 		*/
-		final Sphere asteroid = new Sphere(new Coordinates(3, 0.2f, 5), 0.5f);
+		final Sphere asteroid = new Sphere(new Coordinates(1.5f, 0.2f, 3), 0.5f);
 		asteroid.precision(1);
 		asteroid.background(asteroidColor);
 		this.field.add(asteroid);
@@ -308,11 +308,13 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final Coordinates end = new Coordinates(0, -1, start.z + 0.3f);
 		final Laser laser = new Laser(start, end);
 		laser.color(253,106,2);
-		final float angleInRadian = MathUtils.angleBetween(
-				new float[]{target.getPosition().x, target.getPosition().y, target.getPosition().z},
-				new float[]{end.x, end.y, end.z});
-		// FIXME(SNI) Fix angle of laser's direction.
-		laser.pitch(angleInRadian);
+
+		// pitch ( polar angle)
+		final float xSquare = target.getPosition().x * target.getPosition().x;
+		final float ySquare = target.getPosition().y * target.getPosition().y;
+		final float angleInRadian = (float) Math.atan2(Math.sqrt(xSquare+ySquare), target.getPosition().z);
+		laser.pitch((float)Math.toDegrees(angleInRadian));
+
 		lasers.add(laser);
 		this.currentCooldown = ((AsteroidsProperties) getProperties()).getLaserCoolDown();
 	}
