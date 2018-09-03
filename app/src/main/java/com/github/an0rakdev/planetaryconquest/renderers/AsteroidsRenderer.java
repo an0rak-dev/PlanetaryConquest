@@ -118,14 +118,14 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float cameraDirX = getProperties().getCameraDirectionX();
 		final float cameraDirY = getProperties().getCameraDirectionY();
 		final float cameraDirZ = getProperties().getCameraDirectionZ();
-
+/*
 		this.asteroidMvt += asteroidsDistance;
 		this.cameraPosX += asteroidsDistance;
 		if (this.cameraMvt < ((AsteroidsProperties) getProperties()).getDistanceToTravel()) {
 			cameraPosZ += cameraDistance;
 			this.cameraMvt += cameraDistance;
 		}
-
+*/
 		Matrix.setLookAtM(this.camera, 0,
 				cameraPosX, cameraPosY, cameraPosZ,
 				cameraPosX + cameraDirX, cameraPosY + cameraDirY, cameraPosZ + cameraDirZ,
@@ -172,7 +172,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float[] asteroidColor = OpenGLUtils.toOpenGLColor(
 				config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB()
 		);
-		//*
+		/*
 		final float minSize = config.getMinAsteroidSize();
 		final float maxSize = config.getMaxAsteroidSize();
 		final float minX = config.getAsteroidMinX();
@@ -193,12 +193,12 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			asteroid.background(asteroidColor);
 			this.field.add(asteroid);
 		}
-		/*
+		*/
 		final Sphere asteroid = new Sphere(new Coordinates(1.5f, 0.2f, 3), 0.5f);
 		asteroid.precision(1);
 		asteroid.background(asteroidColor);
 		this.field.add(asteroid);
-		*/
+		//*/
 	}
 
 	private void initializeHud(final AsteroidsProperties config) {
@@ -323,6 +323,12 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float ySquare = target.getPosition().y * target.getPosition().y;
 		final float angleInRadian = (float) Math.atan2(Math.sqrt(xSquare+ySquare),realZPos);
 		laser.pitch((float)Math.toDegrees(angleInRadian));
+
+		// yaw
+		final float dY = target.getPosition().y - end.y;
+		final float dZ = target.getPosition().z - end.z;
+		final float yawInRadian = (float) Math.atan2(dY,dZ);
+		laser.yaw(-(float)Math.toDegrees(yawInRadian));
 
 		lasers.add(laser);
 		this.currentCooldown = ((AsteroidsProperties) getProperties()).getLaserCoolDown();
