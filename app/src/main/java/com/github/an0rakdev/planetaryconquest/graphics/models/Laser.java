@@ -80,6 +80,12 @@ public class Laser extends Model {
         Matrix.multiplyMM(this.rotation, 0, rotation, 0, this.rotation, 0);
     }
 
+    public void yaw(final float yawDegrees) {
+        final float[] rotation = new float[16];
+        Matrix.setRotateM(rotation, 0, yawDegrees, 1, 0, 0);
+        Matrix.multiplyMM(this.rotation, 0, rotation, 0, this.rotation, 0);
+    }
+
     public float[] rotation() {
         return this.rotation;
     }
