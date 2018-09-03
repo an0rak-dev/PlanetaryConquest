@@ -118,14 +118,20 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float cameraDirX = getProperties().getCameraDirectionX();
 		final float cameraDirY = getProperties().getCameraDirectionY();
 		final float cameraDirZ = getProperties().getCameraDirectionZ();
-/*
+
 		this.asteroidMvt += asteroidsDistance;
 		this.cameraPosX += asteroidsDistance;
 		if (this.cameraMvt < ((AsteroidsProperties) getProperties()).getDistanceToTravel()) {
 			cameraPosZ += cameraDistance;
 			this.cameraMvt += cameraDistance;
 		}
-*/
+		for (final Laser laser : this.lasers) {
+			laser.move(0,0,laserDistance);
+		}
+		this.currentCooldown -= time;
+
+		checkCollisions();
+
 		Matrix.setLookAtM(this.camera, 0,
 				cameraPosX, cameraPosY, cameraPosZ,
 				cameraPosX + cameraDirX, cameraPosY + cameraDirY, cameraPosZ + cameraDirZ,
@@ -134,11 +140,6 @@ public class AsteroidsRenderer extends SpaceRenderer {
 				getProperties().getCameraPositionX(), cameraPosY, getProperties().getCameraPositionZ(),
 				cameraDirX, cameraDirY, cameraDirZ,
 				0, 1, 0);
-
-		for (final Laser laser : this.lasers) {
-			laser.move(0,0,laserDistance);
-		}
-		this.currentCooldown -= time;
 
 		headTransform.getHeadView(this.headView, 0);
 	}
@@ -172,7 +173,6 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float[] asteroidColor = OpenGLUtils.toOpenGLColor(
 				config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB()
 		);
-		/*
 		final float minSize = config.getMinAsteroidSize();
 		final float maxSize = config.getMaxAsteroidSize();
 		final float minX = config.getAsteroidMinX();
@@ -193,12 +193,6 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			asteroid.background(asteroidColor);
 			this.field.add(asteroid);
 		}
-		*/
-		final Sphere asteroid = new Sphere(new Coordinates(1.5f, 0.2f, 3), 0.5f);
-		asteroid.precision(1);
-		asteroid.background(asteroidColor);
-		this.field.add(asteroid);
-		//*/
 	}
 
 	private void initializeHud(final AsteroidsProperties config) {
@@ -326,11 +320,45 @@ public class AsteroidsRenderer extends SpaceRenderer {
 
 		// yaw
 		final float dY = target.getPosition().y - end.y;
-		final float dZ = target.getPosition().z - end.z;
+		final float dZ = realZPos - end.z;
 		final float yawInRadian = (float) Math.atan2(dY,dZ);
-		laser.yaw(-(float)Math.toDegrees(yawInRadian));
+		if (dZ > 0.08) {
+			laser.yaw(-(float) Math.toDegrees(yawInRadian));
+		}
 
 		lasers.add(laser);
 		this.currentCooldown = ((AsteroidsProperties) getProperties()).getLaserCoolDown();
+	}
+
+	private void checkCollisions() {
+		final List<Laser> lasersToRemove = new ArrayList<>();
+		for (final Laser laser : this.lasers) {
+			final List<Asteroids> asteroidsToRemove = new ArrayList<>();
+			for (final Sphere asteroid : this.field) {
+				if (collides(laser, asteroid)) {
+					lasersToRemove.add(laser);
+					asteroidsToRemove.add(asteroid);
+					continue;
+				}
+			}
+			this.field.removeAll(asteroidsToRemove);
+		}
+		this.lasers.removeAll(lasersToRemove);
+	}
+
+	private boolean collides(final Laser laser, final Sphere shape) {
+		final float shapeX = shape.getPosition().x - this.asteroidMvt;
+		final float shapeY = shape.getPosition().y;
+		final float shapeZ = shape.getPosition().z - this.cameraMvt;
+		final float rad = shape.getRadius();
+
+
+		final float[] laserModel = new float[16];
+		Matrix.setIdentityM(laserModel, 0);
+		Matrix.translateM(laserModel, 0, laser.getPosition().x, laser.getPosition().y, laser.getPosition().z);
+		Matrix.multiplyMM(laserModel, 0, laser.translations(), 0, laserModel, 0);
+		Matrix.multiplyMM(laserModel, 0, laser.rotation(), 0, laserModel, 0);
+
+		return false;
 	}
 }
