@@ -333,7 +333,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private void checkCollisions() {
 		final List<Laser> lasersToRemove = new ArrayList<>();
 		for (final Laser laser : this.lasers) {
-			final List<Asteroids> asteroidsToRemove = new ArrayList<>();
+			final List<Sphere> asteroidsToRemove = new ArrayList<>();
 			for (final Sphere asteroid : this.field) {
 				if (collides(laser, asteroid)) {
 					lasersToRemove.add(laser);
@@ -354,11 +354,18 @@ public class AsteroidsRenderer extends SpaceRenderer {
 
 
 		final float[] laserModel = new float[16];
+		final float[] laserRealPos = new float[4];
 		Matrix.setIdentityM(laserModel, 0);
 		Matrix.translateM(laserModel, 0, laser.getPosition().x, laser.getPosition().y, laser.getPosition().z);
 		Matrix.multiplyMM(laserModel, 0, laser.translations(), 0, laserModel, 0);
 		Matrix.multiplyMM(laserModel, 0, laser.rotation(), 0, laserModel, 0);
+		Matrix.multiplyMV(laserRealPos, 0, laserModel, 0, new float[]{0,0,0,1}, 0);
 
-		return false;
+
+		boolean result = shapeX - rad < laserRealPos[0] && laserRealPos[0] <= shapeX + rad;
+		result = result && shapeY - rad < laserRealPos[1] && laserRealPos[1] <= shapeY + rad;
+		result = result && shapeZ - rad < laserRealPos[2] && laserRealPos[2] <= shapeZ + rad;
+
+		return result;
 	}
 }

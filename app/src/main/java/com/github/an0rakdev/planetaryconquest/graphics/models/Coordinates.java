@@ -39,9 +39,8 @@ public final class Coordinates {
     public boolean equals(final Object o) {
     	if (o == null || !(o instanceof Coordinates)) {
     		return false;
-		}
-
-		final Coordinates that = (Coordinates)o;
+    	}
+    	final Coordinates that = (Coordinates)o;
 		return this.x == that.x && this.y == that.y && this.z == that.z;
 	}
 }
