@@ -1,4 +1,6 @@
 == Licenses
 
-The laser sound came from https://freesound.org/people/Moonscythe/sounds/56489/
-and was created by Moonscythe and released under CreativeCommons 0 License.
+The Laser sound use for this demo was taken from 
+https://freesound.org/people/pschneib/sounds/428163/ and is the work of 
+Pschneib (which I thanks) released under CreativeCommons Attribution License.
+I've only modify it to use one channel instead of two.

@@ -4,12 +4,12 @@ import android.content.Context;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 
-import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
+import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
@@ -28,7 +28,8 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @version 1.0
  */
 public class AsteroidsRenderer extends SpaceRenderer {
-    private static final String LASER_SOUNDFILE = "moonscythe_laser.wav";
+	// MUST BE a single channel track, or the gvrAudioEngine.createSoundObject will return -1.
+	private static final String LASER_SOUNDFILE = "laser.wav";
     private final List<Sphere> field;
 	private final float asteroidsSpeed;
 	private float asteroidMvt;
@@ -110,6 +111,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final int lasersFragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.lasersProgram);
 		OpenGLUtils.linkProgram(this.lasersProgram, lasersVertexShader, lasersFragmentShader);
 
+
         new Thread(new Runnable() {
                     @Override
                     public void run() {
@@ -173,7 +175,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 
 		for (int i=0; i < this.field.size(); i++) {
 			final Sphere asteroid = this.field.get(i);
-			if (isLookingAt(asteroid) && 0l >= this.currentCooldown) {
+            if (isLookingAt(asteroid) && 0L >= this.currentCooldown) {
 				fireAt(i);
 			}
 			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, asteroid.bufferize(), "vVertices");
