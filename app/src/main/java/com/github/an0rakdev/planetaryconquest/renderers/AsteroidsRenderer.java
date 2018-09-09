@@ -30,6 +30,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 public class AsteroidsRenderer extends SpaceRenderer {
 	// MUST BE a single channel track, or the gvrAudioEngine.createSoundObject will return -1.
 	private static final String LASER_SOUNDFILE = "laser.wav";
+	private static final String EXPLOSION_SOUNDFILE = "explosion.wav";
     private final List<Sphere> field;
 	private final float asteroidsSpeed;
 	private float asteroidMvt;
@@ -116,6 +117,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
                     @Override
                     public void run() {
                         audioEngine.preloadSoundFile(LASER_SOUNDFILE);
+                        audioEngine.preloadSoundFile(EXPLOSION_SOUNDFILE);
                     }
                 }).start();
 	}
@@ -374,6 +376,10 @@ public class AsteroidsRenderer extends SpaceRenderer {
 					lasersToRemove.add(laser);
 					this.audioEngine.stopSound(laser.audio());
 					asteroidsToRemove.add(asteroid);
+					final int explosionSound = this.audioEngine.createSoundObject(EXPLOSION_SOUNDFILE);
+					this.audioEngine.setSoundObjectPosition(explosionSound,
+							asteroid.getPosition().x, asteroid.getPosition().y, asteroid.getPosition().z);
+					this.audioEngine.playSound(explosionSound, false);
 					continue;
 				}
 			}
