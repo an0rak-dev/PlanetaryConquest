@@ -10,6 +10,7 @@ import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
@@ -27,7 +28,8 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @version 1.0
  */
 public class AsteroidsRenderer extends SpaceRenderer {
-	private final List<Sphere> field;
+    private static final String LASER_SOUNDFILE = "moonscythe_laser.wav";
+    private final List<Sphere> field;
 	private final float asteroidsSpeed;
 	private float asteroidMvt;
 	private final float cameraSpeed;
@@ -53,6 +55,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private final float laserSpeed;
 	private int lasersProgram;
 	private long currentCooldown;
+
+	private final GvrAudioEngine audioEngine;
 
     /**
      * Create a new Asteroids Renderer with the given Android Context.
@@ -80,6 +84,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.lasers = new ArrayList<>();
 		this.laserSpeed = config.getLaserSpeed() / 1000;
 		this.currentCooldown = 0L;
+		this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
 		initializeAsteroidField(config);
 		initializeHud(config);
 	}
@@ -104,6 +109,13 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final int lasersVertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.lasersProgram);
 		final int lasersFragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.lasersProgram);
 		OpenGLUtils.linkProgram(this.lasersProgram, lasersVertexShader, lasersFragmentShader);
+
+        new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        audioEngine.preloadSoundFile(LASER_SOUNDFILE);
+                    }
+                }).start();
 	}
 
 	@Override
@@ -142,6 +154,12 @@ public class AsteroidsRenderer extends SpaceRenderer {
 				0, 1, 0);
 
 		headTransform.getHeadView(this.headView, 0);
+
+		final float[] quaternion = new float[4];
+		headTransform.getQuaternion(quaternion, 0);
+		audioEngine.setHeadRotation(quaternion[0], quaternion[1],
+                quaternion[2], quaternion[3]);
+		audioEngine.update();
 	}
 
 	@Override
@@ -153,7 +171,6 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		OpenGLUtils.use(this.celestialProgram);
 		OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
 
-		final List<Sphere> destroyed = new ArrayList<>();
 		for (int i=0; i < this.field.size(); i++) {
 			final Sphere asteroid = this.field.get(i);
 			if (isLookingAt(asteroid) && 0l >= this.currentCooldown) {
@@ -194,6 +211,14 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			this.field.add(asteroid);
 		}
 	}
+
+	public void pause() {
+	    this.audioEngine.pause();
+    }
+
+    public void resume() {
+	    this.audioEngine.resume();
+    }
 
 	private void initializeHud(final AsteroidsProperties config) {
 		this.crossPosition[0] = 0f;
@@ -269,6 +294,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			Matrix.multiplyMM(laserModel, 0, laser.rotation(), 0, laserModel, 0);
 			if (laserModel[14] > 30) {
 				oldLasers.add(laser);
+				this.audioEngine.stopSound(laser.audio());
 			} else {
 				Matrix.multiplyMM(laserModelView, 0, lasersView, 0, laserModel, 0);
 				Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, laserModelView, 0);
@@ -276,6 +302,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 				final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.lasersProgram, laser.bufferize(), "vVertices");
 				final int colorHandle = OpenGLUtils.bindColorToProgram(this.lasersProgram, laser.colors(), "vColors");
 				OpenGLUtils.drawLines(laser.size(), 120, verticesHandle, colorHandle);
+				this.audioEngine.setSoundObjectPosition(laser.audio(),
+                        laserModel[12], laserModel[13], laserModel[14]);
 			}
 		}
 		this.lasers.removeAll(oldLasers);
@@ -326,6 +354,11 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			laser.yaw(-(float) Math.toDegrees(yawInRadian));
 		}
 
+		final int laserAudioId = this.audioEngine.createSoundObject(LASER_SOUNDFILE);
+        laser.audio(laserAudioId);
+        this.audioEngine.setSoundObjectPosition(laserAudioId, end.x, end.y, end.z);
+        this.audioEngine.playSound(laserAudioId, true);
+
 		lasers.add(laser);
 		this.currentCooldown = ((AsteroidsProperties) getProperties()).getLaserCoolDown();
 	}
@@ -337,6 +370,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			for (final Sphere asteroid : this.field) {
 				if (collides(laser, asteroid)) {
 					lasersToRemove.add(laser);
+					this.audioEngine.stopSound(laser.audio());
 					asteroidsToRemove.add(asteroid);
 					continue;
 				}
