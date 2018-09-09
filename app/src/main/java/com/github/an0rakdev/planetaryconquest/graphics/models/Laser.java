@@ -13,6 +13,7 @@ public class Laser extends Model {
     private FloatBuffer vertices;
     private final float[] translations;
     private final float[] rotation;
+    private int audio;
 
     public Laser(final Coordinates a, final Coordinates b) {
         this.start = a;
@@ -22,6 +23,7 @@ public class Laser extends Model {
         Matrix.setIdentityM(this.translations, 0);
         this.rotation = new float[16];
         Matrix.setIdentityM(this.rotation, 0);
+        this.audio = -1;
     }
 
     public void color(final int red, final int green, final int blue) {
@@ -88,5 +90,13 @@ public class Laser extends Model {
 
     public float[] rotation() {
         return this.rotation;
+    }
+
+    public void audio(final int sourceId) {
+        this.audio = sourceId;
+    }
+
+    public int audio() {
+        return this.audio;
     }
 }
