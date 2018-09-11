@@ -134,19 +134,21 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float cameraDirX = getProperties().getCameraDirectionX();
 		final float cameraDirY = getProperties().getCameraDirectionY();
 		final float cameraDirZ = getProperties().getCameraDirectionZ();
-
+/*
 		this.asteroidMvt += asteroidsDistance;
 		this.cameraPosX += asteroidsDistance;
 		if (this.cameraMvt < ((AsteroidsProperties) getProperties()).getDistanceToTravel()) {
 			cameraPosZ += cameraDistance;
 			this.cameraMvt += cameraDistance;
 		}
+*/
 		for (final Laser laser : this.lasers) {
 			laser.move(0,0,laserDistance);
 		}
+
 		this.currentCooldown -= time;
 
-		checkCollisions();
+	//	checkCollisions();
 
 		Matrix.setLookAtM(this.camera, 0,
 				cameraPosX, cameraPosY, cameraPosZ,
@@ -202,7 +204,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float maxX = config.getAsteroidMaxX();
 		final float maxY = config.getAsteroidMaxY();
 		final float maxZ = config.getAsteroidMaxZ();
-
+/*
 		while (this.field.size() < asteroidsCount) {
 			final float radius = MathUtils.randRange(minSize, maxSize);
 			final Coordinates center = new Coordinates(
@@ -214,6 +216,11 @@ public class AsteroidsRenderer extends SpaceRenderer {
 			asteroid.background(asteroidColor);
 			this.field.add(asteroid);
 		}
+		*/
+		final Sphere asteroid = new Sphere(new Coordinates(1, 1, 6), 1);
+		asteroid.precision(1);
+		asteroid.background(asteroidColor);
+		this.field.add(asteroid);
 	}
 
 	public void pause() {
@@ -316,23 +323,25 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private boolean isLookingAt(final Sphere shape) {
 		final float[] asteroidModel = new float[16];
 		Matrix.setIdentityM(asteroidModel, 0);
-		//FIXME(SNI) : Substract because a bug cause the X-axis to be revert.
 		final float realXPos = shape.getPosition().x - this.asteroidMvt;
 		final float realZPos = shape.getPosition().z - this.cameraMvt;
 		Matrix.translateM(asteroidModel, 0, realXPos, shape.getPosition().y, realZPos);
 		final float[] modelView = new float[16];
 		Matrix.multiplyMM(modelView, 0, this.headView, 0, asteroidModel, 0);
 
-		final float[] position = new float[4];
-		Matrix.multiplyMV(position,0, modelView, 0, new float[] {0f,0f,0f,1f}, 0);
+		// shape Area
+		final float shapeAreaRad = (float) Math.atan2(shape.getRadius(), realZPos);
+		final float shapeAreaDeg = (float) Math.toDegrees(shapeAreaRad);
 
-		final float[] forwardVec = new float[] {0f,0f,1f,1f};
-		final float angle = MathUtils.angleBetween(position, forwardVec);
-		final float targetPerimeter = MathUtils.angleBetween(
-				new float[] {realXPos, shape.getPosition().y, realZPos, 1},
-				new float[] {realXPos + shape.getRadius(), shape.getPosition().y, realZPos, 1}
-		);
-		return angle <= targetPerimeter;
+		// pitch of sight
+		final float sightPitchRad = (float) Math.atan2(modelView[12], modelView[14]);
+		final float sightPitchDeg = (float) Math.toDegrees(sightPitchRad);
+
+		// yaw of sight
+		final float sightYawRad = (float) Math.atan2(modelView[13], modelView[14]);
+		final float sightYawDeg = (float) Math.toDegrees(sightYawRad);
+
+		return Math.abs(sightPitchDeg) < shapeAreaDeg && Math.abs(sightYawDeg) < shapeAreaDeg;
 	}
 
 	private void fireAt(final int asteroidIdx) {
