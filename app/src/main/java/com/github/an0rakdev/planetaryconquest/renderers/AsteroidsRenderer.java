@@ -7,6 +7,7 @@ import android.os.SystemClock;
 import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.graphics.models.AsteroidField;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
@@ -31,7 +32,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	// MUST BE a single channel track, or the gvrAudioEngine.createSoundObject will return -1.
 	private static final String LASER_SOUNDFILE = "laser.wav";
 	private static final String EXPLOSION_SOUNDFILE = "explosion.wav";
-    private final List<Sphere> field;
+    private final AsteroidField field;
 	private final float asteroidsSpeed;
 	private float asteroidMvt;
 	private final float cameraSpeed;
@@ -73,7 +74,6 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	public AsteroidsRenderer(final Context context) {
 		super(context, new AsteroidsProperties(context));
 		final AsteroidsProperties config = (AsteroidsProperties) this.getProperties();
-		this.field = new ArrayList<>();
 		this.asteroidsSpeed = config.getAsteroidsSpeed() / 1000;
 		this.asteroidMvt = 0f;
 		this.cameraSpeed = config.getCameraSpeed() / 1000;
@@ -97,7 +97,15 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.lasersMvp = new float[16];
 		this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
 		this.headQuaternion = new float[4];
-		initializeAsteroidField(config);
+
+
+		this.field = new AsteroidField(
+				config.getAsteroidsCount(), config.getMinAsteroidSize(), config.getMaxAsteroidSize(),
+				config.getAsteroidMinX(), config.getAsteroidMinY(), config.getAsteroidMinZ(),
+				config.getAsteroidMaxX(), config.getAsteroidMaxY(), config.getAsteroidMaxZ(),
+				config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB()
+		);
+
 		initializeHud(config);
 	}
 
@@ -155,6 +163,12 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	//		this.cameraMvt += cameraDistance;
 		}
 
+		for (final Sphere asteroid : this.field.asteroids()) {
+			if (isLookingAt(asteroid) && 0L >= this.currentCooldown) {
+				fireAt(asteroid);
+			}
+		}
+
 		for (final Laser laser : this.lasers) {
 			laser.move(0,0,laserDistance);
 		}
@@ -189,45 +203,20 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		OpenGLUtils.use(this.celestialProgram);
 		OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
 
-		for (final Sphere asteroid : this.field) {
-            if (isLookingAt(asteroid) && 0L >= this.currentCooldown) {
-				fireAt(asteroid);
-			}
+			/*
 			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, asteroid.bufferize(), "vVertices");
 			final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, asteroid.colors(), "vColors");
 			OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorHandle);
 		}
+*/
+		final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, this.field.vertices(), "vVertices");
+		final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, this.field.colors(), "vColors");
+		OpenGLUtils.drawTriangles(this.field.verticesCount(), verticesHandle, colorHandle);
 
 		displayLasers(eye);
 		displayHud(eye);
 	}
 
-	private void initializeAsteroidField(final AsteroidsProperties config) {
-		final int asteroidsCount = config.getAsteroidsCount();
-		final float[] asteroidColor = OpenGLUtils.toOpenGLColor(
-				config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB()
-		);
-		final float minSize = config.getMinAsteroidSize();
-		final float maxSize = config.getMaxAsteroidSize();
-		final float minX = config.getAsteroidMinX();
-		final float minY = config.getAsteroidMinY();
-		final float minZ = config.getAsteroidMinZ();
-		final float maxX = config.getAsteroidMaxX();
-		final float maxY = config.getAsteroidMaxY();
-		final float maxZ = config.getAsteroidMaxZ();
-
-		while (this.field.size() < asteroidsCount) {
-			final float radius = MathUtils.randRange(minSize, maxSize);
-			final Coordinates center = new Coordinates(
-				MathUtils.randRange(minX, maxX),
-				MathUtils.randRange(minY, maxY),
-				MathUtils.randRange(minZ, maxZ));
-			final Sphere asteroid = new Sphere(center, radius);
-			asteroid.precision(1);
-			asteroid.background(asteroidColor);
-			this.field.add(asteroid);
-		}
-	}
 
 	public void pause() {
 	    this.audioEngine.pause();
@@ -290,9 +279,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	}
 
 	private void displayLasers(final Eye eye) {
-		float[] laserModel = null;
+		float[] laserModel;
 		final float[] laserModelView = new float[16];
-
 
 		Matrix.multiplyMM(this.lasersView, 0, eye.getEyeView(), 0, this.lasersCamera, 0);
 		OpenGLUtils.use(this.lasersProgram);
@@ -366,7 +354,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final List<Laser> lasersToRemove = new ArrayList<>();
 		for (final Laser laser : this.lasers) {
 			final List<Sphere> asteroidsToRemove = new ArrayList<>();
-			for (final Sphere asteroid : this.field) {
+			for (final Sphere asteroid : this.field.asteroids()) {
 				if (collides(laser, asteroid)) {
 					lasersToRemove.add(laser);
 					this.audioEngine.stopSound(laser.audio());
