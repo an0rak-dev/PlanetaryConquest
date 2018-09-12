@@ -124,6 +124,15 @@ public abstract class Polyhedron extends Model {
         return result;
     }
 
+    public List<Coordinates> getAllCoordinates() {
+        this.precalculate();
+        List<Coordinates> result = new ArrayList<>();
+        for (final Triangle t : this.triangles) {
+            result.addAll(t.coordinates());
+        }
+        return result;
+    }
+
     private void precalculate() {
         if (this.triangles.isEmpty()) {
             this.triangles.addAll(this.generate());
