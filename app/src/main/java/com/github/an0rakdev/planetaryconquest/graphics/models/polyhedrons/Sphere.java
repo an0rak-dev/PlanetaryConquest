@@ -43,6 +43,29 @@ public class Sphere extends Polyhedron {
         return this.radius;
     }
 
+
+
+    @Override
+    public boolean equals(final Object o) {
+        if (o == null || !(o instanceof Sphere)) {
+            return false;
+        }
+        final Sphere that = (Sphere) o;
+        return this.center.equals(that.center)
+                && this.radius == that.radius && this.realPrecision == that.realPrecision;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 5;
+        int result = this.center.hashCode();
+        result *= prime;
+        result += (int) this.radius;
+        result *= prime;
+        result += (int) this.realPrecision;
+        return result;
+    }
+
     @Override
     protected void fillTriangles(final List<Triangle> triangles) {
         final Octahedron octahedron = new Octahedron(this.center, this.radius, this.radius);
