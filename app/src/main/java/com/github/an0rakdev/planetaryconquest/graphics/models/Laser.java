@@ -13,6 +13,8 @@ public class Laser extends Model {
     private FloatBuffer vertices;
     private final float[] translations;
     private final float[] rotation;
+    private final float[] model;
+    private boolean invalidated;
     private int audio;
 
     public Laser(final Coordinates a, final Coordinates b) {
@@ -23,6 +25,9 @@ public class Laser extends Model {
         Matrix.setIdentityM(this.translations, 0);
         this.rotation = new float[16];
         Matrix.setIdentityM(this.rotation, 0);
+        this.model = new float[16];
+        Matrix.setIdentityM(this.model, 0);
+        this.invalidated = true;
         this.audio = -1;
     }
 
@@ -70,6 +75,7 @@ public class Laser extends Model {
         this.translations[12] += x;
         this.translations[13] += y;
         this.translations[14] += z;
+        this.invalidated = true;
     }
 
     public Coordinates getPosition() {
@@ -80,16 +86,29 @@ public class Laser extends Model {
         final float[] rotation = new float[16];
         Matrix.setRotateM(rotation, 0, pitchDegrees, 0, 1, 0);
         Matrix.multiplyMM(this.rotation, 0, rotation, 0, this.rotation, 0);
+        this.invalidated = true;
     }
 
     public void yaw(final float yawDegrees) {
         final float[] rotation = new float[16];
         Matrix.setRotateM(rotation, 0, yawDegrees, 1, 0, 0);
         Matrix.multiplyMM(this.rotation, 0, rotation, 0, this.rotation, 0);
+        this.invalidated = true;
     }
 
     public float[] rotation() {
         return this.rotation;
+    }
+
+    public float[] model() {
+        if (this.invalidated) {
+            Matrix.setIdentityM(this.model, 0);
+            Matrix.translateM(this.model, 0, this.getPosition().x, this.getPosition().y, this.getPosition().z);
+            Matrix.multiplyMM(this.model, 0, this.translations(), 0, this.model, 0);
+            Matrix.multiplyMM(this.model, 0, this.rotation(), 0, this.model, 0);
+            this.invalidated = false;
+        }
+        return this.model;
     }
 
     public void audio(final int sourceId) {
