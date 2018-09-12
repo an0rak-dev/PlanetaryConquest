@@ -159,8 +159,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		this.asteroidMvt += asteroidsDistance;
 		this.cameraPosX += asteroidsDistance;
 		if (this.cameraMvt < ((AsteroidsProperties) getProperties()).getDistanceToTravel()) {
-	//		cameraPosZ += cameraDistance;
-	//		this.cameraMvt += cameraDistance;
+			cameraPosZ += cameraDistance;
+			this.cameraMvt += cameraDistance;
 		}
 
 		for (final Sphere asteroid : this.field.asteroids()) {
@@ -203,16 +203,11 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		OpenGLUtils.use(this.celestialProgram);
 		OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
 
-			/*
-			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, asteroid.bufferize(), "vVertices");
-			final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, asteroid.colors(), "vColors");
-			OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorHandle);
+		for (final Sphere asteroid : this.field.asteroids()) {
+			final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, this.field.vertices(asteroid), "vVertices");
+			final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, this.field.colors(asteroid), "vColors");
+			OpenGLUtils.drawTriangles(this.field.size(asteroid), verticesHandle, colorHandle);
 		}
-*/
-		final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, this.field.vertices(), "vVertices");
-		final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, this.field.colors(), "vColors");
-		OpenGLUtils.drawTriangles(this.field.verticesCount(), verticesHandle, colorHandle);
-
 		displayLasers(eye);
 		displayHud(eye);
 	}
