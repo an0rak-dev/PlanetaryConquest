@@ -25,7 +25,7 @@ public abstract class Polyhedron extends Model {
     /**
      * Default constructor of a polyhedron.
      */
-    Polyhedron() {
+    protected Polyhedron() {
         this.triangles = new ArrayList<>();
         this.precisionOfEachTriangle = 0;
         this.vertices = null;

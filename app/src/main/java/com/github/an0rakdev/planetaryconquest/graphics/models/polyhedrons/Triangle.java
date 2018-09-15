@@ -26,7 +26,7 @@ public final class Triangle {
      * @param c2 the second vertex
      * @param c3 the third vertex
      */
-    Triangle(final Coordinates c1, final Coordinates c2, final Coordinates c3) {
+    public Triangle(final Coordinates c1, final Coordinates c2, final Coordinates c3) {
         this.coords = new ArrayList<>();
         this.coords.add(c1);
         this.coords.add(c2);
