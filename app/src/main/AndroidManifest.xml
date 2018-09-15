@@ -38,5 +38,10 @@
             android:parentActivityName=".activities.Main"
             android:screenOrientation="landscape"> <!-- Landscape required in VR -->
         </activity>
+        <activity
+            android:name=".activities.Aliens"
+            android:parentActivityName=".activities.Main"
+            android:screenOrientation="landscape"> <!-- Landscape required in VR -->
+        </activity>
     </application>
 </manifest>

@@ -29,6 +29,7 @@
             android:id="@+id/aliensDemoButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="startAliensDemo"
             android:text="@string/menu_aliensbutton" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>
