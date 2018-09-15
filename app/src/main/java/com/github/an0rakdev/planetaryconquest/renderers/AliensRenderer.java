@@ -6,7 +6,9 @@ import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.graphics.models.AlienShip;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
@@ -20,6 +22,7 @@ public class AliensRenderer extends SpaceRenderer {
     private final float[] view;
     private final float[] mvp;
     private float distanceMade;
+    private Polyhedron alien1;
 
     public AliensRenderer(Context context) {
         super(context, new AliensProperties(context));
@@ -39,6 +42,7 @@ public class AliensRenderer extends SpaceRenderer {
         this.view = new float[16];
         this.mvp = new float[16];
         this.distanceMade = 0;
+        this.alien1 = new AlienShip(new Coordinates(1, 3, 50));
     }
 
     @Override
@@ -57,7 +61,7 @@ public class AliensRenderer extends SpaceRenderer {
         super.onNewFrame(headTransform);
         final AliensProperties config = (AliensProperties) getProperties();
 
-        if (config.getCameraPositionZ() + this.distanceMade < config.getDistanceToTravel()) {
+        if (userHasToMoveAgain()) {
             long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
             final float currentDistance = (config.getMovementSpeed() / 1000f) * time;
             this.distanceMade += currentDistance;
@@ -85,5 +89,17 @@ public class AliensRenderer extends SpaceRenderer {
         final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.mars.bufferize(), "vVertices");
         final int colorHandle = OpenGLUtils.bindColorToProgram(this.program, this.mars.colors(), "vColors");
         OpenGLUtils.drawTriangles(this.mars.size(), verticesHandle, colorHandle);
+
+        if (!userHasToMoveAgain()) {
+            final int alienVHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.alien1.bufferize(), "vVertices");
+            final int alienCHandle = OpenGLUtils.bindColorToProgram(this.program, this.alien1.colors(), "vColors");
+            OpenGLUtils.drawTriangles(this.alien1.size(), alienVHandle, alienCHandle);
+        }
     }
+
+    private boolean userHasToMoveAgain() {
+        final AliensProperties config = (AliensProperties) getProperties();
+        return config.getCameraPositionZ() + this.distanceMade < config.getDistanceToTravel();
+    }
+
 }
