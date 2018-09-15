@@ -20,4 +20,39 @@ public class AliensProperties extends SpaceProperties {
         }
     }
 
+    public float getMarsXPos() {
+        return Float.valueOf(this.getProperty("aliens.mars.position.x", "0"));
+    }
+
+    public float getMarsYPos() {
+        return Float.valueOf(this.getProperty("aliens.mars.position.y", "0"));
+    }
+
+    public float getMarsZPos() {
+        return Float.valueOf(this.getProperty("aliens.mars.position.z", "0"));
+    }
+
+    public float getMarsRadius() {
+        return Float.valueOf(this.getProperty("aliens.mars.radius", "1"));
+    }
+
+    public float getMarsRed() {
+        return Float.valueOf(this.getProperty("aliens.mars.color.r", "0"));
+    }
+
+    public float getMarsGreen() {
+        return Float.valueOf(this.getProperty("aliens.mars.color.g", "0"));
+    }
+
+    public float getMarsBlue() {
+        return Float.valueOf(this.getProperty("aliens.mars.color.b", "0"));
+    }
+
+    public float getMovementSpeed() {
+        return Float.valueOf(this.getProperty("aliens.movement.speed.mps", "2"));
+    }
+
+    public long getDistanceToTravel() {
+        return Long.valueOf(this.getProperty("aliens.movement.distance.to.travel", "10"));
+    }
 }
