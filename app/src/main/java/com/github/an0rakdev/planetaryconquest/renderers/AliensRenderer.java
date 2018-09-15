@@ -13,6 +13,9 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.microedition.khronos.egl.EGLConfig;
 
 public class AliensRenderer extends SpaceRenderer {
@@ -22,7 +25,7 @@ public class AliensRenderer extends SpaceRenderer {
     private final float[] view;
     private final float[] mvp;
     private float distanceMade;
-    private Polyhedron alien1;
+    private final List<Polyhedron> aliens;
 
     public AliensRenderer(Context context) {
         super(context, new AliensProperties(context));
@@ -42,7 +45,14 @@ public class AliensRenderer extends SpaceRenderer {
         this.view = new float[16];
         this.mvp = new float[16];
         this.distanceMade = 0;
-        this.alien1 = new AlienShip(new Coordinates(1, 3, 50));
+        this.aliens = new ArrayList<>();
+        this.aliens.add(new AlienShip(new Coordinates(1, 3, 50)));
+        this.aliens.add(new AlienShip(new Coordinates(-2, 4, 58)));
+        this.aliens.add(new AlienShip(new Coordinates(4, 1.5f, 54)));
+        this.aliens.add(new AlienShip(new Coordinates(-4, -2, 51)));
+        this.aliens.add(new AlienShip(new Coordinates(0, -3.5f, 56)));
+        this.aliens.add(new AlienShip(new Coordinates(2.3f, -3, 52)));
+        this.aliens.add(new AlienShip(new Coordinates(-5, 3, 57)));
     }
 
     @Override
@@ -91,9 +101,11 @@ public class AliensRenderer extends SpaceRenderer {
         OpenGLUtils.drawTriangles(this.mars.size(), verticesHandle, colorHandle);
 
         if (!userHasToMoveAgain()) {
-            final int alienVHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.alien1.bufferize(), "vVertices");
-            final int alienCHandle = OpenGLUtils.bindColorToProgram(this.program, this.alien1.colors(), "vColors");
-            OpenGLUtils.drawTriangles(this.alien1.size(), alienVHandle, alienCHandle);
+            for (final Polyhedron alien : this.aliens) {
+                final int alienVHandle = OpenGLUtils.bindVerticesToProgram(this.program, alien.bufferize(), "vVertices");
+                final int alienCHandle = OpenGLUtils.bindColorToProgram(this.program, alien.colors(), "vColors");
+                OpenGLUtils.drawTriangles(alien.size(), alienVHandle, alienCHandle);
+            }
         }
     }
 
