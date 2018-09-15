@@ -18,6 +18,7 @@ import java.util.List;
 public abstract class Polyhedron extends Model {
     private final List<Triangle> triangles;
     private FloatBuffer vertices;
+    private FloatBuffer colors;
     private int precisionOfEachTriangle;
     private float[] color;
 
@@ -74,17 +75,19 @@ public abstract class Polyhedron extends Model {
     @Override
     public FloatBuffer colors() {
         this.precalculate();
-        final FloatBuffer colorsBuffer = this.createFloatBuffer(
-                this.size()
-                * COLOR_SIZE
-                * FLOAT_BYTE_SIZE);
-        for (int i =0; i < this.triangles.size(); i++) {
-            for (int j = 0; j < Triangle.NB_VERTEX; j++) {
-                colorsBuffer.put(this.color);
+        if (null == this.colors) {
+            this.colors = this.createFloatBuffer(
+                    this.size()
+                            * COLOR_SIZE
+                            * FLOAT_BYTE_SIZE);
+            for (int i = 0; i < this.triangles.size(); i++) {
+                for (int j = 0; j < Triangle.NB_VERTEX; j++) {
+                    this.colors.put(this.color);
+                }
             }
         }
-        colorsBuffer.position(0);
-        return colorsBuffer;
+        this.colors.position(0);
+        return this.colors;
     }
 
     /**
