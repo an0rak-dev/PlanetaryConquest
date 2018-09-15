@@ -31,7 +31,6 @@ public class FlyingRenderer extends SpaceRenderer {
     private final float[] camera;
     private final float[] view;
     private final float[] model;
-    private final float[] modelView;
     private final float[] mvp;
 
     /**
@@ -47,7 +46,6 @@ public class FlyingRenderer extends SpaceRenderer {
         this.camera = new float[16];
         this.view = new float[16];
         this.model = new float[16];
-        this.modelView = new float[16];
         this.mvp = new float[16];
         this.cameraZPos = getProperties().getCameraPositionZ();
         initializeCelestialBodies(config);
