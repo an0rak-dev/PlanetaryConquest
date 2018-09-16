@@ -11,19 +11,19 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.AlienShip;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
+import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
 import java.util.ArrayList;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
-import java.util.Set;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
 public class AliensRenderer extends SpaceRenderer {
+    private static final String BANG_SOUNDFILE = "bang.wav";
     private Sphere mars;
     private int program;
     private final float[] camera;
@@ -33,6 +33,9 @@ public class AliensRenderer extends SpaceRenderer {
     private final Queue<Polyhedron> aliens;
     private final List<Polyhedron> aliensDisplayed;
     private float timeUntilNextAlien;
+
+    private final GvrAudioEngine audioEngine;
+    private final float[] headQuaternion;
 
     public AliensRenderer(Context context) {
         super(context, new AliensProperties(context));
@@ -54,6 +57,8 @@ public class AliensRenderer extends SpaceRenderer {
         this.distanceMade = 0;
         this.aliens = new LinkedList<>();
         this.aliensDisplayed = new ArrayList<>();
+        this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
+        this.headQuaternion = new float[4];
         initializeAliens(config);
     }
 
@@ -66,6 +71,14 @@ public class AliensRenderer extends SpaceRenderer {
         final int vertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.program);
         final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.program);
         OpenGLUtils.linkProgram(this.program, vertexShader, fragmentShader);
+
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                audioEngine.preloadSoundFile(BANG_SOUNDFILE);
+            }
+        }).start();
     }
 
     @Override
@@ -80,8 +93,13 @@ public class AliensRenderer extends SpaceRenderer {
         } else if (!this.aliens.isEmpty()) {
             this.timeUntilNextAlien -= time;
             if (0 >= this.timeUntilNextAlien) {
-                this.aliensDisplayed.add(this.aliens.poll());
+                final Polyhedron ship = this.aliens.poll();
+                this.aliensDisplayed.add(ship);
                 this.timeUntilNextAlien = config.getTimeBetweenShips();
+                final int arrivalSound = this.audioEngine.createStereoSound(BANG_SOUNDFILE);
+                this.audioEngine.setSoundObjectPosition(arrivalSound,
+                        ship.getPosition().x, ship.getPosition().y, ship.getPosition().z);
+                this.audioEngine.playSound(arrivalSound, false);
             }
         }
 
@@ -94,6 +112,11 @@ public class AliensRenderer extends SpaceRenderer {
                 config.getCameraDirectionY(),
                 config.getCameraDirectionZ() + cameraCurrentZ,
                 0, 1, 0);
+
+        headTransform.getQuaternion(this.headQuaternion, 0);
+        audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
+                this.headQuaternion[2], this.headQuaternion[3]);
+        audioEngine.update();
     }
 
     @Override
@@ -117,18 +140,26 @@ public class AliensRenderer extends SpaceRenderer {
         }
     }
 
+    public void pause() {
+        this.audioEngine.pause();
+    }
+
+    public void resume() {
+        this.audioEngine.resume();
+    }
+
     private boolean userHasToMoveAgain() {
         final AliensProperties config = (AliensProperties) getProperties();
         return config.getCameraPositionZ() + this.distanceMade < config.getDistanceToTravel();
     }
 
     private void initializeAliens(AliensProperties config) {
-        while (this.aliens.size() < 8) {
-            float z = MathUtils.randRange(config.getDistanceToTravel() + 5,
-                    config.getDistanceToTravel() + 10);
-            float x = MathUtils.randRange(-4, 4);
-            float y = MathUtils.randRange(-4, 4);
-            if (Math.abs(x) > 0.5 && Math.abs(y) > 0.5
+        while (this.aliens.size() < config.getNumberOfShips()) {
+            float z = MathUtils.randRange(config.getDistanceToTravel() + config.getMinZShipPosition(),
+                    config.getDistanceToTravel() + config.getMaxZShipPosition());
+            float x = MathUtils.randRange(config.getMinXShipPosition(), config.getMaxXShipPosition());
+            float y = MathUtils.randRange(config.getMinYShipPosition(), config.getMaxYShipPosition());
+            if (Math.abs(x) > 0.7 && Math.abs(y) > 0.7
                 && willNotCollideWithOthers(x, y, z)) {
                 this.aliens.add(new AlienShip(new Coordinates(x, y, z)));
             }
@@ -138,9 +169,9 @@ public class AliensRenderer extends SpaceRenderer {
 
     private boolean willNotCollideWithOthers(final float x, final float y, final float z) {
         for (final Polyhedron ship : this.aliens) {
-            if (Math.abs(ship.getPosition().z - z) <= 0.3
-                && Math.abs(ship.getPosition().y - y) <= 0.3
-                && Math.abs(ship.getPosition().x - x) <= 0.3) {
+            if (Math.abs(ship.getPosition().z - z) <= 0.4
+                && Math.abs(ship.getPosition().y - y) <= 0.4
+                && Math.abs(ship.getPosition().x - x) <= 0.4) {
                 return false;
             }
         }

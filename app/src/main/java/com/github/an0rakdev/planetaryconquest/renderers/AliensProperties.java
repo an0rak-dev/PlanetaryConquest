@@ -59,4 +59,32 @@ public class AliensProperties extends SpaceProperties {
     public long getTimeBetweenShips() {
         return Long.valueOf(this.getProperty("aliens.ships.time.between", "10"));
     }
+
+    public long getNumberOfShips() {
+        return Long.valueOf(this.getProperty("aliens.ships.count", "1"));
+    }
+
+    public float getMinXShipPosition() {
+        return Long.valueOf(this.getProperty("aliens.ships.min.position.x", "0"));
+    }
+
+    public float getMaxXShipPosition() {
+        return Long.valueOf(this.getProperty("aliens.ships.max.position.x", "1"));
+    }
+
+    public float getMinYShipPosition() {
+        return Long.valueOf(this.getProperty("aliens.ships.min.position.y", "0"));
+    }
+
+    public float getMaxYShipPosition() {
+        return Long.valueOf(this.getProperty("aliens.ships.max.position.y", "1"));
+    }
+
+    public float getMinZShipPosition() {
+        return Long.valueOf(this.getProperty("aliens.ships.min.position.z", "0"));
+    }
+
+    public float getMaxZShipPosition() {
+        return Long.valueOf(this.getProperty("aliens.ships.max.position.z", "1"));
+    }
 }
