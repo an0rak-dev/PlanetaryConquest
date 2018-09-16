@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 
+import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.AlienShip;
@@ -46,13 +47,19 @@ public class AliensRenderer extends SpaceRenderer {
         this.mvp = new float[16];
         this.distanceMade = 0;
         this.aliens = new ArrayList<>();
-        this.aliens.add(new AlienShip(new Coordinates(1, 3, 50)));
-        this.aliens.add(new AlienShip(new Coordinates(-2, 4, 58)));
-        this.aliens.add(new AlienShip(new Coordinates(4, 1.5f, 54)));
-        this.aliens.add(new AlienShip(new Coordinates(-4, -2, 51)));
-        this.aliens.add(new AlienShip(new Coordinates(0, -3.5f, 56)));
-        this.aliens.add(new AlienShip(new Coordinates(2.3f, -3, 52)));
-        this.aliens.add(new AlienShip(new Coordinates(-5, 3, 57)));
+        for (int i=0; i < 8; i++) {
+            float z = MathUtils.randRange(config.getDistanceToTravel() + 5,
+                    config.getDistanceToTravel() + 10);
+            float x;
+            float y;
+            do {
+                x = MathUtils.randRange(-4, 4);
+            } while (x > -0.5f && x < 0.5f);
+            do {
+                y = MathUtils.randRange(-4, 4);
+            } while (y > -0.5f && y < 0.5f);
+            this.aliens.add(new AlienShip(new Coordinates(x,y,z)));
+        }
     }
 
     @Override

@@ -13,7 +13,7 @@ public class AlienShip extends Polyhedron {
         super();
         this.position = position;
         this.background(OpenGLUtils.toOpenGLColor(
-                147, 96, 55
+                200, 200, 200
         ));
     }
 
@@ -24,22 +24,26 @@ public class AlienShip extends Polyhedron {
 
     @Override
     protected void fillTriangles(final List<Triangle> triangles) {
-        final Coordinates bottomRight = new Coordinates(this.position.x + 1,
-                this.position.y - 1, this.position.z - 1);
-        final Coordinates bottomLeft = new Coordinates(this.position.x - 1,
-                this.position.y - 1, this.position.z - 1);
-        final Coordinates bottomBack = new Coordinates(this.position.x,
-                this.position.y - 1, this.position.z + 1);
-        final Coordinates top = new Coordinates(this.position.x,
-                this.position.y + 1, this.position.z);
-
-        final Triangle front = new Triangle(top, bottomRight, bottomLeft);
-        final Triangle right = new Triangle(top, bottomBack, bottomRight);
-        final Triangle left = new Triangle(top, bottomBack, bottomLeft);
-        final Triangle back = new Triangle(bottomBack, bottomRight, bottomLeft);
-        triangles.add(front);
-        triangles.add(right);
-        triangles.add(left);
-        triangles.add(back);
+        final float deltaX = 0.6f;
+        final float deltaY = 0.25f;
+        final float length = 3;
+        Coordinates backUp = new Coordinates(this.position.x,
+                this.position.y + deltaY, this.position.z + length);
+        Coordinates backDown = new Coordinates(this.position.x,
+                this.position.y - deltaY, this.position.z + length);
+        Coordinates backMiddle = new Coordinates(this.position.x,
+                this.position.y, this.position.z + length);
+        Coordinates left = new Coordinates(this.position.x - deltaX,
+                this.position.y, this.position.z + length);
+        Coordinates right = new Coordinates(this.position.x + deltaX,
+                this.position.y, this.position.z + length);
+        triangles.add(new Triangle(this.position, backUp, right));
+        triangles.add(new Triangle(this.position, left, backUp));
+        triangles.add(new Triangle(this.position, backDown, right));
+        triangles.add(new Triangle(this.position, left, backDown));
+        triangles.add(new Triangle(backUp, backMiddle, left));
+        triangles.add(new Triangle(backUp, right, backMiddle));
+        triangles.add(new Triangle(backMiddle, backDown, left));
+        triangles.add(new Triangle(backMiddle, right, backDown));
     }
 }
