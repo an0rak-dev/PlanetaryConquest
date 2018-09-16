@@ -55,4 +55,8 @@ public class AliensProperties extends SpaceProperties {
     public long getDistanceToTravel() {
         return Long.valueOf(this.getProperty("aliens.movement.distance.to.travel", "10"));
     }
+
+    public long getTimeBetweenShips() {
+        return Long.valueOf(this.getProperty("aliens.ships.time.between", "10"));
+    }
 }
