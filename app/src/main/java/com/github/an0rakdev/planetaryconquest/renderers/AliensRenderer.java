@@ -15,7 +15,11 @@ import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
+import java.util.Set;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
@@ -26,7 +30,9 @@ public class AliensRenderer extends SpaceRenderer {
     private final float[] view;
     private final float[] mvp;
     private float distanceMade;
-    private final List<Polyhedron> aliens;
+    private final Queue<Polyhedron> aliens;
+    private final List<Polyhedron> aliensDisplayed;
+    private float timeUntilNextAlien;
 
     public AliensRenderer(Context context) {
         super(context, new AliensProperties(context));
@@ -46,20 +52,9 @@ public class AliensRenderer extends SpaceRenderer {
         this.view = new float[16];
         this.mvp = new float[16];
         this.distanceMade = 0;
-        this.aliens = new ArrayList<>();
-        for (int i=0; i < 8; i++) {
-            float z = MathUtils.randRange(config.getDistanceToTravel() + 5,
-                    config.getDistanceToTravel() + 10);
-            float x;
-            float y;
-            do {
-                x = MathUtils.randRange(-4, 4);
-            } while (x > -0.5f && x < 0.5f);
-            do {
-                y = MathUtils.randRange(-4, 4);
-            } while (y > -0.5f && y < 0.5f);
-            this.aliens.add(new AlienShip(new Coordinates(x,y,z)));
-        }
+        this.aliens = new LinkedList<>();
+        this.aliensDisplayed = new ArrayList<>();
+        initializeAliens(config);
     }
 
     @Override
@@ -77,11 +72,17 @@ public class AliensRenderer extends SpaceRenderer {
     public void onNewFrame(final HeadTransform headTransform) {
         super.onNewFrame(headTransform);
         final AliensProperties config = (AliensProperties) getProperties();
+        long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
 
         if (userHasToMoveAgain()) {
-            long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
             final float currentDistance = (config.getMovementSpeed() / 1000f) * time;
             this.distanceMade += currentDistance;
+        } else if (!this.aliens.isEmpty()) {
+            this.timeUntilNextAlien -= time;
+            if (0 >= this.timeUntilNextAlien) {
+                this.aliensDisplayed.add(this.aliens.poll());
+                this.timeUntilNextAlien = config.getTimeBetweenShips();
+            }
         }
 
         float cameraCurrentZ = config.getCameraPositionZ() + this.distanceMade;
@@ -108,7 +109,7 @@ public class AliensRenderer extends SpaceRenderer {
         OpenGLUtils.drawTriangles(this.mars.size(), verticesHandle, colorHandle);
 
         if (!userHasToMoveAgain()) {
-            for (final Polyhedron alien : this.aliens) {
+            for (final Polyhedron alien : this.aliensDisplayed) {
                 final int alienVHandle = OpenGLUtils.bindVerticesToProgram(this.program, alien.bufferize(), "vVertices");
                 final int alienCHandle = OpenGLUtils.bindColorToProgram(this.program, alien.colors(), "vColors");
                 OpenGLUtils.drawTriangles(alien.size(), alienVHandle, alienCHandle);
@@ -121,4 +122,28 @@ public class AliensRenderer extends SpaceRenderer {
         return config.getCameraPositionZ() + this.distanceMade < config.getDistanceToTravel();
     }
 
+    private void initializeAliens(AliensProperties config) {
+        while (this.aliens.size() < 8) {
+            float z = MathUtils.randRange(config.getDistanceToTravel() + 5,
+                    config.getDistanceToTravel() + 10);
+            float x = MathUtils.randRange(-4, 4);
+            float y = MathUtils.randRange(-4, 4);
+            if (Math.abs(x) > 0.5 && Math.abs(y) > 0.5
+                && willNotCollideWithOthers(x, y, z)) {
+                this.aliens.add(new AlienShip(new Coordinates(x, y, z)));
+            }
+        }
+        this.timeUntilNextAlien = config.getTimeBetweenShips();
+    }
+
+    private boolean willNotCollideWithOthers(final float x, final float y, final float z) {
+        for (final Polyhedron ship : this.aliens) {
+            if (Math.abs(ship.getPosition().z - z) <= 0.3
+                && Math.abs(ship.getPosition().y - y) <= 0.3
+                && Math.abs(ship.getPosition().x - x) <= 0.3) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
