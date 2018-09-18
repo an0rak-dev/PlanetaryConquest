@@ -1,5 +1,7 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
 
+import android.opengl.Matrix;
+
 import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
@@ -150,5 +152,12 @@ public abstract class Polyhedron extends Model {
 
         final Polyhedron that = (Polyhedron)o;
         return this.getPosition().equals(that.getPosition());
+    }
+
+    public float[] model() {
+        final float[] result = new float[16];
+        Matrix.setIdentityM(result, 0);
+        Matrix.translateM(result, 0, this.getPosition().x, this.getPosition().y, this.getPosition().z);
+        return result;
     }
 }

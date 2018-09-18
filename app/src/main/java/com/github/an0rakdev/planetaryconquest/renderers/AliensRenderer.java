@@ -103,6 +103,21 @@ public class AliensRenderer extends SpaceRenderer {
             }
         }
 
+        for (final Polyhedron alien : this.aliensDisplayed) {
+            final long currentCoolDown = this.coolDownPerShip.get(alien);
+            if (currentCoolDown <= 0L) {
+                fireFrom(alien);
+                this.coolDownPerShip.put(alien, config.getLaserCooldown());
+            } else {
+                this.coolDownPerShip.put(alien, currentCoolDown - time);
+            }
+        }
+
+
+        for (final Laser laser : this.lasers) {
+            laser.move(0,0,-laserDistance);
+        }
+
         float cameraCurrentZ = config.getCameraPositionZ() + this.distanceMade;
         Matrix.setLookAtM(this.camera, 0,
                 config.getCameraPositionX(),
@@ -122,8 +137,11 @@ public class AliensRenderer extends SpaceRenderer {
     @Override
     public void onDrawEye(final Eye eye) {
         super.onDrawEye(eye);
+        final float[] marsModel = this.mars.model();
+        final float[] marsModelView = new float[16];
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
-        Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
+        Matrix.multiplyMM(marsModelView, 0, this.view, 0, marsModel, 0);
+        Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, marsModelView, 0);
         OpenGLUtils.use(this.program);
         OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
 
@@ -131,8 +149,14 @@ public class AliensRenderer extends SpaceRenderer {
         final int colorHandle = OpenGLUtils.bindColorToProgram(this.program, this.mars.colors(), "vColors");
         OpenGLUtils.drawTriangles(this.mars.size(), verticesHandle, colorHandle);
 
+        final float[] alienView = new float[16];
+        final float[] alienMVP = new float[16];
         if (!userHasToMoveAgain()) {
             for (final Polyhedron alien : this.aliensDisplayed) {
+                final float[] alienModel = alien.model();
+                Matrix.multiplyMM(alienView, 0, this.view, 0, alienModel, 0);
+                Matrix.multiplyMM(alienMVP, 0, eye.getPerspective(0.1f, 100f), 0, alienView, 0);
+                OpenGLUtils.bindMVPToProgram(this.program, alienMVP, "vMatrix");
                 final int alienVHandle = OpenGLUtils.bindVerticesToProgram(this.program, alien.bufferize(), "vVertices");
                 final int alienCHandle = OpenGLUtils.bindColorToProgram(this.program, alien.colors(), "vColors");
                 OpenGLUtils.drawTriangles(alien.size(), alienVHandle, alienCHandle);
@@ -161,7 +185,7 @@ public class AliensRenderer extends SpaceRenderer {
             float y = MathUtils.randRange(config.getMinYShipPosition(), config.getMaxYShipPosition());
             if (Math.abs(x) > 0.7 && Math.abs(y) > 0.7
                 && willNotCollideWithOthers(x, y, z)) {
-                this.aliens.add(new AlienShip(new Coordinates(x, y, z)));
+                this.aliens.add(new AlienShip(new Coordinates(x, y, z), config.getShipSize()));
             }
         }
         this.timeUntilNextAlien = config.getTimeBetweenShips();
@@ -176,5 +200,49 @@ public class AliensRenderer extends SpaceRenderer {
             }
         }
         return true;
+    }
+
+    private void fireFrom(final Polyhedron ship) {
+        final Coordinates start = new Coordinates(
+                ship.getPosition().x,
+                ship.getPosition().y,
+                ship.getPosition().z
+        );
+        final Coordinates end = new Coordinates(
+                ship.getPosition().x,
+                ship.getPosition().y,
+                ship.getPosition().z - 1
+        );
+        final Laser laser = new Laser(start, end);
+        laser.color(102, 238, 94);
+
+        final int laserAudioId = this.audioEngine.createSoundObject(LASER_SOUNDFILE);
+        laser.audio(laserAudioId);
+        this.audioEngine.setSoundObjectPosition(laserAudioId, end.x, end.y, end.z);
+        this.audioEngine.playSound(laserAudioId, false);
+
+        this.lasers.add(laser);
+    }
+
+
+    private void displayLasers(final Eye eye) {
+        final float[] laserModelView = new float[16];
+        final float[] lasersView = new float[16];
+        final float[] lasersMvp = new float[16];
+
+        Matrix.multiplyMM(lasersView, 0, eye.getEyeView(), 0, this.camera, 0);
+        OpenGLUtils.use(this.lasersProgram);
+
+        for (final Laser laser : this.lasers) {
+            float[] laserModel = laser.model();
+            Matrix.multiplyMM(laserModelView, 0, this.view, 0, laserModel, 0);
+            Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, laserModelView, 0);
+            OpenGLUtils.bindMVPToProgram(this.program, lasersMvp, "vMatrix");
+            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, laser.bufferize(), "vVertices");
+            final int colorHandle = OpenGLUtils.bindColorToProgram(this.program, laser.colors(), "vColors");
+            OpenGLUtils.drawLines(laser.size(), 120, verticesHandle, colorHandle);
+            this.audioEngine.setSoundObjectPosition(laser.audio(),
+                    laserModel[12], laserModel[13], laserModel[14]);
+        }
     }
 }

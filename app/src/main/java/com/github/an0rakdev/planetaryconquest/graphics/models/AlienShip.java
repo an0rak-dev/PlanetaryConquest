@@ -8,13 +8,15 @@ import java.util.List;
 
 public class AlienShip extends Polyhedron {
     private Coordinates position;
+    private float size;
 
-    public AlienShip(final Coordinates position) {
+    public AlienShip(final Coordinates position, final float size) {
         super();
         this.position = position;
         this.background(OpenGLUtils.toOpenGLColor(
                 200, 200, 200
         ));
+        this.size = size;
     }
 
     @Override
@@ -24,19 +26,18 @@ public class AlienShip extends Polyhedron {
 
     @Override
     protected void fillTriangles(final List<Triangle> triangles) {
-        final float deltaX = 0.6f;
-        final float deltaY = 0.25f;
-        final float length = 3;
+        final float deltaX = this.size / 4;
+        final float deltaY = this.size / 8;
         Coordinates backUp = new Coordinates(this.position.x,
-                this.position.y + deltaY, this.position.z + length);
+                this.position.y + deltaY, this.position.z + this.size);
         Coordinates backDown = new Coordinates(this.position.x,
-                this.position.y - deltaY, this.position.z + length);
+                this.position.y - deltaY, this.position.z + this.size);
         Coordinates backMiddle = new Coordinates(this.position.x,
-                this.position.y, this.position.z + length);
+                this.position.y, this.position.z + this.size);
         Coordinates left = new Coordinates(this.position.x - deltaX,
-                this.position.y, this.position.z + length);
+                this.position.y, this.position.z + this.size);
         Coordinates right = new Coordinates(this.position.x + deltaX,
-                this.position.y, this.position.z + length);
+                this.position.y, this.position.z + this.size);
         triangles.add(new Triangle(this.position, backUp, right));
         triangles.add(new Triangle(this.position, left, backUp));
         triangles.add(new Triangle(this.position, backDown, right));
