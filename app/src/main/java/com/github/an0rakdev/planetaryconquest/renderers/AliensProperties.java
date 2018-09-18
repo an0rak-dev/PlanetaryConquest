@@ -87,4 +87,16 @@ public class AliensProperties extends SpaceProperties {
     public float getMaxZShipPosition() {
         return Long.valueOf(this.getProperty("aliens.ships.max.position.z", "1"));
     }
+
+    public float getLaserSpeed() {
+        return Float.valueOf(this.getProperty("aliens.ships.laser.speed", "10"));
+    }
+
+    public long getLaserCooldown() {
+        return Long.valueOf(this.getProperty("aliens.ships.laser.cooldown", "100"));
+    }
+
+    public float getShipSize() {
+        return Float.valueOf(this.getProperty("aliens.ships.size", "1"));
+    }
 }
