@@ -237,9 +237,9 @@ public class AliensRenderer extends SpaceRenderer {
             float[] laserModel = laser.model();
             Matrix.multiplyMM(laserModelView, 0, this.view, 0, laserModel, 0);
             Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, laserModelView, 0);
-            OpenGLUtils.bindMVPToProgram(this.program, lasersMvp, "vMatrix");
-            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, laser.bufferize(), "vVertices");
-            final int colorHandle = OpenGLUtils.bindColorToProgram(this.program, laser.colors(), "vColors");
+            OpenGLUtils.bindMVPToProgram(this.lasersProgram, lasersMvp, "vMatrix");
+            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.lasersProgram, laser.bufferize(), "vVertices");
+            final int colorHandle = OpenGLUtils.bindColorToProgram(this.lasersProgram, laser.colors(), "vColors");
             OpenGLUtils.drawLines(laser.size(), 120, verticesHandle, colorHandle);
             this.audioEngine.setSoundObjectPosition(laser.audio(),
                     laserModel[12], laserModel[13], laserModel[14]);
