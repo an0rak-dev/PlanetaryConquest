@@ -9,6 +9,7 @@ import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.AlienShip;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.google.vr.sdk.audio.GvrAudioEngine;
@@ -16,14 +17,17 @@ import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Queue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
 public class AliensRenderer extends SpaceRenderer {
     private static final String BANG_SOUNDFILE = "bang.wav";
+    private static final String LASER_SOUNDFILE = "laser.wav";
     private Sphere mars;
     private int program;
     private final float[] camera;
@@ -33,6 +37,9 @@ public class AliensRenderer extends SpaceRenderer {
     private final Queue<Polyhedron> aliens;
     private final List<Polyhedron> aliensDisplayed;
     private float timeUntilNextAlien;
+    private final Map<Polyhedron, Long> coolDownPerShip;
+    private final List<Laser> lasers;
+    private int lasersProgram;
 
     private final GvrAudioEngine audioEngine;
     private final float[] headQuaternion;
@@ -57,6 +64,8 @@ public class AliensRenderer extends SpaceRenderer {
         this.distanceMade = 0;
         this.aliens = new LinkedList<>();
         this.aliensDisplayed = new ArrayList<>();
+        this.coolDownPerShip = new HashMap<>();
+        this.lasers = new ArrayList<>();
         this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
         this.headQuaternion = new float[4];
         initializeAliens(config);
@@ -72,11 +81,16 @@ public class AliensRenderer extends SpaceRenderer {
         final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.program);
         OpenGLUtils.linkProgram(this.program, vertexShader, fragmentShader);
 
+        this.lasersProgram = OpenGLUtils.newProgram();
+        final int lasersVShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.lasersProgram);
+        final int lasersFShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.lasersProgram);
+        OpenGLUtils.linkProgram(this.lasersProgram, lasersVShader, lasersFShader);
 
         new Thread(new Runnable() {
             @Override
             public void run() {
                 audioEngine.preloadSoundFile(BANG_SOUNDFILE);
+                audioEngine.preloadSoundFile(LASER_SOUNDFILE);
             }
         }).start();
     }
@@ -113,7 +127,7 @@ public class AliensRenderer extends SpaceRenderer {
             }
         }
 
-
+        final float laserDistance = (config.getLaserSpeed() / 1000) * time;
         for (final Laser laser : this.lasers) {
             laser.move(0,0,-laserDistance);
         }
@@ -162,6 +176,8 @@ public class AliensRenderer extends SpaceRenderer {
                 OpenGLUtils.drawTriangles(alien.size(), alienVHandle, alienCHandle);
             }
         }
+
+        displayLasers(eye);
     }
 
     public void pause() {
@@ -185,7 +201,9 @@ public class AliensRenderer extends SpaceRenderer {
             float y = MathUtils.randRange(config.getMinYShipPosition(), config.getMaxYShipPosition());
             if (Math.abs(x) > 0.7 && Math.abs(y) > 0.7
                 && willNotCollideWithOthers(x, y, z)) {
-                this.aliens.add(new AlienShip(new Coordinates(x, y, z), config.getShipSize()));
+                final AlienShip ship = new AlienShip(new Coordinates(x, y, z), config.getShipSize());
+                this.aliens.add(ship);
+                this.coolDownPerShip.put(ship, 0L);
             }
         }
         this.timeUntilNextAlien = config.getTimeBetweenShips();
