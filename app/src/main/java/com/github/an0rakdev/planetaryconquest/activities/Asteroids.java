@@ -4,18 +4,19 @@ import android.os.Bundle;
 
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.renderers.AsteroidsRenderer;
+import com.github.an0rakdev.planetaryconquest.renderers.AsteroidsRenderer2;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
 
 public class Asteroids extends GvrActivity {
-	private AsteroidsRenderer renderer;
+	private AsteroidsRenderer2 renderer;
 
 	@Override
 	protected void onCreate(final Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		this.setContentView(R.layout.asteroids_activity);
 		final GvrView gvrView = findViewById(R.id.asteroids_gvr_view);
-		this.renderer = new AsteroidsRenderer(this);
+		this.renderer = new AsteroidsRenderer2(this);
 		gvrView.setRenderer(this.renderer);
 		gvrView.setTransitionViewEnabled(true);
 		this.setGvrView(gvrView);

@@ -45,10 +45,6 @@ final class AsteroidsProperties extends SpaceProperties {
 		return Integer.valueOf(this.getProperty("asteroids.field.count", "0"));
 	}
 
-	public float getAsteroidsSpeed() {
-		return Float.valueOf(this.getProperty("asteroids.field.speed.meter.per.second", "1"));
-	}
-
 	public float getAsteroidMinX() {
 		return Float.valueOf(this.getProperty("asteroids.field.min.x", "0"));
 	}

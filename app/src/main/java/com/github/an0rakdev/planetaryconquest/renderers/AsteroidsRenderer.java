@@ -33,13 +33,9 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	private static final String LASER_SOUNDFILE = "laser.wav";
 	private static final String EXPLOSION_SOUNDFILE = "explosion.wav";
     private final AsteroidField field;
-	private final float asteroidsSpeed;
-	private float asteroidMvt;
 	private final float cameraSpeed;
-	private float cameraMvt;
 
 	private int celestialProgram;
-	private float cameraPosX;
 	private float cameraPosZ;
 	private final float[] camera;
 	private final float[] view;
@@ -74,11 +70,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	public AsteroidsRenderer(final Context context) {
 		super(context, new AsteroidsProperties(context));
 		final AsteroidsProperties config = (AsteroidsProperties) this.getProperties();
-		this.asteroidsSpeed = config.getAsteroidsSpeed() / 1000;
-		this.asteroidMvt = 0f;
 		this.cameraSpeed = config.getCameraSpeed() / 1000;
-		this.cameraMvt = 0f;
-		this.cameraPosX = getProperties().getCameraPositionX();
 		this.cameraPosZ = getProperties().getCameraPositionZ();
 		this.camera = new float[16];
 		this.view = new float[16];
@@ -147,20 +139,17 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	public void onNewFrame(final HeadTransform headTransform) {
 		super.onNewFrame(headTransform);
 		long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-		float asteroidsDistance = this.asteroidsSpeed * time;
 		final float cameraDistance = this.cameraSpeed * time;
 		final float laserDistance = this.laserSpeed * time;
 
+		final float cameraPosX = getProperties().getCameraPositionX();
 		final float cameraPosY = getProperties().getCameraPositionY();
 		final float cameraDirX = getProperties().getCameraDirectionX();
 		final float cameraDirY = getProperties().getCameraDirectionY();
 		final float cameraDirZ = getProperties().getCameraDirectionZ();
 
-		this.asteroidMvt += asteroidsDistance;
-		this.cameraPosX += asteroidsDistance;
-		if (this.cameraMvt < ((AsteroidsProperties) getProperties()).getDistanceToTravel()) {
+		if (this.cameraPosZ < ((AsteroidsProperties) getProperties()).getDistanceToTravel()) {
 			cameraPosZ += cameraDistance;
-			this.cameraMvt += cameraDistance;
 		}
 
 		for (final Sphere asteroid : this.field.asteroids()) {
@@ -182,7 +171,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 				cameraPosX + cameraDirX, cameraPosY + cameraDirY, cameraPosZ + cameraDirZ,
 				0, 1, 0);
 		Matrix.setLookAtM(this.hudCamera, 0,
-				getProperties().getCameraPositionX(), cameraPosY, getProperties().getCameraPositionZ(),
+				cameraPosX, cameraPosY, getProperties().getCameraPositionZ(),
 				cameraDirX, cameraDirY, cameraDirZ,
 				0, 1, 0);
 
@@ -292,7 +281,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 				OpenGLUtils.bindMVPToProgram(this.lasersProgram, this.lasersMvp, "vMatrix");
 				final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.lasersProgram, laser.bufferize(), "vVertices");
 				final int colorHandle = OpenGLUtils.bindColorToProgram(this.lasersProgram, laser.colors(), "vColors");
-				OpenGLUtils.drawLines(laser.size(), 120, verticesHandle, colorHandle);
+				OpenGLUtils.drawLines(laser.size(), 200, verticesHandle, colorHandle);
 				this.audioEngine.setSoundObjectPosition(laser.audio(),
                         laserModel[12], laserModel[13], laserModel[14]);
 			}
@@ -302,18 +291,26 @@ public class AsteroidsRenderer extends SpaceRenderer {
 
 	private boolean isLookingAt(final Sphere shape) {
 		Matrix.setIdentityM(this.currentAsteroidModel, 0);
-		final float realXPos = shape.getPosition().x - this.asteroidMvt;
-		final float realZPos = shape.getPosition().z - this.cameraMvt;
-		Matrix.translateM(this.currentAsteroidModel, 0, realXPos, shape.getPosition().y, realZPos);
+
+		final float[] t = new float[16];
+		Matrix.setIdentityM(t, 0);
+
+		final float dZ = shape.getPosition().z - this.cameraPosZ;
+		Matrix.translateM(this.currentAsteroidModel, 0, shape.getPosition().x, shape.getPosition().y, dZ);
+
+		Matrix.translateM(t, 0, shape.getRadius(), shape.getRadius(), dZ);
+
 		final float[] modelView = new float[16];
 		Matrix.multiplyMM(modelView, 0, this.headView, 0, this.currentAsteroidModel, 0);
+
 		// shape Area
-		final float shapeAreaRad = (float) Math.atan2(shape.getRadius(), realZPos);
+		final float shapePitchAreaRad = (float) Math.atan2(t[12], t[14]);
+		final float shapeYawAreaRad = (float) Math.atan2(t[13], t[14]);
 		// pitch of sight
 		final float sightPitchRad = (float) Math.atan2(modelView[12], modelView[14]);
 		// yaw of sight
 		final float sightYawRad = (float) Math.atan2(modelView[13], modelView[14]);
-		return Math.abs(sightPitchRad) < shapeAreaRad && Math.abs(sightYawRad) < shapeAreaRad;
+		return Math.abs(sightPitchRad) < Math.abs(shapePitchAreaRad) && Math.abs(sightYawRad) < Math.abs(shapeYawAreaRad);
 	}
 
 	private void fireAt(final Sphere target) {
@@ -323,8 +320,8 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		laser.color(253,106,2);
 
 		// pitch ( polar angle)
-		final float realXPos = target.getPosition().x - this.asteroidMvt;
-		final float realZPos = target.getPosition().z - this.cameraMvt;
+		final float realXPos = target.getPosition().x;
+		final float realZPos = target.getPosition().z - this.cameraPosZ;
 		final float angleInRadian = (float) Math.atan2(realXPos,realZPos);
 		laser.pitch((float)Math.toDegrees(angleInRadian));
 
@@ -332,9 +329,7 @@ public class AsteroidsRenderer extends SpaceRenderer {
 		final float dY = target.getPosition().y - end.y;
 		final float dZ = realZPos - end.z;
 		final float yawInRadian = (float) Math.atan2(dY,dZ);
-		if (dZ > 0.08) {
-			laser.yaw(-(float) Math.toDegrees(yawInRadian));
-		}
+		laser.yaw((float) Math.toDegrees(yawInRadian) + 180);
 
 		final int laserAudioId = this.audioEngine.createSoundObject(LASER_SOUNDFILE);
         laser.audio(laserAudioId);
@@ -367,14 +362,15 @@ public class AsteroidsRenderer extends SpaceRenderer {
 	}
 
 	private boolean collides(final Laser laser, final Sphere shape) {
-		final float shapeX = shape.getPosition().x - this.asteroidMvt;
+		final float shapeX = shape.getPosition().x;
 		final float shapeY = shape.getPosition().y;
-		final float shapeZ = shape.getPosition().z - this.cameraMvt;
+		final float shapeZ = shape.getPosition().z - this.cameraPosZ;
 		final float rad = shape.getRadius();
 		final float[] laserModel = laser.model();
 		boolean result = shapeX - rad < laserModel[12] && laserModel[12] <= shapeX + rad;
 		result = result && shapeY - rad < laserModel[13] && laserModel[13] <= shapeY + rad;
-		result = result && shapeZ - rad < laserModel[14] && laserModel[14] <= shapeZ + rad;
-		return result;
+		result = result && shapeZ - rad <= laserModel[14]; // Lasers are removed after hit, so we don't need to check if the laser is not in the asteroids back.
+		//return result;
+		return false;
 	}
 }
