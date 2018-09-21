@@ -6,7 +6,6 @@ import android.opengl.Matrix;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
-import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
@@ -50,7 +49,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
 
 
 
-        this.asteroid = new Sphere(new Coordinates(4,0,8), 1);
+        this.asteroid = new Sphere(new Coordinates(0,2,4), 1);
         this.asteroid.precision(1);
         this.asteroid.background(OpenGLUtils.toOpenGLColor(190, 190, 190));
     }
@@ -87,7 +86,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         OpenGLUtils.use(this.program);
         OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
 
-        if (!this.isLookingAt(this.asteroid, eye)) {
+        if (!this.isLookingAt(this.asteroid)) {
             final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.asteroid.bufferize(), "vVertices");
             final int colorsHandle = OpenGLUtils.bindColorToProgram(this.program, this.asteroid.colors(), "vColors");
             OpenGLUtils.drawTriangles(this.asteroid.size(), verticesHandle, colorsHandle);
@@ -102,44 +101,74 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         this.audioEngine.resume();
     }
 
-    private boolean isLookingAt(final Sphere shape, final Eye eye) {
-        final float sightAngle = this.sightPitch(eye, shape.getPosition().z);
-        final float shapeAngle = this.shapePitch(eye, shape);
-        return shapeAngle - 0.3f <= sightAngle && sightAngle <= shapeAngle + 0.3f;
+    private boolean isLookingAt(final Sphere shape) {
+       return /*this.isHorizontallyLookingAt(shape) && */this.isVerticallyLookingAt(shape);
     }
 
+    private boolean isHorizontallyLookingAt(final Sphere shape) {
+        final float sightAngle = this.sightPitch(shape.getPosition().z);
+        final float xtremLeftAngle = this.coordPitch(new Coordinates(
+                shape.getPosition().x + shape.getRadius(), shape.getPosition().y, shape.getPosition().z
+        ));
+        final float xtremRightAngle = this.coordPitch(new Coordinates(
+                shape.getPosition().x - shape.getRadius(), shape.getPosition().y, shape.getPosition().z
+        ));
+        return xtremRightAngle <= sightAngle && sightAngle <= xtremLeftAngle;
+    }
 
-    private float sightPitch(Eye eye, float z) {
-        // Works. DO NOT TOUCH ANYMORE YOU IDIOT !
+    private boolean isVerticallyLookingAt(final Sphere shape) {
+        final float sightAngle = this.sightYaw(shape.getPosition().z);
+        float shapeAngle = this.coordYaw(shape.getPosition());
+        return false;
+    }
+
+    private float sightPitch(float z) {
         float[] sightModel = this.convertPositionToMatrix(new Coordinates(0, 0, z));
         float[] sightUntouchedModel = this.convertPositionToMatrix(new Coordinates(0, 0, z));
         float[] sightReal = new float[16];
-
         Matrix.multiplyMM(sightReal, 0, this.headView, 0, sightModel, 0);
-        Matrix.multiplyMM(sightReal, 0, eye.getPerspective(0.1f, 100f), 0, sightReal, 0);
         return this.pitchBetween(sightUntouchedModel, sightReal);
     }
 
-    private float shapePitch(Eye eye, Polyhedron shape) {
-        float[] shapeModel = this.convertPositionToMatrix(shape.getPosition());
+    private float sightYaw(float z) {
+        float[] sightModel = this.convertPositionToMatrix(new Coordinates(0, 0, z));
+        // z == 0 to increase the deltaZ when calculating the yawBetween.
+        float[] sightUntouchedModel = this.convertPositionToMatrix(new Coordinates(0, 0, 0));
+        float[] sightReal = new float[16];
+        Matrix.multiplyMM(sightReal, 0, this.headView, 0, sightModel, 0);
+        return this.yawBetween(sightUntouchedModel, sightReal);
+    }
+
+    private float coordPitch(Coordinates coord) {
+        float[] coordModel = this.convertPositionToMatrix(coord);
         float[] shapeReal = new float[16];
-        Matrix.multiplyMM(shapeReal, 0, this.headView, 0, shapeModel, 0);
-        Matrix.multiplyMM(shapeReal, 0, eye.getPerspective(0.1f, 100f), 0, shapeReal, 0);
+        Matrix.multiplyMM(shapeReal, 0, this.headView, 0, coordModel, 0);
         return (float) Math.atan2(shapeReal[12], -shapeReal[14]);
     }
 
+    private float coordYaw(Coordinates coord) {
+        float[] coordModel = this.convertPositionToMatrix(coord);
+        return (float) Math.atan2(coordModel[13], coordModel[14]);
+    }
+
+    private float pitchBetween(final float[] v1, final float[] v2) {
+        final float deltaX = v1[12] - v2[12];
+        final float deltaZ = v1[14] - v2[14];
+        return (float) Math.atan2(deltaX, deltaZ);
+    }
+
+    private float yawBetween(float[] v1, float[] v2) {
+        float deltaY = v1[13] - v2[13];
+        float deltaZ = v1[14] - v2[14];
+        float deltaX = v1[12] - v2[12];
+        float distance = (float)Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        return (float) Math.atan2(deltaY, distance);
+    }
+
     private float[] convertPositionToMatrix(final Coordinates coord) {
-        // Works. DO NOT TOUCH ANYMORE YOU IDIOT !
         final float[] model = new float[16];
         Matrix.setIdentityM(model, 0);
         Matrix.translateM(model, 0, coord.x, coord.y, coord.z);
         return model;
-    }
-
-    private float pitchBetween(final float[] v1, final float[] v2) {
-        // Works. DO NOT TOUCH ANYMORE YOU IDIOT !
-        final float deltaX = v1[12] - v2[12];
-        final float deltaZ = v1[14] - v2[14];
-        return (float) Math.atan2(deltaX, deltaZ);
     }
 }
