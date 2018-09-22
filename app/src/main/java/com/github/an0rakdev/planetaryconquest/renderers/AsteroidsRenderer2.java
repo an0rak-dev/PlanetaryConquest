@@ -6,10 +6,14 @@ import android.opengl.Matrix;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.HeadTransform;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
@@ -20,6 +24,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     private final float[] mvp;
     private final float[] camera;
     private Sphere asteroid;
+    private final List<Laser> lasers;
 
     private final GvrAudioEngine audioEngine;
     private final float[] headQuaternion;
@@ -34,6 +39,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
         this.headQuaternion = new float[4];
         this.headView = new float[16];
+        this.lasers = new ArrayList<>();
     }
 
     @Override
@@ -47,9 +53,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.program);
         OpenGLUtils.linkProgram(this.program, vertexShader, fragmentShader);
 
-
-
-        this.asteroid = new Sphere(new Coordinates(2,2,4), 1);
+        this.asteroid = new Sphere(new Coordinates(-2,-2,4), 1);
         this.asteroid.precision(1);
         this.asteroid.background(OpenGLUtils.toOpenGLColor(190, 190, 190));
     }
@@ -71,6 +75,15 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
                 cameraPosX + cameraDirX, cameraPosY + cameraDirY, cameraPosZ + cameraDirZ,
                 0, 1, 0);
         headTransform.getHeadView(this.headView, 0);
+
+        final List<Laser> toRemove = new ArrayList<>();
+        for (final Laser laser : this.lasers) {
+            laser.move(0,0,0.05f);
+            if (laser.model()[14] > 20) {
+                toRemove.add(laser);
+            }
+        }
+        this.lasers.removeAll(toRemove);
     }
 
     @Override
@@ -78,18 +91,28 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         super.onDrawEye(eye);
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
 
-        final float[] asteroidModel = this.convertPositionToMatrix(this.asteroid.getPosition());
+        OpenGLUtils.use(this.program);
 
+        if (isLookingAt(this.asteroid)) {
+            fireAt(this.asteroid);
+        }
+
+        // Draw asteroid
+        final float[] asteroidModel = this.convertPositionToMatrix(this.asteroid.getPosition());
         Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroidModel, 0);
         Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.modelView, 0);
-
-        OpenGLUtils.use(this.program);
         OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
+        final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.asteroid.bufferize(), "vVertices");
+        final int colorsHandle = OpenGLUtils.bindColorToProgram(this.program, this.asteroid.colors(), "vColors");
+        OpenGLUtils.drawTriangles(this.asteroid.size(), verticesHandle, colorsHandle);
 
-        if (!this.isLookingAt(this.asteroid)) {
-            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.asteroid.bufferize(), "vVertices");
-            final int colorsHandle = OpenGLUtils.bindColorToProgram(this.program, this.asteroid.colors(), "vColors");
-            OpenGLUtils.drawTriangles(this.asteroid.size(), verticesHandle, colorsHandle);
+        for (final Laser laser : this.lasers) {
+            Matrix.multiplyMM(this.modelView, 0, this.view, 0, laser.model(), 0);
+            Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.modelView, 0);
+            OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
+            int laserVHandle = OpenGLUtils.bindVerticesToProgram(this.program, laser.bufferize(), "vVertices");
+            int laserCHandle = OpenGLUtils.bindColorToProgram(this.program, laser.colors(), "vColors");
+            OpenGLUtils.drawLines(laser.size(), 120, laserVHandle, laserCHandle);
         }
     }
 
@@ -103,6 +126,24 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
 
     private boolean isLookingAt(final Sphere shape) {
        return this.isHorizontallyLookingAt(shape) && this.isVerticallyLookingAt(shape);
+    }
+
+    private void fireAt(final Sphere shape) {
+        final Coordinates start = new Coordinates(0,-1,0);
+        Laser laser = new Laser(start, new Coordinates(0,-1,0.5f));
+        laser.color(253,106,2);
+
+        final float[] laserAngle = this.convertPositionToMatrix(start);
+        final float[] shapeAngle = this.convertPositionToMatrix(shape.getPosition());
+        final float yawInRad = this.yawBetween(shapeAngle, laserAngle) * -1;
+        float yaw = (float) Math.toDegrees(yawInRad);
+        laser.yaw(yaw);
+
+        final float pitchInRad = this.pitchBetween(shapeAngle, laserAngle);
+        float pitch = (float) Math.toDegrees(pitchInRad);
+        laser.pitch(pitch);
+
+        this.lasers.add(laser);
     }
 
     private boolean isHorizontallyLookingAt(final Sphere shape) {
