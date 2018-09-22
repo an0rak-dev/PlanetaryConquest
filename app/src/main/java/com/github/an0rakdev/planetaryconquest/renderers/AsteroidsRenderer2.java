@@ -49,7 +49,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
 
 
 
-        this.asteroid = new Sphere(new Coordinates(0,10,8), 1);
+        this.asteroid = new Sphere(new Coordinates(2,2,4), 1);
         this.asteroid.precision(1);
         this.asteroid.background(OpenGLUtils.toOpenGLColor(190, 190, 190));
     }
@@ -102,37 +102,29 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     }
 
     private boolean isLookingAt(final Sphere shape) {
-       return /*this.isHorizontallyLookingAt(shape) && */this.isVerticallyLookingAt(shape);
+       return this.isHorizontallyLookingAt(shape) && this.isVerticallyLookingAt(shape);
     }
 
     private boolean isHorizontallyLookingAt(final Sphere shape) {
-        final float sightAngle = this.sightPitch(shape.getPosition().z);
-        final float xtremLeftAngle = this.coordPitch(new Coordinates(
+        final float sightAngle = this.sightYaw(shape.getPosition().z);
+        final float xtremLeftAngle = this.coordYaw(new Coordinates(
                 shape.getPosition().x + shape.getRadius(), shape.getPosition().y, shape.getPosition().z
         ));
-        final float xtremRightAngle = this.coordPitch(new Coordinates(
+        final float xtremRightAngle = this.coordYaw(new Coordinates(
                 shape.getPosition().x - shape.getRadius(), shape.getPosition().y, shape.getPosition().z
         ));
         return xtremRightAngle <= sightAngle && sightAngle <= xtremLeftAngle;
     }
 
     private boolean isVerticallyLookingAt(final Sphere shape) {
-        final float sightAngle = this.sightYaw(shape.getPosition().z) * -1;
-        float xtremUpAngle = this.coordYaw(new Coordinates(
+        final float sightAngle = this.sightPitch(shape.getPosition().z) * -1;
+        float xtremUpAngle = this.coordPitch(new Coordinates(
                 shape.getPosition().x, shape.getPosition().y + shape.getRadius(), shape.getPosition().z
         ));
-        float xtremDownAngle = this.coordYaw(new Coordinates(
+        float xtremDownAngle = this.coordPitch(new Coordinates(
                 shape.getPosition().x, shape.getPosition().y - shape.getRadius(), shape.getPosition().z
         ));
         return xtremDownAngle <= sightAngle && sightAngle <= xtremUpAngle;
-    }
-
-    private float sightPitch(float z) {
-        float[] sightModel = this.convertPositionToMatrix(new Coordinates(0, 0, z));
-        float[] sightUntouchedModel = this.convertPositionToMatrix(new Coordinates(0, 0, z));
-        float[] sightReal = new float[16];
-        Matrix.multiplyMM(sightReal, 0, this.headView, 0, sightModel, 0);
-        return this.pitchBetween(sightUntouchedModel, sightReal);
     }
 
     private float sightYaw(float z) {
@@ -141,17 +133,24 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         float[] sightUntouchedModel = this.convertPositionToMatrix(new Coordinates(0, 0, 0));
         float[] sightReal = new float[16];
         Matrix.multiplyMM(sightReal, 0, this.headView, 0, sightModel, 0);
+        return this.pitchBetween(sightUntouchedModel, sightReal);
+    }
+
+    private float sightPitch(float z) {
+        float[] sightModel = this.convertPositionToMatrix(new Coordinates(0, 0, z));
+        // z == 0 to increase the deltaZ when calculating the pitchBetween.
+        float[] sightUntouchedModel = this.convertPositionToMatrix(new Coordinates(0, 0, 0));
+        float[] sightReal = new float[16];
+        Matrix.multiplyMM(sightReal, 0, this.headView, 0, sightModel, 0);
         return this.yawBetween(sightUntouchedModel, sightReal);
     }
 
-    private float coordPitch(Coordinates coord) {
+    private float coordYaw(Coordinates coord) {
         float[] coordModel = this.convertPositionToMatrix(coord);
-        float[] shapeReal = new float[16];
-        Matrix.multiplyMM(shapeReal, 0, this.headView, 0, coordModel, 0);
-        return (float) Math.atan2(shapeReal[12], -shapeReal[14]);
+        return (float) Math.atan2(coordModel[12], coordModel[14]);
     }
 
-    private float coordYaw(Coordinates coord) {
+    private float coordPitch(Coordinates coord) {
         float[] coordModel = this.convertPositionToMatrix(coord);
         return (float) Math.atan2(coordModel[13], coordModel[14]);
     }
@@ -159,7 +158,10 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     private float pitchBetween(final float[] v1, final float[] v2) {
         final float deltaX = v1[12] - v2[12];
         final float deltaZ = v1[14] - v2[14];
-        return (float) Math.atan2(deltaX, deltaZ);
+        final float deltaY = v1[13] - v2[13];
+        final float distance = (float)Math.sqrt(deltaY * deltaY + deltaZ * deltaZ);
+
+        return (float) Math.atan2(deltaX, distance);
     }
 
     private float yawBetween(float[] v1, float[] v2) {
