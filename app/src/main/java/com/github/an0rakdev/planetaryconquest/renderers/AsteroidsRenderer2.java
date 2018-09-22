@@ -49,7 +49,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
 
 
 
-        this.asteroid = new Sphere(new Coordinates(0,2,4), 1);
+        this.asteroid = new Sphere(new Coordinates(0,10,8), 1);
         this.asteroid.precision(1);
         this.asteroid.background(OpenGLUtils.toOpenGLColor(190, 190, 190));
     }
@@ -117,9 +117,14 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     }
 
     private boolean isVerticallyLookingAt(final Sphere shape) {
-        final float sightAngle = this.sightYaw(shape.getPosition().z);
-        float shapeAngle = this.coordYaw(shape.getPosition());
-        return false;
+        final float sightAngle = this.sightYaw(shape.getPosition().z) * -1;
+        float xtremUpAngle = this.coordYaw(new Coordinates(
+                shape.getPosition().x, shape.getPosition().y + shape.getRadius(), shape.getPosition().z
+        ));
+        float xtremDownAngle = this.coordYaw(new Coordinates(
+                shape.getPosition().x, shape.getPosition().y - shape.getRadius(), shape.getPosition().z
+        ));
+        return xtremDownAngle <= sightAngle && sightAngle <= xtremUpAngle;
     }
 
     private float sightPitch(float z) {
