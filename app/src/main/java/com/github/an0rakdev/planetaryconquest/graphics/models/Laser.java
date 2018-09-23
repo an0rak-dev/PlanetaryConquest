@@ -13,8 +13,6 @@ public class Laser extends Model {
     private FloatBuffer vertices;
     private final float[] translations;
     private final float[] rotation;
-    private final float[] pitchRotation;
-    private final float[] yawRotation;
     private final float[] model;
     private boolean invalidated;
     private int audio;
@@ -27,10 +25,6 @@ public class Laser extends Model {
         Matrix.setIdentityM(this.translations, 0);
         this.rotation = new float[16];
         Matrix.setIdentityM(this.rotation, 0);
-        this.pitchRotation = new float[16];
-        Matrix.setIdentityM(this.pitchRotation, 0);
-        this.yawRotation = new float[16];
-        Matrix.setIdentityM(this.yawRotation, 0);
         this.model = new float[16];
         Matrix.setIdentityM(this.model, 0);
         this.invalidated = true;
@@ -89,24 +83,20 @@ public class Laser extends Model {
     }
 
     public void pitch(final float pitchDegrees) {
-        final float[] rotation = new float[16];
-        Matrix.setRotateM(rotation, 0, pitchDegrees, 0, 1, 0);
-        Matrix.multiplyMM(this.pitchRotation, 0, rotation, 0, this.rotation, 0);
+        final float[] pitch = new float[16];
+        Matrix.setRotateM(pitch, 0, pitchDegrees, 0, 1, 0);
+        Matrix.multiplyMM(this.rotation, 0, pitch, 0, this.rotation, 0);
         this.invalidated = true;
     }
 
-    public void yaw(final float yawDegrees) {
+    public void yaw(final float yaw) {
         final float[] rotation = new float[16];
-        Matrix.setRotateM(rotation, 0, yawDegrees, 1, 0, 0);
-        Matrix.multiplyMM(this.yawRotation, 0, rotation, 0, this.rotation, 0);
+        Matrix.setRotateM(rotation, 0, yaw, 1, 0, 0);
+        Matrix.multiplyMM(this.rotation, 0, rotation, 0, this.rotation, 0);
         this.invalidated = true;
     }
 
     public float[] rotation() {
-        if (this.invalidated) {
-         //   Matrix.multiplyMM(this.rotation, 0, this.yawRotation, 0, this.pitchRotation, 0);
-            Matrix.multiplyMM(this.rotation, 0, this.pitchRotation, 0, this.yawRotation, 0);
-        }
         return this.rotation;
     }
 
