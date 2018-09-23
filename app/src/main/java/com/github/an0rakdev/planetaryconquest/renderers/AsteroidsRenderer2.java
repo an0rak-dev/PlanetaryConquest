@@ -19,6 +19,7 @@ import javax.microedition.khronos.egl.EGLConfig;
 
 public class AsteroidsRenderer2 extends SpaceRenderer  {
     private int program;
+    private float[] perspective;
     private final float[] view;
     private final float[] modelView;
     private final float[] mvp;
@@ -53,7 +54,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.program);
         OpenGLUtils.linkProgram(this.program, vertexShader, fragmentShader);
 
-        this.asteroid = new Sphere(new Coordinates(-2,-2,4), 1);
+        this.asteroid = new Sphere(new Coordinates(4,6,8), 1);
         this.asteroid.precision(1);
         this.asteroid.background(OpenGLUtils.toOpenGLColor(190, 190, 190));
     }
@@ -78,9 +79,12 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
 
         final List<Laser> toRemove = new ArrayList<>();
         for (final Laser laser : this.lasers) {
-            laser.move(0,0,0.05f);
+            laser.move(0, 0, 0.05f);
             if (laser.model()[14] > 20) {
                 toRemove.add(laser);
+            } else if (collide(laser, this.asteroid)) {
+                toRemove.add(laser);
+                this.asteroid = null;
             }
         }
         this.lasers.removeAll(toRemove);
@@ -90,6 +94,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     public void onDrawEye(final Eye eye) {
         super.onDrawEye(eye);
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
+        this.perspective = eye.getPerspective(0.1f, 100f);
 
         OpenGLUtils.use(this.program);
 
@@ -98,17 +103,19 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         }
 
         // Draw asteroid
-        final float[] asteroidModel = this.convertPositionToMatrix(this.asteroid.getPosition());
-        Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroidModel, 0);
-        Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.modelView, 0);
-        OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
-        final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.asteroid.bufferize(), "vVertices");
-        final int colorsHandle = OpenGLUtils.bindColorToProgram(this.program, this.asteroid.colors(), "vColors");
-        OpenGLUtils.drawTriangles(this.asteroid.size(), verticesHandle, colorsHandle);
+        if (null != this.asteroid) {
+            final float[] asteroidModel = this.convertPositionToMatrix(this.asteroid.getPosition());
+            Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroidModel, 0);
+            Matrix.multiplyMM(this.mvp, 0, this.perspective, 0, this.modelView, 0);
+            OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
+            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.asteroid.bufferize(), "vVertices");
+            final int colorsHandle = OpenGLUtils.bindColorToProgram(this.program, this.asteroid.colors(), "vColors");
+            OpenGLUtils.drawTriangles(this.asteroid.size(), verticesHandle, colorsHandle);
+        }
 
         for (final Laser laser : this.lasers) {
             Matrix.multiplyMM(this.modelView, 0, this.view, 0, laser.model(), 0);
-            Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.modelView, 0);
+            Matrix.multiplyMM(this.mvp, 0, this.perspective, 0, this.modelView, 0);
             OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
             int laserVHandle = OpenGLUtils.bindVerticesToProgram(this.program, laser.bufferize(), "vVertices");
             int laserCHandle = OpenGLUtils.bindColorToProgram(this.program, laser.colors(), "vColors");
@@ -129,29 +136,28 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     }
 
     private void fireAt(final Sphere shape) {
-        final Coordinates start = new Coordinates(0,-1,0);
-        Laser laser = new Laser(start, new Coordinates(0,-1,0.5f));
+        final Coordinates start = new Coordinates(0,-0.1f,0);
+        Laser laser = new Laser(start, new Coordinates(0,-0.1f,-0.5f));
         laser.color(253,106,2);
 
-        final float[] laserAngle = this.convertPositionToMatrix(start);
-        final float[] shapeAngle = this.convertPositionToMatrix(shape.getPosition());
-        final float yawInRad = this.yawBetween(shapeAngle, laserAngle) * -1;
-        float yaw = (float) Math.toDegrees(yawInRad);
+        final float yawInRad = this.coordYaw(shape.getPosition());
+        float yaw = -(float) Math.toDegrees(yawInRad);
         laser.yaw(yaw);
-
-        final float pitchInRad = this.pitchBetween(shapeAngle, laserAngle);
+        final float pitchInRad = this.coordPitch(shape.getPosition());
         float pitch = (float) Math.toDegrees(pitchInRad);
         laser.pitch(pitch);
 
-        this.lasers.add(laser);
+        if (this.lasers.isEmpty()) {
+            this.lasers.add(laser);
+        }
     }
 
     private boolean isHorizontallyLookingAt(final Sphere shape) {
         final float sightAngle = this.sightYaw(shape.getPosition().z);
-        final float xtremLeftAngle = this.coordYaw(new Coordinates(
+        final float xtremLeftAngle = this.coordPitch(new Coordinates(
                 shape.getPosition().x + shape.getRadius(), shape.getPosition().y, shape.getPosition().z
         ));
-        final float xtremRightAngle = this.coordYaw(new Coordinates(
+        final float xtremRightAngle = this.coordPitch(new Coordinates(
                 shape.getPosition().x - shape.getRadius(), shape.getPosition().y, shape.getPosition().z
         ));
         return xtremRightAngle <= sightAngle && sightAngle <= xtremLeftAngle;
@@ -159,10 +165,10 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
 
     private boolean isVerticallyLookingAt(final Sphere shape) {
         final float sightAngle = this.sightPitch(shape.getPosition().z) * -1;
-        float xtremUpAngle = this.coordPitch(new Coordinates(
+        float xtremUpAngle = this.coordYaw(new Coordinates(
                 shape.getPosition().x, shape.getPosition().y + shape.getRadius(), shape.getPosition().z
         ));
-        float xtremDownAngle = this.coordPitch(new Coordinates(
+        float xtremDownAngle = this.coordYaw(new Coordinates(
                 shape.getPosition().x, shape.getPosition().y - shape.getRadius(), shape.getPosition().z
         ));
         return xtremDownAngle <= sightAngle && sightAngle <= xtremUpAngle;
@@ -186,12 +192,12 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         return this.yawBetween(sightUntouchedModel, sightReal);
     }
 
-    private float coordYaw(Coordinates coord) {
+    private float coordPitch(Coordinates coord) {
         float[] coordModel = this.convertPositionToMatrix(coord);
         return (float) Math.atan2(coordModel[12], coordModel[14]);
     }
 
-    private float coordPitch(Coordinates coord) {
+    private float coordYaw(Coordinates coord) {
         float[] coordModel = this.convertPositionToMatrix(coord);
         return (float) Math.atan2(coordModel[13], coordModel[14]);
     }
@@ -218,5 +224,19 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         Matrix.setIdentityM(model, 0);
         Matrix.translateM(model, 0, coord.x, coord.y, coord.z);
         return model;
+    }
+
+    private boolean collide(Laser laser, Sphere shape) {
+        final float[] laserModel = laser.model();
+        final float[] shapeModel = this.convertPositionToMatrix(shape.getPosition());
+        final float left = shapeModel[12] - shape.getRadius();
+        final float right = shapeModel[12] + shape.getRadius();
+        final float up = shapeModel[13] + shape.getRadius();
+        final float down = shapeModel[13] - shape.getRadius();
+        final float forward = shapeModel[14] - shape.getRadius();
+
+        return left <= laserModel[12] && laserModel[12] <= right
+                && down <= laserModel[13] && laserModel[13] <= up
+                && forward <= laserModel[14];
     }
 }
