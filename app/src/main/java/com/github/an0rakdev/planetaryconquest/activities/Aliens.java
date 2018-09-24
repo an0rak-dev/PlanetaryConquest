@@ -4,8 +4,6 @@ import android.os.Bundle;
 
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.renderers.AliensRenderer;
-import com.github.an0rakdev.planetaryconquest.renderers.AsteroidsRenderer;
-import com.github.an0rakdev.planetaryconquest.renderers.SpaceRenderer;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
 
