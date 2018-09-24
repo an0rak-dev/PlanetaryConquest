@@ -103,8 +103,8 @@ final class AsteroidsProperties extends SpaceProperties {
      *
      * @return the total distance made by the Camera.
      */
-    public long getDistanceToTravel() {
-        return Long.valueOf(this.getProperty("asteroids.distance.to.travel.in.meters", "10"));
+    public float getDistanceToTravel() {
+        return Float.valueOf(this.getProperty("asteroids.distance.to.travel.in.meters", "10"));
     }
 
     public float getCrossSize() {
