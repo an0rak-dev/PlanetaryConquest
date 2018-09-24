@@ -34,6 +34,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     private long currentCooldown;
     private float currentMovement;
     private final float cameraSpeed;
+    private final Sphere mars;
 
     private final GvrAudioEngine audioEngine;
     private final float[] headQuaternion;
@@ -72,6 +73,10 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
                 cameraPosX, cameraPosY, cameraPosZ,
                 cameraPosX + cameraDirX, cameraPosY + cameraDirY, cameraPosZ + cameraDirZ,
                 0, 1, 0);
+
+        this.mars = new Sphere(new Coordinates(0,0, config.getDistanceToTravel() + 10), 3);
+        this.mars.precision(3);
+        this.mars.background(OpenGLUtils.toOpenGLColor(253,153,58));
     }
 
     @Override
@@ -131,6 +136,12 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         float[] perspective = eye.getPerspective(0.1f, 100f);
         OpenGLUtils.use(this.program);
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
+
+        Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.view, 0);
+        OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
+        final int marsVHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.mars.bufferize(), "vVertices");
+        final int marsCHandle = OpenGLUtils.bindColorToProgram(this.program, this.mars.colors(), "vColors");
+        OpenGLUtils.drawTriangles(this.mars.size(), marsVHandle, marsCHandle);
 
         for (final Sphere asteroid : this.field.asteroids()) {
             Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroid.model(), 0);
