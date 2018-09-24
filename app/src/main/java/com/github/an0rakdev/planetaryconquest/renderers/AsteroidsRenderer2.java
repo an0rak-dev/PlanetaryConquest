@@ -6,6 +6,8 @@ import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
+import com.github.an0rakdev.planetaryconquest.activities.Asteroids;
+import com.github.an0rakdev.planetaryconquest.graphics.models.AsteroidField;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
@@ -23,12 +25,11 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     private static final String LASER_SOUNDFILE = "laser.wav";
     private static final String EXPLOSION_SOUNDFILE = "explosion.wav";
     private int program;
-    private float[] perspective;
     private final float[] view;
     private final float[] modelView;
     private final float[] mvp;
     private final float[] camera;
-    private Sphere asteroid;
+    private AsteroidField field;
     private final float laserSpeed;
     private final List<Laser> lasers;
     private long currentCooldown;
@@ -40,6 +41,13 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     public AsteroidsRenderer2(Context context) {
         super(context, new AsteroidsProperties(context));
         final AsteroidsProperties config = (AsteroidsProperties) getProperties();
+
+        this.field = new AsteroidField(config.getAsteroidsCount(),
+                config.getMinAsteroidSize(), config.getMaxAsteroidSize(),
+                config.getAsteroidMinX(), config.getAsteroidMinY(), config.getAsteroidMinZ(),
+                config.getAsteroidMaxX(), config.getAsteroidMaxY(), config.getAsteroidMaxZ(),
+                config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB());
+
         this.view = new float[16];
         this.modelView = new float[16];
         this.mvp = new float[16];
@@ -62,10 +70,6 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         final int vertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.program);
         final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.program);
         OpenGLUtils.linkProgram(this.program, vertexShader, fragmentShader);
-
-        this.asteroid = new Sphere(new Coordinates(4,6,8), 1);
-        this.asteroid.precision(1);
-        this.asteroid.background(OpenGLUtils.toOpenGLColor(190, 190, 190));
 
         new Thread(new Runnable() {
             @Override
@@ -97,23 +101,16 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
 
         this.currentCooldown -= time;
 
-        final List<Laser> toRemove = new ArrayList<>();
-        for (final Laser laser : this.lasers) {
-            laser.move(0, 0, laserDistance);
-            if (laser.model()[14] > (config.getDistanceToTravel() + 1)) {
-                toRemove.add(laser);
-                this.audioEngine.stopSound(laser.audio());
-            } else if (collide(laser, this.asteroid)) {
-                toRemove.add(laser);
-                this.audioEngine.stopSound(laser.audio());
-                final int explosionSound = this.audioEngine.createSoundObject(EXPLOSION_SOUNDFILE);
-                this.audioEngine.setSoundObjectPosition(explosionSound,
-                        this.asteroid.getPosition().x, this.asteroid.getPosition().y, this.asteroid.getPosition().z);
-                this.audioEngine.playSound(explosionSound, false);
-                this.asteroid = null;
+        for (final Sphere asteroid : this.field.asteroids()) {
+            if (isLookingAt(asteroid) && 0L >= this.currentCooldown) {
+                fireAt(asteroid);
             }
         }
-        this.lasers.removeAll(toRemove);
+
+        for (final Laser laser : this.lasers) {
+            laser.move(0, 0, laserDistance);
+        }
+        checkCollisions(config.getDistanceToTravel() +1);
 
         headTransform.getQuaternion(this.headQuaternion, 0);
         audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
@@ -124,30 +121,22 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     @Override
     public void onDrawEye(final Eye eye) {
         super.onDrawEye(eye);
-        Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
-        this.perspective = eye.getPerspective(0.1f, 100f);
-
+        float[] perspective = eye.getPerspective(0.1f, 100f);
         OpenGLUtils.use(this.program);
+        Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
+        Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.view, 0);
+        OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
 
-        if (isLookingAt(this.asteroid) && 0L >= this.currentCooldown) {
-            fireAt(this.asteroid);
-        }
-
-        // Draw asteroid
-        if (null != this.asteroid) {
-            final float[] asteroidModel = this.convertPositionToMatrix(this.asteroid.getPosition());
-            Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroidModel, 0);
-            Matrix.multiplyMM(this.mvp, 0, this.perspective, 0, this.modelView, 0);
-            OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
-            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.asteroid.bufferize(), "vVertices");
-            final int colorsHandle = OpenGLUtils.bindColorToProgram(this.program, this.asteroid.colors(), "vColors");
-            OpenGLUtils.drawTriangles(this.asteroid.size(), verticesHandle, colorsHandle);
+        for (final Sphere asteroid : this.field.asteroids()) {
+            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, asteroid.bufferize(), "vVertices");
+            final int colorsHandle = OpenGLUtils.bindColorToProgram(this.program, asteroid.colors(), "vColors");
+            OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorsHandle);
         }
 
         for (final Laser laser : this.lasers) {
             float[] laserModel = laser.model();
             Matrix.multiplyMM(this.modelView, 0, this.view, 0, laserModel, 0);
-            Matrix.multiplyMM(this.mvp, 0, this.perspective, 0, this.modelView, 0);
+            Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.modelView, 0);
             OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
             int laserVHandle = OpenGLUtils.bindVerticesToProgram(this.program, laser.bufferize(), "vVertices");
             int laserCHandle = OpenGLUtils.bindColorToProgram(this.program, laser.colors(), "vColors");
@@ -262,6 +251,32 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         Matrix.setIdentityM(model, 0);
         Matrix.translateM(model, 0, coord.x, coord.y, coord.z);
         return model;
+    }
+
+    private void checkCollisions(final float maxDistance) {
+        final List<Laser> lasersToRemove = new ArrayList<>();
+        for (final Laser laser : this.lasers) {
+            if (laser.model()[14] > maxDistance) {
+                this.audioEngine.stopSound(laser.audio());
+                lasersToRemove.add(laser);
+            } else {
+                final List<Sphere> asteroidsToRemove = new ArrayList<>();
+                for (final Sphere asteroid : this.field.asteroids()) {
+                    if (collide(laser, asteroid)) {
+                        lasersToRemove.add(laser);
+                        this.audioEngine.stopSound(laser.audio());
+                        asteroidsToRemove.add(asteroid);
+                        final int explosionSound = this.audioEngine.createSoundObject(EXPLOSION_SOUNDFILE);
+                        this.audioEngine.setSoundObjectPosition(explosionSound,
+                                asteroid.getPosition().x, asteroid.getPosition().y, asteroid.getPosition().z);
+                        this.audioEngine.playSound(explosionSound, false);
+                        break;
+                    }
+                }
+                this.field.removeAll(asteroidsToRemove);
+            }
+        }
+        this.lasers.removeAll(lasersToRemove);
     }
 
     private boolean collide(Laser laser, Sphere shape) {

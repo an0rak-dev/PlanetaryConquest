@@ -45,7 +45,7 @@ public class AsteroidField {
 
         final float radius = 0.3f;
             // Center
-        final Coordinates center = new Coordinates(0, 0, 18);
+        final Coordinates center = new Coordinates(0, 0, 5);
         final Sphere asteroid = new Sphere(center, radius);
         asteroid.background(asteroidColor);
         asteroid.precision(1);
@@ -55,7 +55,7 @@ public class AsteroidField {
         this.buffersSizes.put(asteroid, asteroid.size());
 
             // Left
-        final Coordinates center1 = new Coordinates(1, 0, 18);
+        final Coordinates center1 = new Coordinates(2, 0, 5);
         final Sphere asteroid1 = new Sphere(center1, radius);
         asteroid1.background(asteroidColor);
         asteroid1.precision(1);
@@ -65,7 +65,7 @@ public class AsteroidField {
         this.buffersSizes.put(asteroid1, asteroid1.size());
 
             // Right
-        final Coordinates center2 = new Coordinates(-1, 0, 18);
+        final Coordinates center2 = new Coordinates(-2, 0, 5);
         final Sphere asteroid2 = new Sphere(center2, radius);
         asteroid2.background(asteroidColor);
         asteroid2.precision(1);
@@ -75,7 +75,7 @@ public class AsteroidField {
         this.buffersSizes.put(asteroid2, asteroid2.size());
 
             // Top
-        final Coordinates center3 = new Coordinates(0, 1, 18);
+        final Coordinates center3 = new Coordinates(0, 2, 5);
         final Sphere asteroid3 = new Sphere(center3, radius);
         asteroid3.background(asteroidColor);
         asteroid3.precision(1);
@@ -85,7 +85,7 @@ public class AsteroidField {
         this.buffersSizes.put(asteroid3, asteroid3.size());
 
             // Bottom
-        final Coordinates center4 = new Coordinates(0, -1, 18);
+        final Coordinates center4 = new Coordinates(0, -2, 5);
         final Sphere asteroid4 = new Sphere(center4, radius);
         asteroid4.background(asteroidColor);
         asteroid4.precision(1);
