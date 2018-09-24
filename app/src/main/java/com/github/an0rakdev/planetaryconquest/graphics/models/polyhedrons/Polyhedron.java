@@ -24,6 +24,8 @@ public abstract class Polyhedron extends Model {
     private int precisionOfEachTriangle;
     private float[] color;
     private float[] translations;
+    private boolean invalidated;
+    private final float[] model;
 
     /**
      * Default constructor of a polyhedron.
@@ -35,6 +37,8 @@ public abstract class Polyhedron extends Model {
         this.color = OpenGLUtils.randOpenGlColor();
         this.translations = new float[16];
         Matrix.setIdentityM(this.translations, 0);
+        this.invalidated = true;
+        this.model = new float[16];
     }
 
     /**
@@ -132,15 +136,6 @@ public abstract class Polyhedron extends Model {
         return result;
     }
 
-    public List<Coordinates> getAllCoordinates() {
-        this.precalculate();
-        List<Coordinates> result = new ArrayList<>();
-        for (final Triangle t : this.triangles) {
-            result.addAll(t.coordinates());
-        }
-        return result;
-    }
-
     private void precalculate() {
         if (this.triangles.isEmpty()) {
             this.triangles.addAll(this.generate());
@@ -158,14 +153,17 @@ public abstract class Polyhedron extends Model {
     }
 
     public float[] model() {
-        final float[] result = new float[16];
-        Matrix.setIdentityM(result, 0);
-        Matrix.translateM(result, 0, this.getPosition().x, this.getPosition().y, this.getPosition().z);
-        Matrix.multiplyMM(result, 0, this.translations, 0, result, 0);
-        return result;
+        if (this.invalidated) {
+            Matrix.setIdentityM(this.model, 0);
+            Matrix.translateM(this.model, 0, this.getPosition().x, this.getPosition().y, this.getPosition().z);
+            Matrix.multiplyMM(this.model, 0, this.translations, 0, this.model, 0);
+            this.invalidated = false;
+        }
+        return this.model;
     }
 
     public void move(final float x, final float y, final float z) {
         Matrix.translateM(this.translations, 0, x, y, z);
+        this.invalidated = true;
     }
 }
