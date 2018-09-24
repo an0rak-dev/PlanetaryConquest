@@ -32,6 +32,8 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     private final float laserSpeed;
     private final List<Laser> lasers;
     private long currentCooldown;
+    private float currentMovement;
+    private final float cameraSpeed;
 
     private final GvrAudioEngine audioEngine;
     private final float[] headQuaternion;
@@ -57,6 +59,8 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         this.laserSpeed = config.getLaserSpeed() / 1000;
         this.lasers = new ArrayList<>();
         this.currentCooldown = 0L;
+        this.currentMovement = 0f;
+        this.cameraSpeed = config.getCameraSpeed() / 1000;
 
         final float cameraPosX = config.getCameraPositionX();
         final float cameraPosY = config.getCameraPositionY();
@@ -95,16 +99,21 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
         super.onNewFrame(headTransform);
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
         final float laserDistance = this.laserSpeed * time;
+        final float cameraMovement = this.cameraSpeed * time;
         final AsteroidsProperties config = (AsteroidsProperties) getProperties();
         headTransform.getHeadView(this.headView, 0);
         headTransform.getQuaternion(this.headQuaternion, 0);
 
         this.currentCooldown -= time;
         for (final Sphere asteroid : this.field.asteroids()) {
+            if (this.currentMovement < config.getDistanceToTravel()) {
+                asteroid.move(0, 0, -cameraMovement); // https://www.youtube.com/watch?v=1RtMMupdOC4
+            }
             if (isLookingAt(asteroid) && 0L >= this.currentCooldown) {
                 fireAt(asteroid);
             }
         }
+        this.currentMovement += cameraMovement;
 
         for (final Laser laser : this.lasers) {
             laser.move(0, 0, laserDistance);
@@ -182,7 +191,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     private boolean isHorizontallyLookingAt(final Sphere shape) {
         float x = shape.model()[12];
         float y = shape.model()[13];
-        float z = shape.model()[14];
+        float z = Math.abs(shape.model()[14]);
         final float sightAngle = this.sightYaw(z);
         final float xtremLeftAngle = this.coordPitch(new Coordinates(x + shape.getRadius(), y, z));
         final float xtremRightAngle = this.coordPitch(new Coordinates(x - shape.getRadius(), y, z));
@@ -192,7 +201,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     private boolean isVerticallyLookingAt(final Sphere shape) {
         float x = shape.model()[12];
         float y = shape.model()[13];
-        float z = shape.model()[14];
+        float z = Math.abs(shape.model()[14]);
         final float sightAngle = this.sightPitch(z) * -1;
         float xtremUpAngle = this.coordYaw(new Coordinates(x, y + shape.getRadius(), z));
         float xtremDownAngle = this.coordYaw(new Coordinates(x, y - shape.getRadius(), z));
@@ -262,7 +271,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     }
 
     private float coordPitch(final float[] coordsModel) {
-        return (float) Math.atan2(coordsModel[12], coordsModel[14]);
+        return (float) Math.atan2(coordsModel[12], Math.abs(coordsModel[14]));
     }
 
     private float coordYaw(Coordinates coord) {
@@ -270,7 +279,7 @@ public class AsteroidsRenderer2 extends SpaceRenderer  {
     }
 
     private float coordYaw(final float[] coordsModel) {
-        return (float) Math.atan2(coordsModel[13], coordsModel[14]);
+        return (float) Math.atan2(coordsModel[13], Math.abs(coordsModel[14]));
     }
 
     private float pitchBetween(final float[] v1, final float[] v2) {

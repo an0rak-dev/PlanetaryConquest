@@ -23,6 +23,7 @@ public abstract class Polyhedron extends Model {
     private FloatBuffer colors;
     private int precisionOfEachTriangle;
     private float[] color;
+    private float[] translations;
 
     /**
      * Default constructor of a polyhedron.
@@ -32,6 +33,8 @@ public abstract class Polyhedron extends Model {
         this.precisionOfEachTriangle = 0;
         this.vertices = null;
         this.color = OpenGLUtils.randOpenGlColor();
+        this.translations = new float[16];
+        Matrix.setIdentityM(this.translations, 0);
     }
 
     /**
@@ -158,6 +161,11 @@ public abstract class Polyhedron extends Model {
         final float[] result = new float[16];
         Matrix.setIdentityM(result, 0);
         Matrix.translateM(result, 0, this.getPosition().x, this.getPosition().y, this.getPosition().z);
+        Matrix.multiplyMM(result, 0, this.translations, 0, result, 0);
         return result;
+    }
+
+    public void move(final float x, final float y, final float z) {
+        Matrix.translateM(this.translations, 0, x, y, z);
     }
 }
