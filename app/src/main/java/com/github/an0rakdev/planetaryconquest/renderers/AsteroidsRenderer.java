@@ -110,6 +110,7 @@ public class AsteroidsRenderer extends SpaceRenderer  {
         headTransform.getQuaternion(this.headQuaternion, 0);
 
         this.currentCooldown -= time;
+        this.mars.move(0,0,-cameraMovement);
         for (final Sphere asteroid : this.field.asteroids()) {
             if (this.currentMovement < config.getDistanceToTravel()) {
                 asteroid.move(0, 0, -cameraMovement); // https://www.youtube.com/watch?v=1RtMMupdOC4
