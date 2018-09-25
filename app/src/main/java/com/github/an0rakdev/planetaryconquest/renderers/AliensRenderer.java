@@ -39,7 +39,6 @@ public class AliensRenderer extends SpaceRenderer {
     private float timeUntilNextAlien;
     private final Map<Polyhedron, Long> coolDownPerShip;
     private final List<Laser> lasers;
-    private int lasersProgram;
 
     private final GvrAudioEngine audioEngine;
     private final float[] headQuaternion;
@@ -69,6 +68,15 @@ public class AliensRenderer extends SpaceRenderer {
         this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
         this.headQuaternion = new float[4];
         initializeAliens(config);
+        Matrix.setLookAtM(this.camera, 0,
+                config.getCameraPositionX(),
+                config.getCameraPositionY(),
+                config.getCameraPositionZ(),
+                config.getCameraDirectionX(),
+                config.getCameraDirectionY(),
+                config.getCameraDirectionZ(),
+                0, 1, 0);
+
     }
 
     @Override
@@ -80,11 +88,6 @@ public class AliensRenderer extends SpaceRenderer {
         final int vertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.program);
         final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.program);
         OpenGLUtils.linkProgram(this.program, vertexShader, fragmentShader);
-
-        this.lasersProgram = OpenGLUtils.newProgram();
-        final int lasersVShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.lasersProgram);
-        final int lasersFShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.lasersProgram);
-        OpenGLUtils.linkProgram(this.lasersProgram, lasersVShader, lasersFShader);
 
         new Thread(new Runnable() {
             @Override
@@ -101,9 +104,10 @@ public class AliensRenderer extends SpaceRenderer {
         final AliensProperties config = (AliensProperties) getProperties();
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
 
-        if (userHasToMoveAgain()) {
+        if (this.distanceMade < config.getDistanceToTravel()) {
             final float currentDistance = (config.getMovementSpeed() / 1000f) * time;
             this.distanceMade += currentDistance;
+            this.mars.move(0,0,-currentDistance);
         } else if (!this.aliens.isEmpty()) {
             this.timeUntilNextAlien -= time;
             if (0 >= this.timeUntilNextAlien) {
@@ -132,16 +136,6 @@ public class AliensRenderer extends SpaceRenderer {
             laser.move(0,0,-laserDistance);
         }
 
-        float cameraCurrentZ = config.getCameraPositionZ() + this.distanceMade;
-        Matrix.setLookAtM(this.camera, 0,
-                config.getCameraPositionX(),
-                config.getCameraPositionY(),
-                cameraCurrentZ,
-                config.getCameraDirectionX(),
-                config.getCameraDirectionY(),
-                config.getCameraDirectionZ() + cameraCurrentZ,
-                0, 1, 0);
-
         headTransform.getQuaternion(this.headQuaternion, 0);
         audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
                 this.headQuaternion[2], this.headQuaternion[3]);
@@ -164,8 +158,9 @@ public class AliensRenderer extends SpaceRenderer {
         OpenGLUtils.drawTriangles(this.mars.size(), verticesHandle, colorHandle);
 
         final float[] alienView = new float[16];
+        AliensProperties config = (AliensProperties) getProperties();
         final float[] alienMVP = new float[16];
-        if (!userHasToMoveAgain()) {
+        if (this.distanceMade >= config.getDistanceToTravel()) {
             for (final Polyhedron alien : this.aliensDisplayed) {
                 final float[] alienModel = alien.model();
                 Matrix.multiplyMM(alienView, 0, this.view, 0, alienModel, 0);
@@ -177,7 +172,20 @@ public class AliensRenderer extends SpaceRenderer {
             }
         }
 
-        displayLasers(eye);
+
+        final float[] laserModelView = new float[16];
+        final float[] lasersMvp = new float[16];
+        for (final Laser laser : this.lasers) {
+            float[] laserModel = laser.model();
+            Matrix.multiplyMM(laserModelView, 0, this.view, 0, laserModel, 0);
+            Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, laserModelView, 0);
+            OpenGLUtils.bindMVPToProgram(this.program, lasersMvp, "vMatrix");
+            final int lasersVHandle = OpenGLUtils.bindVerticesToProgram(this.program, laser.bufferize(), "vVertices");
+            final int lasersCHandle = OpenGLUtils.bindColorToProgram(this.program, laser.colors(), "vColors");
+            OpenGLUtils.drawLines(laser.size(), 120, lasersVHandle, lasersCHandle);
+            this.audioEngine.setSoundObjectPosition(laser.audio(),
+                    laserModel[12], laserModel[13], laserModel[14]);
+        }
     }
 
     public void pause() {
@@ -186,11 +194,6 @@ public class AliensRenderer extends SpaceRenderer {
 
     public void resume() {
         this.audioEngine.resume();
-    }
-
-    private boolean userHasToMoveAgain() {
-        final AliensProperties config = (AliensProperties) getProperties();
-        return config.getCameraPositionZ() + this.distanceMade < config.getDistanceToTravel();
     }
 
     private void initializeAliens(AliensProperties config) {
@@ -229,7 +232,7 @@ public class AliensRenderer extends SpaceRenderer {
         final Coordinates end = new Coordinates(
                 ship.getPosition().x,
                 ship.getPosition().y,
-                ship.getPosition().z - 1
+                ship.getPosition().z - 0.5f
         );
         final Laser laser = new Laser(start, end);
         laser.color(102, 238, 94);
@@ -239,28 +242,46 @@ public class AliensRenderer extends SpaceRenderer {
         this.audioEngine.setSoundObjectPosition(laserAudioId, end.x, end.y, end.z);
         this.audioEngine.playSound(laserAudioId, false);
 
+        Coordinates target = new Coordinates(
+                0 ,//+ MathUtils.randRange(-0.2f, 0.2f),
+                0 ,//+ MathUtils.randRange(-0.2f, 0.2f),
+                0
+        );
+
+        float[] laserModel = this.convertPositionToMatrix(start);
+        float[] targetModel = this.convertPositionToMatrix(target);
+        float pitch = (float) Math.toDegrees(this.pitchBetween(laserModel, targetModel));
+        float yaw = (float) Math.toDegrees(this.yawBetween(laserModel, targetModel));
+        laser.pitch(-pitch);
+        laser.yaw(-yaw);
+
         this.lasers.add(laser);
     }
 
 
-    private void displayLasers(final Eye eye) {
-        final float[] laserModelView = new float[16];
-        final float[] lasersView = new float[16];
-        final float[] lasersMvp = new float[16];
 
-        Matrix.multiplyMM(lasersView, 0, eye.getEyeView(), 0, this.camera, 0);
-        OpenGLUtils.use(this.lasersProgram);
+    private float pitchBetween(final float[] v1, final float[] v2) {
+        final float deltaX = v1[12] - v2[12];
+        final float deltaZ = v1[14] - v2[14];
+        final float deltaY = v1[13] - v2[13];
+        final float distance = (float)Math.sqrt(deltaY * deltaY + deltaZ * deltaZ);
 
-        for (final Laser laser : this.lasers) {
-            float[] laserModel = laser.model();
-            Matrix.multiplyMM(laserModelView, 0, this.view, 0, laserModel, 0);
-            Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, laserModelView, 0);
-            OpenGLUtils.bindMVPToProgram(this.lasersProgram, lasersMvp, "vMatrix");
-            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.lasersProgram, laser.bufferize(), "vVertices");
-            final int colorHandle = OpenGLUtils.bindColorToProgram(this.lasersProgram, laser.colors(), "vColors");
-            OpenGLUtils.drawLines(laser.size(), 120, verticesHandle, colorHandle);
-            this.audioEngine.setSoundObjectPosition(laser.audio(),
-                    laserModel[12], laserModel[13], laserModel[14]);
-        }
+        return (float) Math.atan2(deltaX, distance);
     }
+
+    private float yawBetween(float[] v1, float[] v2) {
+        float deltaY = v1[13] - v2[13];
+        float deltaZ = v1[14] - v2[14];
+        float deltaX = v1[12] - v2[12];
+        float distance = (float)Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        return (float) Math.atan2(deltaY, distance);
+    }
+
+    private float[] convertPositionToMatrix(final Coordinates coord) {
+        final float[] model = new float[16];
+        Matrix.setIdentityM(model, 0);
+        Matrix.translateM(model, 0, coord.x, coord.y, coord.z);
+        return model;
+    }
+
 }
