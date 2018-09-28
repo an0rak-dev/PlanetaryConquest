@@ -241,23 +241,39 @@ public class AliensRenderer extends SpaceRenderer {
         laser.audio(laserAudioId);
         this.audioEngine.setSoundObjectPosition(laserAudioId, end.x, end.y, end.z);
         this.audioEngine.playSound(laserAudioId, false);
-
+/*
         Coordinates target = new Coordinates(
-                0 ,//+ MathUtils.randRange(-0.2f, 0.2f),
-                0 ,//+ MathUtils.randRange(-0.2f, 0.2f),
-                0
-        );
+                0 + MathUtils.randRange(-0.2f, 0.2f),
+                0 + MathUtils.randRange(-0.2f, 0.2f),
+                0);
 
-        float[] laserModel = this.convertPositionToMatrix(start);
-        float[] targetModel = this.convertPositionToMatrix(target);
-        float pitch = (float) Math.toDegrees(this.pitchBetween(laserModel, targetModel));
-        float yaw = (float) Math.toDegrees(this.yawBetween(laserModel, targetModel));
-        laser.pitch(-pitch);
-        laser.yaw(-yaw);
 
+        final float yawInRad = this.coordYaw(ship.model());
+        float yaw = -(float) Math.toDegrees(yawInRad);
+        laser.yaw(yaw);
+        final float pitchInRad = this.coordPitch(ship.model());
+        float pitch = (float) Math.toDegrees(pitchInRad);
+        laser.pitch(pitch);
+*/
         this.lasers.add(laser);
     }
 
+
+    private float coordPitch(Coordinates coord) {
+        return this.coordPitch(this.convertPositionToMatrix(coord));
+    }
+
+    private float coordPitch(final float[] coordsModel) {
+        return (float) Math.atan2(coordsModel[12], Math.abs(coordsModel[14]));
+    }
+
+    private float coordYaw(Coordinates coord) {
+        return this.coordYaw(this.convertPositionToMatrix(coord));
+    }
+
+    private float coordYaw(final float[] coordsModel) {
+        return (float) Math.atan2(coordsModel[13], Math.abs(coordsModel[14]));
+    }
 
 
     private float pitchBetween(final float[] v1, final float[] v2) {
