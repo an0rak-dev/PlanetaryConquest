@@ -39,16 +39,22 @@ public class FlyingRenderer extends SpaceRenderer {
      * @param context the current Android context.
      */
     public FlyingRenderer(final Context context) {
-        super(context, new FlyingProperties(context));
+        super(context, null);
 
-        final FlyingProperties config = (FlyingProperties) this.getProperties();
-        this.distanceElapsed = config.getDistanceToTravel();
+        this.distanceElapsed = 25; // meters.
         this.camera = new float[16];
         this.view = new float[16];
         this.model = new float[16];
         this.mvp = new float[16];
-        this.cameraZPos = getProperties().getCameraPositionZ();
-        initializeCelestialBodies(config);
+        this.cameraZPos = getCameraPosition().z;
+
+        this.moon = new Sphere(new Coordinates(2.5f, 3.5f, 20), 1);
+        this.moon.precision(3);
+        this.moon.background(OpenGLUtils.toOpenGLColor(138, 135, 130));
+
+        this.earth = new Sphere(new Coordinates(0, -8, 10), 5);
+        this.earth.precision(3);
+        this.earth.background(OpenGLUtils.toOpenGLColor(32, 119, 238));
     }
 
     @Override
@@ -65,14 +71,14 @@ public class FlyingRenderer extends SpaceRenderer {
     @Override
     public void onNewFrame(final HeadTransform headTransform) {
         super.onNewFrame(headTransform);
+        final float cameraSpeed = 7; // m/s
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-        final FlyingProperties properties = (FlyingProperties) this.getProperties();
-        final float currentDistance = (properties.getCameraSpeed() / 1000f) * time;
-        final float cameraPosX = getProperties().getCameraPositionX();
-        final float cameraPosY = getProperties().getCameraPositionY();
-        final float cameraDirX = getProperties().getCameraDirectionX();
-        final float cameraDirY = getProperties().getCameraDirectionY();
-        final float cameraDirZ = getProperties().getCameraDirectionZ();
+        final float currentDistance = (cameraSpeed / 1000f) * time;
+        final float cameraPosX = getCameraPosition().x;
+        final float cameraPosY = getCameraPosition().y;
+        final float cameraDirX = getCameraDirection().x;
+        final float cameraDirY = getCameraDirection().y;
+        final float cameraDirZ = getCameraDirection().z;
         if (distanceElapsed > 0f) {
             this.cameraZPos += currentDistance;
             distanceElapsed -= currentDistance;
@@ -93,29 +99,12 @@ public class FlyingRenderer extends SpaceRenderer {
         OpenGLUtils.use(this.celestialProgram);
         OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
 
-        draw(this.moon);
-        draw(this.earth);
-    }
+        final int moonVHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, this.moon.bufferize(), "vVertices");
+        final int moonCHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, this.moon.colors(), "vColors");
+        OpenGLUtils.drawTriangles(this.moon.size(), moonVHandle, moonCHandle);
 
-    private void draw(final Polyhedron sphere) {
-        final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, sphere.bufferize(), "vVertices");
-        final int colorHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, sphere.colors(), "vColors");
-        OpenGLUtils.drawTriangles(sphere.size(), verticesHandle, colorHandle);
-    }
-
-    private void initializeCelestialBodies(FlyingProperties config) {
-        this.moon = new Sphere(
-                new Coordinates(config.getMoonCenterX(), config.getMoonCenterY(), config.getMoonCenterZ()),
-                config.getMoonSize());
-        this.moon.precision(3);
-        this.moon.background(
-                OpenGLUtils.toOpenGLColor(config.getMoonColorR(), config.getMoonColorG(), config.getMoonColorB()));
-
-        this.earth = new Sphere(
-                new Coordinates(config.getEarthCenterX(), config.getEarthCenterY(), config.getEarthCenterZ()),
-                config.getEarthSize());
-        this.earth.precision(3);
-        this.earth.background(
-                OpenGLUtils.toOpenGLColor(config.getEarthColorR(), config.getEarthColorG(), config.getEarthColorB()));
+        final int earthVHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, this.earth.bufferize(), "vVertices");
+        final int earthCHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, this.earth.colors(), "vColors");
+        OpenGLUtils.drawTriangles(this.earth.size(), earthVHandle, earthCHandle);
     }
 }

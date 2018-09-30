@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- Any VR activity only contains one view, the Google VR one. -->
     <com.google.vr.sdk.base.GvrView
         android:id="@+id/flying_gvr_view"
         android:layout_width="match_parent"
