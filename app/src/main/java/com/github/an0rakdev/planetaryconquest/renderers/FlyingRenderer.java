@@ -6,6 +6,7 @@ import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
+import com.github.an0rakdev.planetaryconquest.graphics.models.SphericalBody;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
@@ -22,8 +23,8 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @version 1.0
  */
 public class FlyingRenderer extends SpaceRenderer {
-    private Polyhedron moon;
-    private Polyhedron earth;
+    private SphericalBody moon;
+    private SphericalBody earth;
     private float distanceElapsed;
 
     private int celestialProgram;
@@ -48,13 +49,10 @@ public class FlyingRenderer extends SpaceRenderer {
         this.mvp = new float[16];
         this.cameraZPos = getCameraPosition().z;
 
-        this.moon = new Sphere(new Coordinates(2.5f, 3.5f, 20), 1);
-        this.moon.precision(3);
-        this.moon.background(OpenGLUtils.toOpenGLColor(138, 135, 130));
-
-        this.earth = new Sphere(new Coordinates(0, -8, 10), 5);
-        this.earth.precision(3);
-        this.earth.background(OpenGLUtils.toOpenGLColor(32, 119, 238));
+        this.moon = new SphericalBody(new Coordinates(2.5f, 3.5f, 20), 1);
+        this.moon.background(138, 135, 130);
+        this.earth = new SphericalBody(new Coordinates(0, -8, 10), 5);
+        this.earth.background(32, 119, 238);
     }
 
     @Override
@@ -98,13 +96,7 @@ public class FlyingRenderer extends SpaceRenderer {
         Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
         OpenGLUtils.use(this.celestialProgram);
         OpenGLUtils.bindMVPToProgram(this.celestialProgram, this.mvp, "vMatrix");
-
-        final int moonVHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, this.moon.bufferize(), "vVertices");
-        final int moonCHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, this.moon.colors(), "vColors");
-        OpenGLUtils.drawTriangles(this.moon.size(), moonVHandle, moonCHandle);
-
-        final int earthVHandle = OpenGLUtils.bindVerticesToProgram(this.celestialProgram, this.earth.bufferize(), "vVertices");
-        final int earthCHandle = OpenGLUtils.bindColorToProgram(this.celestialProgram, this.earth.colors(), "vColors");
-        OpenGLUtils.drawTriangles(this.earth.size(), earthVHandle, earthCHandle);
+        this.moon.draw(this.celestialProgram);
+        this.earth.draw(this.celestialProgram);
     }
 }
