@@ -8,6 +8,7 @@ import com.github.an0rakdev.planetaryconquest.FrameCounter;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.MathUtils;
+import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
@@ -27,12 +28,13 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
     static final int FLOAT_BYTES = (Float.SIZE / Byte.SIZE);
     static final int DIMENSION = 3;
     private static final String TAG = "Renderer";
+    private static final int TARGETED_FPS = 90;
+    private static final int STARS_COUNT = 320;
     // Stars informations
     private static FloatBuffer starsVertices = null;
     private final float[] starColor;
     // Utilities
     private final Context context;
-    private final SpaceProperties properties;
     private final FrameCounter frameCounter;
     private final long timeBetweenFrames;
     // Rendering informations.
@@ -43,16 +45,12 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
 
     SpaceRenderer(final Context context, final SpaceProperties properties) {
         this.context = context;
-        this.properties = properties;
-        this.timeBetweenFrames = (1000 / this.properties.getFps()) - 1L;
+        this.timeBetweenFrames = (1000 / TARGETED_FPS) - 1L;
         this.frameCounter = new FrameCounter(1000);
         this.camera = new float[16];
         this.view = new float[16];
         this.mvp = new float[16];
-        this.starColor = OpenGLUtils.toOpenGLColor(
-                this.properties.getStarsColorR(),
-                this.properties.getStarsColorG(),
-                this.properties.getStarsColorB());
+        this.starColor = OpenGLUtils.toOpenGLColor(255, 255, 255);
     }
 
     @Override
@@ -73,15 +71,9 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
         this.frameCounter.increase();
         this.frameCounter.log();
 
-        final float cameraPosX = this.properties.getCameraPositionX();
-        final float cameraPosY = this.properties.getCameraPositionY();
-        final float cameraPosZ = this.properties.getCameraPositionZ();
-        final float cameraDirX = this.properties.getCameraDirectionX();
-        final float cameraDirY = this.properties.getCameraDirectionY();
-        final float cameraDirZ = this.properties.getCameraDirectionZ();
         Matrix.setLookAtM(this.camera, 0,
-                cameraPosX, cameraPosY, cameraPosZ,
-                cameraDirX, cameraDirY, cameraDirZ,
+                getCameraPosition().x, getCameraPosition().y, getCameraPosition().z,
+                getCameraDirection().x, getCameraDirection().y, getCameraDirection().z,
                 0f, 1f, 0f);
     }
 
@@ -96,7 +88,7 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
         final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.starsShader, starsVertices, "vVertices");
         OpenGLUtils.bindMVPToProgram(this.starsShader, this.mvp, "vMatrix");
         OpenGLUtils.bindColorToProgram(this.starsShader, this.starColor, "vColor");
-        OpenGLUtils.drawPoints(this.properties.getStarsCount(), verticesHandle);
+        OpenGLUtils.drawPoints(STARS_COUNT, verticesHandle);
     }
 
     @Override
@@ -119,7 +111,7 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
     }
 
     final SpaceProperties getProperties() {
-        return this.properties;
+        return null;
     }
 
     final String readContentOf(final int fd) {
@@ -141,16 +133,15 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
     }
 
     private void initializeStars() {
-        final int starsCount = this.properties.getStarsCount();
-        starsVertices = this.createFloatBuffer(starsCount * DIMENSION * FLOAT_BYTES);
-        final float minX = -this.properties.getStarsXBound();
-        final float maxX = this.properties.getStarsXBound();
-        final float minY = -this.properties.getStarsYBound();
-        final float maxY = this.properties.getStarsYBound();
-        final float front = this.properties.getStarsZBound();
-        final float back = -this.properties.getStarsZBound();
+        starsVertices = this.createFloatBuffer(STARS_COUNT * DIMENSION * FLOAT_BYTES);
+        final float minX = -5;
+        final float maxX = 5;
+        final float minY = -3;
+        final float maxY = 3;
+        final float front = 3;
+        final float back = -3;
 
-        for (int i = 0; i < starsCount / 2; i++) {
+        for (int i = 0; i < STARS_COUNT / 2; i++) {
             starsVertices.put(MathUtils.randRange(minX, maxX));
             starsVertices.put(MathUtils.randRange(minY, maxY));
             starsVertices.put(front);
@@ -166,5 +157,13 @@ public abstract class SpaceRenderer implements GvrView.StereoRenderer {
         final ByteBuffer bb = ByteBuffer.allocateDirect(size);
         bb.order(ByteOrder.nativeOrder());
         return bb.asFloatBuffer();
+    }
+
+    Coordinates getCameraPosition() {
+        return new Coordinates(0,0,0);
+    }
+
+    Coordinates getCameraDirection() {
+        return new Coordinates(0,0,1);
     }
 }

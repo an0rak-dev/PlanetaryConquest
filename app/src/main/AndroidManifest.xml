@@ -2,15 +2,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.an0rakdev.planetaryconquest">
 
-    <!-- Use the software VR -->
-    <uses-feature
-        android:name="android.software.vr.mode"
+    <uses-feature android:name="android.software.vr.mode"
         android:required="false" />
-    <!-- Enable High performance for VR -->
-    <uses-feature
-        android:name="android.hardware.vr.high_performance"
+    <uses-feature android:name="android.hardware.vr.high_performance"
         android:required="false" />
-    <!-- Permission to External Storage are required in order to use the distortion  --> <!-- TODO(an0rak) : WHY ? -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
@@ -31,17 +26,17 @@
         <activity
             android:name=".activities.Flying"
             android:parentActivityName=".activities.Main"
-            android:screenOrientation="landscape"> <!-- Landscape required in VR -->
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".activities.Asteroids"
             android:parentActivityName=".activities.Main"
-            android:screenOrientation="landscape"> <!-- Landscape required in VR -->
+            android:screenOrientation="landscape">
         </activity>
         <activity
             android:name=".activities.Aliens"
             android:parentActivityName=".activities.Main"
-            android:screenOrientation="landscape"> <!-- Landscape required in VR -->
+            android:screenOrientation="landscape">
         </activity>
     </application>
 </manifest>
