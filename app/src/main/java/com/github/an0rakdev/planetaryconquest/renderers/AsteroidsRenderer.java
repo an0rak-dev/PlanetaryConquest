@@ -21,62 +21,52 @@ import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
-public class AsteroidsRenderer extends SpaceRenderer  implements GvrView.StereoRenderer {
+public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRenderer {
     // MUST BE a single channel track, or the gvrAudioEngine.createSoundObject will return -1.
     private static final String LASER_SOUNDFILE = "laser.wav";
     private static final String EXPLOSION_SOUNDFILE = "explosion.wav";
+    private static final long LASER_COOLDOWN = 200; // ms
     private int program;
     private final float[] view;
     private final float[] modelView;
     private final float[] mvp;
-    private final float[] camera;
     private AsteroidField field;
     private final float laserSpeed;
     private final List<Laser> lasers;
     private long currentCooldown;
     private float currentMovement;
-    private final float cameraSpeed;
+    private final float movementSpeed;
     private final Sphere mars;
+    private final float distanceToTravel;
 
     private final GvrAudioEngine audioEngine;
     private final float[] headQuaternion;
     private final float[] headView;
 
     public AsteroidsRenderer(Context context) {
-        super(context, new AsteroidsProperties(context));
-        final AsteroidsProperties config = (AsteroidsProperties) getProperties();
+        super(context, null);
 
-        this.field = new AsteroidField(config.getAsteroidsCount(),
-                config.getMinAsteroidSize(), config.getMaxAsteroidSize(),
-                config.getAsteroidMinX(), config.getAsteroidMinY(), config.getAsteroidMinZ(),
-                config.getAsteroidMaxX(), config.getAsteroidMaxY(), config.getAsteroidMaxZ(),
-                config.getAsteroidsColorR(), config.getAsteroidsColorG(), config.getAsteroidsColorB());
+        this.field = new AsteroidField(
+                50, 0.2f, 1f,
+                -10, -5, 12,
+                10, 5, 16,
+                138, 135, 130);
+        this.laserSpeed = 20; // m/s
+        this.movementSpeed = 5; // m/s
+        this.distanceToTravel = 30; // meters
 
         this.view = new float[16];
         this.modelView = new float[16];
         this.mvp = new float[16];
-        this.camera = new float[16];
         this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
         this.headQuaternion = new float[4];
         this.headView = new float[16];
-        this.laserSpeed = config.getLaserSpeed() / 1000;
+
         this.lasers = new ArrayList<>();
         this.currentCooldown = 0L;
         this.currentMovement = 0f;
-        this.cameraSpeed = config.getCameraSpeed() / 1000;
 
-        final float cameraPosX = config.getCameraPositionX();
-        final float cameraPosY = config.getCameraPositionY();
-        final float cameraPosZ = config.getCameraPositionZ();
-        final float cameraDirX = config.getCameraDirectionX();
-        final float cameraDirY = config.getCameraDirectionY();
-        final float cameraDirZ = config.getCameraDirectionZ();
-        Matrix.setLookAtM(this.camera, 0,
-                cameraPosX, cameraPosY, cameraPosZ,
-                cameraPosX + cameraDirX, cameraPosY + cameraDirY, cameraPosZ + cameraDirZ,
-                0, 1, 0);
-
-        this.mars = new Sphere(new Coordinates(0,0, config.getDistanceToTravel() + 10), 3);
+        this.mars = new Sphere(new Coordinates(0,0, this.distanceToTravel + 10), 3);
         this.mars.precision(3);
         this.mars.background(OpenGLUtils.toOpenGLColor(253,153,58));
     }
@@ -105,16 +95,15 @@ public class AsteroidsRenderer extends SpaceRenderer  implements GvrView.StereoR
     @Override
     public void onNewFrame(final HeadTransform headTransform) {
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-        final float laserDistance = this.laserSpeed * time;
-        final float cameraMovement = this.cameraSpeed * time;
-        final AsteroidsProperties config = (AsteroidsProperties) getProperties();
+        final float laserDistance = (this.laserSpeed / 1000) * time;
+        final float cameraMovement = (this.movementSpeed / 1000) * time;
         headTransform.getHeadView(this.headView, 0);
         headTransform.getQuaternion(this.headQuaternion, 0);
 
         this.currentCooldown -= time;
         this.mars.move(0,0,-cameraMovement);
         for (final Sphere asteroid : this.field.asteroids()) {
-            if (this.currentMovement < config.getDistanceToTravel()) {
+            if (this.currentMovement < this.distanceToTravel) {
                 asteroid.move(0, 0, -cameraMovement); // https://www.youtube.com/watch?v=1RtMMupdOC4
             }
             if (isLookingAt(asteroid) && 0L >= this.currentCooldown) {
@@ -126,7 +115,7 @@ public class AsteroidsRenderer extends SpaceRenderer  implements GvrView.StereoR
         for (final Laser laser : this.lasers) {
             laser.move(0, 0, laserDistance);
         }
-        checkCollisions(config.getDistanceToTravel() +1);
+        checkCollisions(this.distanceToTravel +1);
 
         audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
                 this.headQuaternion[2], this.headQuaternion[3]);
@@ -140,7 +129,7 @@ public class AsteroidsRenderer extends SpaceRenderer  implements GvrView.StereoR
         this.drawStars(eye);
         float[] perspective = eye.getPerspective(0.1f, 100f);
         OpenGLUtils.use(this.program);
-        Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
+        Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.getCamera(), 0);
 
         Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.view, 0);
         OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
@@ -201,7 +190,7 @@ public class AsteroidsRenderer extends SpaceRenderer  implements GvrView.StereoR
         laser.pitch(pitch);
 
         this.lasers.add(laser);
-        this.currentCooldown = ((AsteroidsProperties)getProperties()).getLaserCoolDown();
+        this.currentCooldown = LASER_COOLDOWN;
     }
 
     private boolean isHorizontallyLookingAt(final Sphere shape) {

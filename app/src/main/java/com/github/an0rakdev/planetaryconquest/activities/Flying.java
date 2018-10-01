@@ -16,14 +16,12 @@ import com.google.vr.sdk.base.GvrView;
 public final class Flying extends GvrActivity {
     private GvrView.StereoRenderer renderer;
 
-    public Flying() {
-        this.renderer = new FlyingRenderer(this);
-    }
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.flying_activity);
         final GvrView gvrView = findViewById(R.id.flying_gvr_view);
+        this.renderer = new FlyingRenderer(this);
         gvrView.setRenderer(this.renderer);
         this.setGvrView(gvrView);
     }
