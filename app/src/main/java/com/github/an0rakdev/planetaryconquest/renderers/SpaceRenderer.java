@@ -8,23 +8,14 @@ import com.github.an0rakdev.planetaryconquest.FrameCounter;
 import com.github.an0rakdev.planetaryconquest.OpenGLProgram;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.StarsCloud;
 import com.google.vr.sdk.base.Eye;
-import com.google.vr.sdk.base.GvrView;
-import com.google.vr.sdk.base.HeadTransform;
-import com.google.vr.sdk.base.Viewport;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.FloatBuffer;
-
-import javax.microedition.khronos.egl.EGLConfig;
 
 public abstract class SpaceRenderer {
     private static final int TARGETED_FPS = 90;
@@ -88,7 +79,7 @@ public abstract class SpaceRenderer {
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
         Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
         this.starsProgram.activate();
-        this.starsProgram.passValue("vPointSize", 4);
+        this.starsProgram.set("vPointSize", 4);
         this.starsProgram.useMVP(this.mvp);
         this.starsProgram.draw(stars, this.starColor);
     }
