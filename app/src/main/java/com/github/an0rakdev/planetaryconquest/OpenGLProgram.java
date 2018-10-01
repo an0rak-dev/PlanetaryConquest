@@ -72,6 +72,9 @@ public class OpenGLProgram {
             case POINTS :
                 type = GLES20.GL_POINTS;
                 break;
+            case LINES:
+                type = GLES20.GL_LINES;
+                break;
         }
         if (null == singleColor) {
             cHandle = OpenGLUtils.bindColorToProgram(this.program, shape.colors(), this.colorAttribName);
@@ -86,9 +89,13 @@ public class OpenGLProgram {
         GLES20.glDisableVertexAttribArray(vHandle);
     }
 
-    public void passValue(String attribName, float value) {
+    public void set(String attribName, float value) {
         final int valueHandle = GLES20.glGetUniformLocation(this.program, attribName);
         GLES20.glUniform1f(valueHandle, value);
+    }
+
+    public void setLineWidth(float width) {
+        GLES20.glLineWidth(width);
     }
 
     private int compileShader(String shaderSource, int shaderType) {

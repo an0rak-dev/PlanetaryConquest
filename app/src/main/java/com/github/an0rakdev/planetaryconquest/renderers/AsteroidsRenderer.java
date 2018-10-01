@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 
+import com.github.an0rakdev.planetaryconquest.OpenGLProgram;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.AsteroidField;
@@ -27,7 +28,8 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     private static final String LASER_SOUNDFILE = "laser.wav";
     private static final String EXPLOSION_SOUNDFILE = "explosion.wav";
     private static final long LASER_COOLDOWN = 200; // ms
-    private int program;
+    private OpenGLProgram program;
+    private OpenGLProgram laserProgram;
     private final float[] view;
     private final float[] modelView;
     private final float[] mvp;
@@ -76,12 +78,17 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         // Create the stars program
         this.createStarsProgram();
 
-        this.program = OpenGLUtils.newProgram();
+
         final String vertexSources = readContentOf(R.raw.mvp_vertex);
         final String fragmentSources = readContentOf(R.raw.multicolor_fragment);
-        final int vertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.program);
-        final int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.program);
-        OpenGLUtils.linkProgram(this.program, vertexShader, fragmentShader);
+
+        this.program = new OpenGLProgram(OpenGLProgram.DrawType.TRIANGLES);
+        this.program.compile(vertexSources, fragmentSources);
+        this.program.setAttributesNames("vMatrix", "vVertices", "vColors");
+
+        this.laserProgram = new OpenGLProgram(OpenGLProgram.DrawType.LINES);
+        this.laserProgram.compile(vertexSources, fragmentSources);
+        this.laserProgram.setAttributesNames("vMatrix", "vVertices", "vColors");
 
         new Thread(new Runnable() {
             @Override
@@ -127,33 +134,30 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     public void onDrawEye(final Eye eye) {
         OpenGLUtils.clear();
         this.drawStars(eye);
+
         float[] perspective = eye.getPerspective(0.1f, 100f);
-        OpenGLUtils.use(this.program);
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.getCamera(), 0);
 
+        this.program.activate();
         Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.view, 0);
-        OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
-        final int marsVHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.mars.getShape().bufferize(), "vVertices");
-        final int marsCHandle = OpenGLUtils.bindColorToProgram(this.program, this.mars.getShape().colors(), "vColors");
-        OpenGLUtils.drawTriangles(this.mars.getShape().size(), marsVHandle, marsCHandle);
+        this.program.useMVP(this.mvp);
+        this.program.draw(this.mars.getShape());
 
         for (final Sphere asteroid : this.field.asteroids()) {
             Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroid.model(), 0);
             Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.modelView, 0);
-            OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
-            final int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, asteroid.bufferize(), "vVertices");
-            final int colorsHandle = OpenGLUtils.bindColorToProgram(this.program, asteroid.colors(), "vColors");
-            OpenGLUtils.drawTriangles(asteroid.size(), verticesHandle, colorsHandle);
+            this.program.useMVP(this.mvp);
+            this.program.draw(asteroid);
         }
 
+        this.laserProgram.activate();
+        this.laserProgram.setLineWidth(120);
         for (final Laser laser : this.lasers) {
             float[] laserModel = laser.model();
             Matrix.multiplyMM(this.modelView, 0, this.view, 0, laserModel, 0);
             Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.modelView, 0);
-            OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
-            int laserVHandle = OpenGLUtils.bindVerticesToProgram(this.program, laser.bufferize(), "vVertices");
-            int laserCHandle = OpenGLUtils.bindColorToProgram(this.program, laser.colors(), "vColors");
-            OpenGLUtils.drawLines(laser.size(), 120, laserVHandle, laserCHandle);
+            this.laserProgram.useMVP(this.mvp);
+            this.laserProgram.draw(laser);
             this.audioEngine.setSoundObjectPosition(laser.audio(),
                     laserModel[12], laserModel[13], laserModel[14]);
         }
