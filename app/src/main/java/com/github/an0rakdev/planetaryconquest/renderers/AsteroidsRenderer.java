@@ -9,6 +9,7 @@ import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.AsteroidField;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
+import com.github.an0rakdev.planetaryconquest.graphics.models.SphericalBody;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
@@ -36,7 +37,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     private long currentCooldown;
     private float currentMovement;
     private final float movementSpeed;
-    private final Sphere mars;
+    private final SphericalBody mars;
     private final float distanceToTravel;
 
     private final GvrAudioEngine audioEngine;
@@ -66,9 +67,8 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         this.currentCooldown = 0L;
         this.currentMovement = 0f;
 
-        this.mars = new Sphere(new Coordinates(0,0, this.distanceToTravel + 10), 3);
-        this.mars.precision(3);
-        this.mars.background(OpenGLUtils.toOpenGLColor(253,153,58));
+        this.mars = new SphericalBody(new Coordinates(0,0, this.distanceToTravel + 10), 3);
+        this.mars.background(253,153,58);
     }
 
     @Override
@@ -101,7 +101,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         headTransform.getQuaternion(this.headQuaternion, 0);
 
         this.currentCooldown -= time;
-        this.mars.move(0,0,-cameraMovement);
+        this.mars.moveForward(-cameraMovement);
         for (final Sphere asteroid : this.field.asteroids()) {
             if (this.currentMovement < this.distanceToTravel) {
                 asteroid.move(0, 0, -cameraMovement); // https://www.youtube.com/watch?v=1RtMMupdOC4
@@ -133,9 +133,9 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
 
         Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.view, 0);
         OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
-        final int marsVHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.mars.bufferize(), "vVertices");
-        final int marsCHandle = OpenGLUtils.bindColorToProgram(this.program, this.mars.colors(), "vColors");
-        OpenGLUtils.drawTriangles(this.mars.size(), marsVHandle, marsCHandle);
+        final int marsVHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.mars.getShape().bufferize(), "vVertices");
+        final int marsCHandle = OpenGLUtils.bindColorToProgram(this.program, this.mars.getShape().colors(), "vColors");
+        OpenGLUtils.drawTriangles(this.mars.getShape().size(), marsVHandle, marsCHandle);
 
         for (final Sphere asteroid : this.field.asteroids()) {
             Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroid.model(), 0);
