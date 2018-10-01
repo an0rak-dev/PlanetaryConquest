@@ -5,11 +5,14 @@ import android.opengl.Matrix;
 import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.OpenGLProgram;
+import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.SphericalBody;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.google.vr.sdk.base.Eye;
+import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
+import com.google.vr.sdk.base.Viewport;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
@@ -20,7 +23,7 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @author Sylvain Nieuwlandt
  * @version 1.0
  */
-public class FlyingRenderer extends SpaceRenderer {
+public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRenderer {
     private SphericalBody moon;
     private SphericalBody earth;
     private float distanceElapsed;
@@ -56,17 +59,19 @@ public class FlyingRenderer extends SpaceRenderer {
 
     @Override
     public void onSurfaceCreated(final EGLConfig config) {
-        super.onSurfaceCreated(config);
+        // Create the OpenGL Program
         this.openGlProgram = new OpenGLProgram(OpenGLProgram.DrawType.TRIANGLES);
         final String vertexSources = readContentOf(R.raw.mvp_vertex);
         final String fragmentSources = readContentOf(R.raw.multicolor_fragment);
         this.openGlProgram.compile(vertexSources, fragmentSources);
         this.openGlProgram.setAttributesNames("vMatrix", "vVertices", "vColors");
+
+        // Create the stars program
+        this.createStarsProgram();
     }
 
     @Override
     public void onNewFrame(final HeadTransform headTransform) {
-        super.onNewFrame(headTransform);
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
         final float currentDistance = (this.cameraSpeed / 1000f) * time;
         final float cameraDirZ = getCameraDirection().z;
@@ -78,11 +83,13 @@ public class FlyingRenderer extends SpaceRenderer {
                 getCameraPosition().x, getCameraPosition().y, this.cameraZPos,
                 getCameraDirection().x, getCameraDirection().y, this.cameraZPos + cameraDirZ,
                 0, 1, 0);
+        this.countNewFrame();
     }
 
     @Override
     public void onDrawEye(final Eye eye) {
-        super.onDrawEye(eye);
+        OpenGLUtils.clear();
+        this.drawStars(eye);
 
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
         Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
@@ -91,4 +98,20 @@ public class FlyingRenderer extends SpaceRenderer {
         this.openGlProgram.draw(this.moon.getShape());
         this.openGlProgram.draw(this.earth.getShape());
     }
+
+    @Override
+    public void onFinishFrame(final Viewport viewport) {
+        // Do nothing.
+    }
+
+    @Override
+    public void onSurfaceChanged(final int width, final int height) {
+        // Do nothing.
+    }
+
+    @Override
+    public void onRendererShutdown() {
+        // Do nothing.
+    }
+
 }
