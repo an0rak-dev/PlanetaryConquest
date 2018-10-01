@@ -60,6 +60,13 @@ public abstract class SpaceRenderer {
                 0f, 1f, 0f);
     }
 
+    final float[] getCamera() {
+        return this.camera;
+    }
+
+    /**
+     * Has to be called in the OpenGL rendering calls (onSurfaceCreated, onDrawFrame, onSurfaceChanged)
+     */
     final void createStarsProgram() {
         this.starsProgram = new OpenGLProgram(OpenGLProgram.DrawType.POINTS);
         final String vertexSources = readContentOf(R.raw.point_vertex);
@@ -73,6 +80,10 @@ public abstract class SpaceRenderer {
         this.frameCounter.log();
     }
 
+
+    /**
+     * Has to be called in the OpenGL rendering calls (onSurfaceCreated, onDrawFrame, onSurfaceChanged)
+     */
     final void drawStars(Eye eye) {
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
         Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
@@ -108,17 +119,11 @@ public abstract class SpaceRenderer {
         return contentSb.toString();
     }
 
-    FloatBuffer createFloatBuffer(final int size) {
-        final ByteBuffer bb = ByteBuffer.allocateDirect(size);
-        bb.order(ByteOrder.nativeOrder());
-        return bb.asFloatBuffer();
-    }
-
-    Coordinates getCameraPosition() {
+    private Coordinates getCameraPosition() {
         return new Coordinates(0,0,0);
     }
 
-    Coordinates getCameraDirection() {
+    private Coordinates getCameraDirection() {
         return new Coordinates(0,0,1);
     }
 }
