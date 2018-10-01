@@ -3,6 +3,8 @@ package com.github.an0rakdev.planetaryconquest;
 import android.opengl.Matrix;
 
 public class MathUtils {
+    public static final int FLOAT_BYTES = (Float.SIZE / Byte.SIZE);
+    public static final int DIMENSION = 3;
 
     public static float randRange(final float min, final float max) {
         return min + (float) Math.random() * (max - min);

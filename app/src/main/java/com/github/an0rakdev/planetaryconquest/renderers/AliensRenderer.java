@@ -14,7 +14,9 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhe
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
+import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
+import com.google.vr.sdk.base.Viewport;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,7 +27,7 @@ import java.util.Queue;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
-public class AliensRenderer extends SpaceRenderer {
+public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRenderer {
     private static final String BANG_SOUNDFILE = "bang.wav";
     private static final String LASER_SOUNDFILE = "laser.wav";
     private Sphere mars;
@@ -81,7 +83,8 @@ public class AliensRenderer extends SpaceRenderer {
 
     @Override
     public void onSurfaceCreated(final EGLConfig config) {
-        super.onSurfaceCreated(config);
+        // Create the stars program
+        this.createStarsProgram();
         this.program = OpenGLUtils.newProgram();
         final String vertexSources = readContentOf(R.raw.mvp_vertex);
         final String fragmentSources = readContentOf(R.raw.multicolor_fragment);
@@ -100,7 +103,6 @@ public class AliensRenderer extends SpaceRenderer {
 
     @Override
     public void onNewFrame(final HeadTransform headTransform) {
-        super.onNewFrame(headTransform);
         final AliensProperties config = (AliensProperties) getProperties();
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
 
@@ -140,11 +142,14 @@ public class AliensRenderer extends SpaceRenderer {
         audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
                 this.headQuaternion[2], this.headQuaternion[3]);
         audioEngine.update();
+        this.countNewFrame();
     }
 
     @Override
     public void onDrawEye(final Eye eye) {
-        super.onDrawEye(eye);
+        OpenGLUtils.clear();
+        this.drawStars(eye);
+
         final float[] marsModel = this.mars.model();
         final float[] marsModelView = new float[16];
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
@@ -298,6 +303,21 @@ public class AliensRenderer extends SpaceRenderer {
         Matrix.setIdentityM(model, 0);
         Matrix.translateM(model, 0, coord.x, coord.y, coord.z);
         return model;
+    }
+
+    @Override
+    public void onFinishFrame(final Viewport viewport) {
+        // Do nothing.
+    }
+
+    @Override
+    public void onSurfaceChanged(final int width, final int height) {
+        // Do nothing.
+    }
+
+    @Override
+    public void onRendererShutdown() {
+        // Do nothing.
     }
 
 }

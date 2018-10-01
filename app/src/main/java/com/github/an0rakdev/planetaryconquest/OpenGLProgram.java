@@ -3,6 +3,7 @@ package com.github.an0rakdev.planetaryconquest;
 import android.opengl.GLES20;
 import android.util.Log;
 
+import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 
 public class OpenGLProgram {
@@ -56,14 +57,38 @@ public class OpenGLProgram {
         GLES20.glUniformMatrix4fv(mvpHandle, 1, false, modelViewProjection, 0);
     }
 
-    public void draw(Polyhedron shape) {
-        if (DrawType.TRIANGLES.equals(this.type)) {
-            final int vHandle = OpenGLUtils.bindVerticesToProgram(this.program, shape.bufferize(), this.verticesAttribName);
-            final int cHandle = OpenGLUtils.bindColorToProgram(this.program, shape.colors(), this.colorAttribName);
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, shape.size());
-            GLES20.glDisableVertexAttribArray(vHandle);
+    public void draw(Model shape) {
+        this.draw(shape, null);
+    }
+
+    public void draw(Model shape, final float[] singleColor) {
+        final int vHandle = OpenGLUtils.bindVerticesToProgram(this.program, shape.bufferize(), this.verticesAttribName);
+        int cHandle = -1;
+        int type = 0;
+        switch (this.type) {
+            case TRIANGLES:
+                type = GLES20.GL_TRIANGLES;
+                break;
+            case POINTS :
+                type = GLES20.GL_POINTS;
+                break;
+        }
+        if (null == singleColor) {
+            cHandle = OpenGLUtils.bindColorToProgram(this.program, shape.colors(), this.colorAttribName);
+        } else {
+            OpenGLUtils.bindColorToProgram(this.program, singleColor, this.colorAttribName);
+        }
+        GLES20.glDrawArrays(type, 0, shape.size());
+
+        if (-1 < cHandle) {
             GLES20.glDisableVertexAttribArray(cHandle);
         }
+        GLES20.glDisableVertexAttribArray(vHandle);
+    }
+
+    public void passValue(String attribName, float value) {
+        final int valueHandle = GLES20.glGetUniformLocation(this.program, attribName);
+        GLES20.glUniform1f(valueHandle, value);
     }
 
     private int compileShader(String shaderSource, int shaderType) {

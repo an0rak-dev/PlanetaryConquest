@@ -12,14 +12,16 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
+import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
+import com.google.vr.sdk.base.Viewport;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.microedition.khronos.egl.EGLConfig;
 
-public class AsteroidsRenderer extends SpaceRenderer  {
+public class AsteroidsRenderer extends SpaceRenderer  implements GvrView.StereoRenderer {
     // MUST BE a single channel track, or the gvrAudioEngine.createSoundObject will return -1.
     private static final String LASER_SOUNDFILE = "laser.wav";
     private static final String EXPLOSION_SOUNDFILE = "explosion.wav";
@@ -81,7 +83,8 @@ public class AsteroidsRenderer extends SpaceRenderer  {
 
     @Override
     public void onSurfaceCreated(final EGLConfig config) {
-        super.onSurfaceCreated(config);
+        // Create the stars program
+        this.createStarsProgram();
 
         this.program = OpenGLUtils.newProgram();
         final String vertexSources = readContentOf(R.raw.mvp_vertex);
@@ -101,7 +104,6 @@ public class AsteroidsRenderer extends SpaceRenderer  {
 
     @Override
     public void onNewFrame(final HeadTransform headTransform) {
-        super.onNewFrame(headTransform);
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
         final float laserDistance = this.laserSpeed * time;
         final float cameraMovement = this.cameraSpeed * time;
@@ -129,11 +131,13 @@ public class AsteroidsRenderer extends SpaceRenderer  {
         audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
                 this.headQuaternion[2], this.headQuaternion[3]);
         audioEngine.update();
+        this.countNewFrame();
     }
 
     @Override
     public void onDrawEye(final Eye eye) {
-        super.onDrawEye(eye);
+        OpenGLUtils.clear();
+        this.drawStars(eye);
         float[] perspective = eye.getPerspective(0.1f, 100f);
         OpenGLUtils.use(this.program);
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
@@ -317,4 +321,20 @@ public class AsteroidsRenderer extends SpaceRenderer  {
         Matrix.translateM(model, 0, coord.x, coord.y, coord.z);
         return model;
     }
+
+    @Override
+    public void onFinishFrame(final Viewport viewport) {
+        // Do nothing.
+    }
+
+    @Override
+    public void onSurfaceChanged(final int width, final int height) {
+        // Do nothing.
+    }
+
+    @Override
+    public void onRendererShutdown() {
+        // Do nothing.
+    }
+
 }
