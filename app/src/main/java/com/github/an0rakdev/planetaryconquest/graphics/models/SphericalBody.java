@@ -1,6 +1,5 @@
 package com.github.an0rakdev.planetaryconquest.graphics.models;
 
-import com.github.an0rakdev.planetaryconquest.OpenGLProgram;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
@@ -19,5 +18,13 @@ public class SphericalBody {
 
     public Polyhedron getShape() {
         return this.shape;
+    }
+
+    public float[] model() {
+        return this.shape.model();
+    }
+
+    public void moveForward(float distance) {
+        this.shape.move(0,0, distance);
     }
 }

@@ -24,45 +24,45 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @version 1.0
  */
 public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRenderer {
+    private final float movementSpeed;
+    private final float[] view;
+    private final float[] mvp;
+    private final float near;
+    private final float far;
+
     private SphericalBody moon;
     private SphericalBody earth;
     private float distanceElapsed;
-    private final float cameraSpeed;
-    private float cameraZPos;
-
     private OpenGLProgram openGlProgram;
-    private final float[] camera;
-    private final float[] view;
-    private final float[] mvp;
 
     /**
      * Create a new Flying Renderer with the given Android Context.
      *
      * @param context the current Android context.
      */
-    public FlyingRenderer(final Context context) {
+    public FlyingRenderer(Context context) {
         super(context, null);
 
-        this.cameraZPos = getCameraPosition().z;
         this.distanceElapsed = 25; // meters.
-        this.cameraSpeed = 5; // m/s
+        this.movementSpeed = 5; // m/s
+        this.near = 0.1f;
+        this.far = 100f;
 
         this.moon = new SphericalBody(new Coordinates(2.5f, 3.5f, 20), 1);
         this.moon.background(138, 135, 130);
         this.earth = new SphericalBody(new Coordinates(0, -8, 10), 5);
         this.earth.background(32, 119, 238);
 
-        this.camera = new float[16];
         this.view = new float[16];
         this.mvp = new float[16];
     }
 
     @Override
-    public void onSurfaceCreated(final EGLConfig config) {
+    public void onSurfaceCreated(EGLConfig config) {
         // Create the OpenGL Program
         this.openGlProgram = new OpenGLProgram(OpenGLProgram.DrawType.TRIANGLES);
-        final String vertexSources = readContentOf(R.raw.mvp_vertex);
-        final String fragmentSources = readContentOf(R.raw.multicolor_fragment);
+        String vertexSources = readContentOf(R.raw.mvp_vertex);
+        String fragmentSources = readContentOf(R.raw.multicolor_fragment);
         this.openGlProgram.compile(vertexSources, fragmentSources);
         this.openGlProgram.setAttributesNames("vMatrix", "vVertices", "vColors");
 
@@ -71,47 +71,45 @@ public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRende
     }
 
     @Override
-    public void onNewFrame(final HeadTransform headTransform) {
+    public void onNewFrame(HeadTransform headTransform) {
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-        final float currentDistance = (this.cameraSpeed / 1000f) * time;
-        final float cameraDirZ = getCameraDirection().z;
+        float currentDistance = (this.movementSpeed / 1000f) * time;
         if (distanceElapsed > 0f) {
-            this.cameraZPos += currentDistance;
+            this.moon.moveForward(-currentDistance);
+            this.earth.moveForward(-currentDistance);
             distanceElapsed -= currentDistance;
         }
-        Matrix.setLookAtM(this.camera, 0,
-                getCameraPosition().x, getCameraPosition().y, this.cameraZPos,
-                getCameraDirection().x, getCameraDirection().y, this.cameraZPos + cameraDirZ,
-                0, 1, 0);
         this.countNewFrame();
     }
 
     @Override
-    public void onDrawEye(final Eye eye) {
+    public void onDrawEye(Eye eye) {
         OpenGLUtils.clear();
         this.drawStars(eye);
 
-        Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
-        Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
+        Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.getCamera(), 0);
+        float[] perspective = eye.getPerspective(this.near, this.far);
+
         this.openGlProgram.activate();
+        float[] moonModelView = new float[16];
+        Matrix.multiplyMM(moonModelView, 0, this.view, 0, this.moon.model(), 0);
+        Matrix.multiplyMM(this.mvp, 0, perspective, 0, moonModelView, 0);
         this.openGlProgram.useMVP(this.mvp);
         this.openGlProgram.draw(this.moon.getShape());
+
+        float[] earthModelView = new float[16];
+        Matrix.multiplyMM(earthModelView, 0, this.view, 0, this.earth.model(), 0);
+        Matrix.multiplyMM(this.mvp, 0, perspective, 0, earthModelView, 0);
+        this.openGlProgram.useMVP(this.mvp);
         this.openGlProgram.draw(this.earth.getShape());
     }
 
     @Override
-    public void onFinishFrame(final Viewport viewport) {
-        // Do nothing.
-    }
+    public void onFinishFrame(Viewport viewport) { /* Do nothing. */ }
 
     @Override
-    public void onSurfaceChanged(final int width, final int height) {
-        // Do nothing.
-    }
+    public void onSurfaceChanged(int width, int height) { /* Do nothing. */ }
 
     @Override
-    public void onRendererShutdown() {
-        // Do nothing.
-    }
-
+    public void onRendererShutdown() { /* Do nothing. */ }
 }
