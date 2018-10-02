@@ -14,23 +14,23 @@ public class MathUtils {
         return min + (float) Math.random() * (max - min);
     }
 
-    public static float coordPitch(Coordinates coord) {
-        return MathUtils.coordPitch(MathUtils.convertPositionToMatrix(coord));
+    public static float horizontalAngleOf(Coordinates coord) {
+        return MathUtils.horizontalAngleOf(MathUtils.convertPositionToMatrix(coord));
     }
 
-    public static float coordPitch(float[] coordsModel) {
+    public static float horizontalAngleOf(float[] coordsModel) {
         return (float) Math.atan2(getX(coordsModel), Math.abs(getZ(coordsModel)));
     }
 
-    public static float coordYaw(Coordinates coord) {
-        return MathUtils.coordYaw(MathUtils.convertPositionToMatrix(coord));
+    public static float verticalAngleOf(Coordinates coord) {
+        return MathUtils.verticalAngleOf(MathUtils.convertPositionToMatrix(coord));
     }
 
-    public static float coordYaw(float[] coordsModel) {
+    public static float verticalAngleOf(float[] coordsModel) {
         return (float) Math.atan2(getY(coordsModel), Math.abs(getZ(coordsModel)));
     }
 
-    public static float pitchBetween(final float[] v1, final float[] v2) {
+    public static float horizontalAngleBetween(final float[] v1, final float[] v2) {
         float deltaX = getX(v1) - getX(v2);
         float deltaY = getY(v1) - getY(v2);
         float deltaZ = getZ(v1) - getZ(v2);
@@ -39,7 +39,7 @@ public class MathUtils {
         return (float) Math.atan2(deltaX, distance);
     }
 
-    public static float yawBetween(float[] v1, float[] v2) {
+    public static float verticalAngleBetween(float[] v1, float[] v2) {
         float deltaX = getX(v1) - getX(v2);
         float deltaY = getY(v1) - getY(v2);
         float deltaZ = getZ(v1) - getZ(v2);

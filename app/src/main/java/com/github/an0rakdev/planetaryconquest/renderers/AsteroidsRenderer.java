@@ -52,8 +52,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
 
         this.field = new AsteroidField(
                 50, 0.2f, 1f,
-                -10, -5, 12,
-                10, 5, 16,
+                -10, -5, 12, 10, 5, 16,
                 138, 135, 130);
         this.laserSpeed = 20; // m/s
         this.movementSpeed = 5; // m/s
@@ -76,8 +75,6 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
 
     @Override
     public void onSurfaceCreated(EGLConfig config) {
-        // Create the stars program
-        this.createStarsProgram();
         this.initializeOpenGLPrograms();
 
         new Thread(new Runnable() {
@@ -90,56 +87,41 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     }
 
     @Override
-    public void onNewFrame(final HeadTransform headTransform) {
+    public void onNewFrame(HeadTransform headTransform) {
         headTransform.getQuaternion(this.headQuaternion, 0);
+        headTransform.getHeadView(this.headView, 0);
+
         audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
                 this.headQuaternion[2], this.headQuaternion[3]);
         audioEngine.update();
-        headTransform.getHeadView(this.headView, 0);
 
-        long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-        final float laserDistance = (this.laserSpeed / 1000) * time;
-        final float cameraMovement = (this.movementSpeed / 1000) * time;
         for (final Sphere asteroid : this.field.asteroids()) {
             if (shouldFireAt(asteroid)) {
-                fireAt(asteroid);
+                Laser laser = createLaser(asteroid);
+                final int laserAudioId = this.audioEngine.createSoundObject(LASER_SOUNDFILE);
+                laser.audio(laserAudioId);
+                this.audioEngine.setSoundObjectPosition(laserAudioId,
+                        laser.getPosition().x, laser.getPosition().y, laser.getPosition().z);
+                this.audioEngine.playSound(laserAudioId, true);
             }
         }
-        this.moveWorld(time, laserDistance, cameraMovement);
-        this.checkCollisions();
+
+        this.moveWorld();
         this.countNewFrame();
     }
 
     @Override
-    public void onDrawEye(final Eye eye) {
+    public void onDrawEye(Eye eye) {
         OpenGLUtils.clear();
         this.drawStars(eye);
-
         float[] perspective = eye.getPerspective(0.1f, 100f);
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.getCamera(), 0);
 
-        this.program.activate();
-        Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.view, 0);
-        this.program.useMVP(this.mvp);
-        this.program.draw(this.mars.getShape());
-
-        for (final Sphere asteroid : this.field.asteroids()) {
-            Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroid.model(), 0);
-            Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.modelView, 0);
-            this.program.useMVP(this.mvp);
-            this.program.draw(asteroid);
-        }
-
-        this.laserProgram.activate();
-        this.laserProgram.setLineWidth(120);
+        this.drawCelestialBodies(perspective);
         for (final Laser laser : this.lasers) {
-            float[] laserModel = laser.model();
-            Matrix.multiplyMM(this.modelView, 0, this.view, 0, laserModel, 0);
-            Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.modelView, 0);
-            this.laserProgram.useMVP(this.mvp);
-            this.laserProgram.draw(laser);
+            Coordinates laserPosition = draw(laser, perspective);
             this.audioEngine.setSoundObjectPosition(laser.audio(),
-                    MathUtils.getX(laserModel), MathUtils.getY(laserModel), MathUtils.getZ(laserModel));
+                    laserPosition.x, laserPosition.y, laserPosition.z);
         }
     }
 
@@ -166,7 +148,11 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         // Do nothing.
     }
 
+    /***********************************************************************************************
+     *                                 NOT REVELANT FOR DEMO
+     **********************************************************************************************/
     private void initializeOpenGLPrograms() {
+        this.createStarsProgram();
         final String vertexSources = readContentOf(R.raw.mvp_vertex);
         final String fragmentSources = readContentOf(R.raw.multicolor_fragment);
 
@@ -179,7 +165,10 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         this.laserProgram.setAttributesNames("vMatrix", "vVertices", "vColors");
     }
 
-    private void moveWorld(long time, float laserDistance, float cameraMovement) {
+    private void moveWorld() {
+        long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
+        final float laserDistance = (this.laserSpeed / 1000) * time;
+        final float cameraMovement = (this.movementSpeed / 1000) * time;
         this.currentCooldown -= time;
         if (this.currentMovement < this.distanceToTravel) {
             for (final Sphere asteroid : this.field.asteroids()) {
@@ -191,6 +180,34 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         for (final Laser laser : this.lasers) {
             laser.move(0, 0, laserDistance);
         }
+
+        this.checkCollisions();
+    }
+
+    private Coordinates draw(Laser laser, float[] perspective) {
+        float[] laserModel = laser.model();
+        this.laserProgram.activate();
+        this.laserProgram.setLineWidth(120);
+        Matrix.multiplyMM(this.modelView, 0, this.view, 0, laserModel, 0);
+        Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.modelView, 0);
+        this.laserProgram.useMVP(this.mvp);
+        this.laserProgram.draw(laser);
+        return new Coordinates(MathUtils.getX(laserModel),
+                MathUtils.getY(laserModel), MathUtils.getZ(laserModel));
+    }
+
+    private void drawCelestialBodies(float[] perspective) {
+        this.program.activate();
+        Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.view, 0);
+        this.program.useMVP(this.mvp);
+        this.program.draw(this.mars.getShape());
+
+        for (final Sphere asteroid : this.field.asteroids()) {
+            Matrix.multiplyMM(this.modelView, 0, this.view, 0, asteroid.model(), 0);
+            Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.modelView, 0);
+            this.program.useMVP(this.mvp);
+            this.program.draw(asteroid);
+        }
     }
 
     private boolean shouldFireAt(final Sphere shape) {
@@ -199,34 +216,30 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
                 && 0L >= this.currentCooldown;
     }
 
-    private void fireAt(final Sphere shape) {
+    private Laser createLaser(final Sphere direction) {
         final Coordinates start = new Coordinates(0,-0.1f,0);
         Laser laser = new Laser(start, new Coordinates(0,-0.1f,-0.5f));
         laser.color(253,106,2);
 
-        final int laserAudioId = this.audioEngine.createSoundObject(LASER_SOUNDFILE);
-        laser.audio(laserAudioId);
-        this.audioEngine.setSoundObjectPosition(laserAudioId, start.x, start.y, start.z);
-        this.audioEngine.playSound(laserAudioId, true);
-
-        final float yawInRad = MathUtils.coordYaw(shape.model());
+        final float yawInRad = MathUtils.verticalAngleOf(direction.model());
         float yaw = -(float) Math.toDegrees(yawInRad);
         laser.yaw(yaw);
-        final float pitchInRad = MathUtils.coordPitch(shape.model());
+        final float pitchInRad = MathUtils.horizontalAngleOf(direction.model());
         float pitch = (float) Math.toDegrees(pitchInRad);
         laser.pitch(pitch);
 
         this.lasers.add(laser);
         this.currentCooldown = LASER_COOLDOWN;
+        return laser;
     }
 
     private boolean isHorizontallyLookingAt(final Sphere shape) {
         float x = MathUtils.getX(shape.model());
         float y = MathUtils.getY(shape.model());
         float z = Math.abs(MathUtils.getZ(shape.model()));
-        float sightAngle = this.sightYaw(z);
-        float xtremLeftAngle = MathUtils.coordPitch(new Coordinates(x + shape.getRadius(), y, z));
-        float xtremRightAngle = MathUtils.coordPitch(new Coordinates(x - shape.getRadius(), y, z));
+        float sightAngle = this.horizontalSightAngle(z);
+        float xtremLeftAngle = MathUtils.horizontalAngleOf(new Coordinates(x + shape.getRadius(), y, z));
+        float xtremRightAngle = MathUtils.horizontalAngleOf(new Coordinates(x - shape.getRadius(), y, z));
         return xtremRightAngle <= sightAngle && sightAngle <= xtremLeftAngle;
     }
 
@@ -234,28 +247,28 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         float x = MathUtils.getX(shape.model());
         float y = MathUtils.getY(shape.model());
         float z = Math.abs(MathUtils.getZ(shape.model()));
-        float sightAngle = this.sightPitch(z) * -1;
-        float xtremUpAngle = MathUtils.coordYaw(new Coordinates(x, y + shape.getRadius(), z));
-        float xtremDownAngle = MathUtils.coordYaw(new Coordinates(x, y - shape.getRadius(), z));
+        float sightAngle = this.verticalSightAngle(z) * -1;
+        float xtremUpAngle = MathUtils.verticalAngleOf(new Coordinates(x, y + shape.getRadius(), z));
+        float xtremDownAngle = MathUtils.verticalAngleOf(new Coordinates(x, y - shape.getRadius(), z));
         return xtremDownAngle <= sightAngle && sightAngle <= xtremUpAngle;
     }
 
-    private float sightYaw(float z) {
+    private float horizontalSightAngle(float z) {
         float[] sightModel = MathUtils.convertPositionToMatrix(new Coordinates(0, 0, z));
-        // z == 0 to increase the deltaZ when calculating the yawBetween.
+        // z == 0 to increase the deltaZ when calculating the horizontalAngleBetween.
         float[] sightUntouchedModel = MathUtils.convertPositionToMatrix(new Coordinates(0, 0, 0));
         float[] sightReal = new float[16];
         Matrix.multiplyMM(sightReal, 0, this.headView, 0, sightModel, 0);
-        return MathUtils.pitchBetween(sightUntouchedModel, sightReal);
+        return MathUtils.horizontalAngleBetween(sightUntouchedModel, sightReal);
     }
 
-    private float sightPitch(float z) {
+    private float verticalSightAngle(float z) {
         float[] sightModel = MathUtils.convertPositionToMatrix(new Coordinates(0, 0, z));
-        // z == 0 to increase the deltaZ when calculating the pitchBetween.
+        // z == 0 to increase the deltaZ when calculating the verticalAngleBetween.
         float[] sightUntouchedModel = MathUtils.convertPositionToMatrix(new Coordinates(0, 0, 0));
         float[] sightReal = new float[16];
         Matrix.multiplyMM(sightReal, 0, this.headView, 0, sightModel, 0);
-        return MathUtils.yawBetween(sightUntouchedModel, sightReal);
+        return MathUtils.verticalAngleBetween(sightUntouchedModel, sightReal);
     }
 
     private void checkCollisions() {
