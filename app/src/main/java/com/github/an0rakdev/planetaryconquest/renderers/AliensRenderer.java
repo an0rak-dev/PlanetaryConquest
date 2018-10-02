@@ -253,10 +253,10 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
                 0);
 
 
-        final float yawInRad = this.coordYaw(ship.model());
+        final float yawInRad = this.verticalAngleOf(ship.model());
         float yaw = -(float) Math.toDegrees(yawInRad);
         laser.yaw(yaw);
-        final float pitchInRad = this.coordPitch(ship.model());
+        final float pitchInRad = this.horizontalAngleOf(ship.model());
         float pitch = (float) Math.toDegrees(pitchInRad);
         laser.pitch(pitch);
 */
