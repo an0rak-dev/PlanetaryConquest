@@ -75,19 +75,10 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     }
 
     @Override
-    public void onSurfaceCreated(final EGLConfig config) {
+    public void onSurfaceCreated(EGLConfig config) {
         // Create the stars program
         this.createStarsProgram();
-        final String vertexSources = readContentOf(R.raw.mvp_vertex);
-        final String fragmentSources = readContentOf(R.raw.multicolor_fragment);
-
-        this.program = new OpenGLProgram(OpenGLProgram.DrawType.TRIANGLES);
-        this.program.compile(vertexSources, fragmentSources);
-        this.program.setAttributesNames("vMatrix", "vVertices", "vColors");
-
-        this.laserProgram = new OpenGLProgram(OpenGLProgram.DrawType.LINES);
-        this.laserProgram.compile(vertexSources, fragmentSources);
-        this.laserProgram.setAttributesNames("vMatrix", "vVertices", "vColors");
+        this.initializeOpenGLPrograms();
 
         new Thread(new Runnable() {
             @Override
@@ -100,33 +91,22 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
 
     @Override
     public void onNewFrame(final HeadTransform headTransform) {
-        long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
-        final float laserDistance = (this.laserSpeed / 1000) * time;
-        final float cameraMovement = (this.movementSpeed / 1000) * time;
-
-        headTransform.getHeadView(this.headView, 0);
         headTransform.getQuaternion(this.headQuaternion, 0);
         audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
                 this.headQuaternion[2], this.headQuaternion[3]);
         audioEngine.update();
+        headTransform.getHeadView(this.headView, 0);
 
-        this.currentCooldown -= time;
+        long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
+        final float laserDistance = (this.laserSpeed / 1000) * time;
+        final float cameraMovement = (this.movementSpeed / 1000) * time;
         for (final Sphere asteroid : this.field.asteroids()) {
-            if (this.currentMovement < this.distanceToTravel) {
-                asteroid.move(0, 0, -cameraMovement); // https://www.youtube.com/watch?v=1RtMMupdOC4
-            }
             if (shouldFireAt(asteroid)) {
                 fireAt(asteroid);
             }
         }
-
-        this.currentMovement += cameraMovement;
-        this.mars.moveForward(-cameraMovement);
-        for (final Laser laser : this.lasers) {
-            laser.move(0, 0, laserDistance);
-        }
-        checkCollisions();
-
+        this.moveWorld(time, laserDistance, cameraMovement);
+        this.checkCollisions();
         this.countNewFrame();
     }
 
@@ -184,6 +164,33 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     @Override
     public void onRendererShutdown() {
         // Do nothing.
+    }
+
+    private void initializeOpenGLPrograms() {
+        final String vertexSources = readContentOf(R.raw.mvp_vertex);
+        final String fragmentSources = readContentOf(R.raw.multicolor_fragment);
+
+        this.program = new OpenGLProgram(OpenGLProgram.DrawType.TRIANGLES);
+        this.program.compile(vertexSources, fragmentSources);
+        this.program.setAttributesNames("vMatrix", "vVertices", "vColors");
+
+        this.laserProgram = new OpenGLProgram(OpenGLProgram.DrawType.LINES);
+        this.laserProgram.compile(vertexSources, fragmentSources);
+        this.laserProgram.setAttributesNames("vMatrix", "vVertices", "vColors");
+    }
+
+    private void moveWorld(long time, float laserDistance, float cameraMovement) {
+        this.currentCooldown -= time;
+        if (this.currentMovement < this.distanceToTravel) {
+            for (final Sphere asteroid : this.field.asteroids()) {
+                asteroid.move(0,0,-cameraMovement); // https://www.youtube.com/watch?v=1RtMMupdOC4
+            }
+        }
+        this.currentMovement += cameraMovement;
+        this.mars.moveForward(-cameraMovement);
+        for (final Laser laser : this.lasers) {
+            laser.move(0, 0, laserDistance);
+        }
     }
 
     private boolean shouldFireAt(final Sphere shape) {
