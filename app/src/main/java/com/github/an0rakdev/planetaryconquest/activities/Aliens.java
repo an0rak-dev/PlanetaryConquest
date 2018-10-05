@@ -17,7 +17,6 @@ public class Aliens extends GvrActivity {
         final GvrView gvrView = findViewById(R.id.asteroids_gvr_view);
         this.renderer = new AliensRenderer(this);
         gvrView.setRenderer(this.renderer);
-        gvrView.setTransitionViewEnabled(true);
         this.setGvrView(gvrView);
     }
 
