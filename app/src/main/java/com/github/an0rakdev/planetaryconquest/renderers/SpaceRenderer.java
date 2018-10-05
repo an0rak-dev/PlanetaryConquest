@@ -33,7 +33,7 @@ public abstract class SpaceRenderer {
     private final float[] mvp;
     private OpenGLProgram starsProgram;
 
-    SpaceRenderer(final Context context, final SpaceProperties properties) {
+    SpaceRenderer(final Context context) {
         this.context = context;
         this.timeBetweenFrames = (1000 / TARGETED_FPS) - 1L;
         this.frameCounter = new FrameCounter(1000);
@@ -86,10 +86,6 @@ public abstract class SpaceRenderer {
 
     final long getTimeBetweenFrames() {
         return this.timeBetweenFrames;
-    }
-
-    final SpaceProperties getProperties() {
-        return null;
     }
 
     final String readContentOf(final int fd) {

@@ -62,7 +62,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
      * @param context the current Android context.
      */
     public AsteroidsRenderer(Context context) {
-        super(context, null);
+        super(context);
 
         this.field = new AsteroidField(
                 50, 0.2f, 1f,

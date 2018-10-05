@@ -41,7 +41,7 @@ public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRende
      * @param context the current Android context.
      */
     public FlyingRenderer(Context context) {
-        super(context, null);
+        super(context);
 
         this.distanceElapsed = 25; // meters.
         this.movementSpeed = 5; // m/s
