@@ -75,9 +75,9 @@ public abstract class SpaceRenderer {
     /**
      * Has to be called in the OpenGL rendering calls (onSurfaceCreated, onDrawFrame, onSurfaceChanged)
      */
-    final void drawStars(Eye eye) {
-        Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
-        Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, this.view, 0);
+    final void drawStars(float[] view, float[] perspective) {
+        Matrix.multiplyMM(this.view, 0, view, 0, this.camera, 0);
+        Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.view, 0);
         this.starsProgram.activate();
         this.starsProgram.set("vPointSize", 4);
         this.starsProgram.useMVP(this.mvp);

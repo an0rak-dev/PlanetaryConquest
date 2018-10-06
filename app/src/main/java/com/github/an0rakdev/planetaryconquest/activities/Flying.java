@@ -1,5 +1,8 @@
 package com.github.an0rakdev.planetaryconquest.activities;
 
+import android.app.Activity;
+import android.content.Context;
+import android.opengl.GLSurfaceView;
 import android.os.Bundle;
 
 import com.github.an0rakdev.planetaryconquest.R;
@@ -13,16 +16,23 @@ import com.google.vr.sdk.base.GvrView;
  * @author Sylvain Nieuwlandt
  * @version 1.0
  */
-public final class Flying extends GvrActivity {
-    private GvrView.StereoRenderer renderer;
+public final class Flying extends Activity {
+    private GLSurfaceView.Renderer renderer;
 
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.setContentView(R.layout.flying_activity);
-        final GvrView gvrView = findViewById(R.id.flying_gvr_view);
-        this.renderer = new FlyingRenderer(this);
-        gvrView.setRenderer(this.renderer);
-        this.setGvrView(gvrView);
+
+        this.setContentView(new FlyingView(this));
+    }
+
+    private class FlyingView extends GLSurfaceView {
+
+        public FlyingView(Context context) {
+            super(context);
+            setEGLContextClientVersion(2);
+            renderer = new FlyingRenderer(context);
+            setRenderer(renderer);
+        }
     }
 }

@@ -2,11 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.github.an0rakdev.planetaryconquest">
 
-    <uses-feature android:name="android.software.vr.mode"
-        android:required="false" />
-    <uses-feature android:name="android.hardware.vr.high_performance"
-        android:required="false" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- Declare features -->
+    <uses-feature android:glEsVersion="0x00020000" android:required="true" />
 
     <application
         android:allowBackup="true"
@@ -19,7 +16,7 @@
         <activity android:name=".activities.Main">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-                <category android:name="com.google.intent.category.CARDBOARD" />
+                <!-- Specific intents -->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

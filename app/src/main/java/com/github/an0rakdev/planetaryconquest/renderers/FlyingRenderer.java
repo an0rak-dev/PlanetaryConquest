@@ -1,6 +1,8 @@
 package com.github.an0rakdev.planetaryconquest.renderers;
 
 import android.content.Context;
+import android.opengl.GLES20;
+import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
 import android.os.SystemClock;
 
@@ -15,6 +17,7 @@ import com.google.vr.sdk.base.HeadTransform;
 import com.google.vr.sdk.base.Viewport;
 
 import javax.microedition.khronos.egl.EGLConfig;
+import javax.microedition.khronos.opengles.GL10;
 
 /**
  * This renderer manages the first demo of the application which
@@ -23,12 +26,13 @@ import javax.microedition.khronos.egl.EGLConfig;
  * @author Sylvain Nieuwlandt
  * @version 1.0
  */
-public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRenderer {
+public class FlyingRenderer extends SpaceRenderer implements GLSurfaceView.Renderer {
     private final float movementSpeed;
     private final float[] view;
     private final float[] mvp;
     private final float near;
     private final float far;
+    private float[] projection;
 
     private SphericalBody moon;
     private SphericalBody earth;
@@ -55,10 +59,11 @@ public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRende
 
         this.view = new float[16];
         this.mvp = new float[16];
+        this.projection = new float[16];
     }
 
     @Override
-    public void onSurfaceCreated(EGLConfig config) {
+    public void onSurfaceCreated(GL10 gl, EGLConfig config) {
         // Create the OpenGL Program
         this.openGlProgram = new OpenGLProgram(OpenGLProgram.DrawType.TRIANGLES);
         String vertexSources = readContentOf(R.raw.mvp_vertex);
@@ -71,7 +76,15 @@ public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRende
     }
 
     @Override
-    public void onNewFrame(HeadTransform headTransform) {
+    public void onSurfaceChanged(GL10 gl, int width, int height) {
+        GLES20.glViewport(0, 0, width, height);
+        float ratio = width/height;
+        Matrix.frustumM(this.projection, 0, -ratio, ratio, -1, 1, 0.5f, 40);//this.near, this.far);
+    }
+
+    @Override
+    public void onDrawFrame(GL10 gl) {
+        // Logic for each new frame
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
         float currentDistance = (this.movementSpeed / 1000f) * time;
         if (distanceElapsed > 0f) {
@@ -80,15 +93,15 @@ public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRende
             distanceElapsed -= currentDistance;
         }
         this.countNewFrame();
-    }
 
-    @Override
-    public void onDrawEye(Eye eye) {
+        // Drawing
         OpenGLUtils.clear();
-        this.drawStars(eye);
+        float[] perspective = this.projection;
+        float[] specificView = new float[16];
+        Matrix.setIdentityM(specificView, 0);
+        this.drawStars(specificView, perspective);
 
-        Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.getCamera(), 0);
-        float[] perspective = eye.getPerspective(this.near, this.far);
+        Matrix.multiplyMM(this.view, 0, specificView, 0, this.getCamera(), 0);
 
         this.openGlProgram.activate();
         float[] moonModelView = new float[16];
@@ -103,13 +116,4 @@ public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRende
         this.openGlProgram.useMVP(this.mvp);
         this.openGlProgram.draw(this.earth.getShape());
     }
-
-    @Override
-    public void onFinishFrame(Viewport viewport) { /* Do nothing. */ }
-
-    @Override
-    public void onSurfaceChanged(int width, int height) { /* Do nothing. */ }
-
-    @Override
-    public void onRendererShutdown() { /* Do nothing. */ }
 }

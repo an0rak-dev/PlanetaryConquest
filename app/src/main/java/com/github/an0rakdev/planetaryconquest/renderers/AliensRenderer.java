@@ -145,7 +145,7 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
     @Override
     public void onDrawEye(Eye eye) {
         OpenGLUtils.clear();
-        this.drawStars(eye);
+        this.drawStars(eye.getEyeView(), eye.getPerspective(0.1f, 100f));
 
         float[] marsModel = this.mars.model();
         float[] marsModelView = new float[16];

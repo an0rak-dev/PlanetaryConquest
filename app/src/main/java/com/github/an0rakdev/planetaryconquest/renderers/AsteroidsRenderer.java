@@ -134,8 +134,8 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     @Override
     public void onDrawEye(Eye eye) {
         OpenGLUtils.clear();
-        this.drawStars(eye);
         float[] perspective = eye.getPerspective(0.1f, 100f);
+        this.drawStars(eye.getEyeView(), perspective);
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.getCamera(), 0);
 
         this.drawCelestialBodies(perspective);
