@@ -105,16 +105,15 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     @Override
     public void onNewFrame(HeadTransform headTransform) {
         headTransform.getQuaternion(this.headQuaternion, 0);
-        headTransform.getHeadView(this.headView, 0);
-
         audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
                 this.headQuaternion[2], this.headQuaternion[3]);
         audioEngine.update();
 
+        headTransform.getHeadView(this.headView, 0);
+        float[] sightModel = MathUtils.convertPositionToMatrix(
+                new Coordinates(0, 0, Math.abs(this.distanceToTravel + 10)));
+        Matrix.multiplyMM(this.sight, 0, this.headView, 0, sightModel, 0);
         for (Sphere asteroid : this.field.asteroids()) {
-            float[] sightModel = MathUtils.convertPositionToMatrix(
-                    new Coordinates(0, 0, Math.abs(asteroid.getPosition().z)));
-            Matrix.multiplyMM(this.sight, 0, this.headView, 0, sightModel, 0);
             float sightHAngle = MathUtils.horizontalAngleBetween(this.origin, this.sight);
             float sightVAngle = MathUtils.verticalAngleBetween(this.origin, this.sight);
             if (shouldFireAt(asteroid, sightHAngle, sightVAngle)) {
