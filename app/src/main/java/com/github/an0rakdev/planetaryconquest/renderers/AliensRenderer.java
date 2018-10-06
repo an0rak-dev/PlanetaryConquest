@@ -5,6 +5,7 @@ import android.opengl.Matrix;
 import android.os.SystemClock;
 
 import com.github.an0rakdev.planetaryconquest.MathUtils;
+import com.github.an0rakdev.planetaryconquest.OpenGLProgram;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.graphics.models.AlienShip;
@@ -12,7 +13,6 @@ import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
 import com.github.an0rakdev.planetaryconquest.graphics.models.SphericalBody;
 import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Polyhedron;
-import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
 import com.google.vr.sdk.audio.GvrAudioEngine;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
@@ -33,24 +33,24 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
     private static final String LASER_SOUNDFILE = "laser.wav";
     private static final int NUMBER_OF_SHIPS = 3;
     private static final long LASER_COOLDOWN = 200L; // ms
-    private SphericalBody mars;
-    private int program;
     private final float[] camera;
     private final float[] view;
     private final float[] mvp;
-    private float distanceMade;
     private final Queue<Polyhedron> aliens;
     private final List<Polyhedron> aliensDisplayed;
-    private float timeUntilNextAlien;
     private final Map<Polyhedron, Long> coolDownPerShip;
     private final List<Laser> lasers;
     private final int distanceToTravel;
     private final int timeBetweenShips;
-    private final int movementSpeed;
-    private final int laserSpeed;
-
+    private final float movementSpeed;
+    private final float laserSpeed;
     private final GvrAudioEngine audioEngine;
     private final float[] headQuaternion;
+    private SphericalBody mars;
+    private OpenGLProgram program;
+    private OpenGLProgram laserProgram;
+    private float distanceMade;
+    private float timeUntilNextAlien;
 
     public AliensRenderer(Context context) {
         super(context);
@@ -82,13 +82,14 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
     public void onSurfaceCreated(EGLConfig config) {
         // Create the stars program
         this.createStarsProgram();
-        this.program = OpenGLUtils.newProgram();
+        this.program = new OpenGLProgram(OpenGLProgram.DrawType.TRIANGLES);
+        this.laserProgram = new OpenGLProgram(OpenGLProgram.DrawType.LINES);
         String vertexSources = readContentOf(R.raw.mvp_vertex);
         String fragmentSources = readContentOf(R.raw.multicolor_fragment);
-        int vertexShader = OpenGLUtils.addVertexShaderToProgram(vertexSources, this.program);
-        int fragmentShader = OpenGLUtils.addFragmentShaderToProgram(fragmentSources, this.program);
-        OpenGLUtils.linkProgram(this.program, vertexShader, fragmentShader);
-
+        this.program.compile(vertexSources, fragmentSources);
+        this.laserProgram.compile(vertexSources, fragmentSources);
+        this.program.setAttributesNames("vMatrix", "vVertices", "vColors");
+        this.laserProgram.setAttributesNames("vMatrix", "vVertices", "vColors");
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -131,7 +132,7 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
 
         float laserDistance = (this.laserSpeed / 1000) * time;
         for (Laser laser : this.lasers) {
-            laser.move(0,0,-laserDistance);
+            laser.move(0, 0, -laserDistance);
         }
 
         headTransform.getQuaternion(this.headQuaternion, 0);
@@ -151,12 +152,9 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
         Matrix.multiplyMM(this.view, 0, eye.getEyeView(), 0, this.camera, 0);
         Matrix.multiplyMM(marsModelView, 0, this.view, 0, marsModel, 0);
         Matrix.multiplyMM(this.mvp, 0, eye.getPerspective(0.1f, 100f), 0, marsModelView, 0);
-        OpenGLUtils.use(this.program);
-        OpenGLUtils.bindMVPToProgram(this.program, this.mvp, "vMatrix");
-
-        int verticesHandle = OpenGLUtils.bindVerticesToProgram(this.program, this.mars.getShape().bufferize(), "vVertices");
-        int colorHandle = OpenGLUtils.bindColorToProgram(this.program, this.mars.getShape().colors(), "vColors");
-        OpenGLUtils.drawTriangles(this.mars.getShape().size(), verticesHandle, colorHandle);
+        this.program.activate();
+        this.program.useMVP(this.mvp);
+        this.program.draw(this.mars.getShape());
 
         float[] alienView = new float[16];
         float[] alienMVP = new float[16];
@@ -165,10 +163,9 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
                 float[] alienModel = alien.model();
                 Matrix.multiplyMM(alienView, 0, this.view, 0, alienModel, 0);
                 Matrix.multiplyMM(alienMVP, 0, eye.getPerspective(0.1f, 100f), 0, alienView, 0);
-                OpenGLUtils.bindMVPToProgram(this.program, alienMVP, "vMatrix");
-                int alienVHandle = OpenGLUtils.bindVerticesToProgram(this.program, alien.bufferize(), "vVertices");
-                int alienCHandle = OpenGLUtils.bindColorToProgram(this.program, alien.colors(), "vColors");
-                OpenGLUtils.drawTriangles(alien.size(), alienVHandle, alienCHandle);
+                this.program.activate();
+                this.program.useMVP(alienMVP);
+                this.program.draw(alien);
             }
         }
 
@@ -179,10 +176,10 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
             float[] laserModel = laser.model();
             Matrix.multiplyMM(laserModelView, 0, this.view, 0, laserModel, 0);
             Matrix.multiplyMM(lasersMvp, 0, eye.getPerspective(0.1f, 100f), 0, laserModelView, 0);
-            OpenGLUtils.bindMVPToProgram(this.program, lasersMvp, "vMatrix");
-            int lasersVHandle = OpenGLUtils.bindVerticesToProgram(this.program, laser.bufferize(), "vVertices");
-            int lasersCHandle = OpenGLUtils.bindColorToProgram(this.program, laser.colors(), "vColors");
-            OpenGLUtils.drawLines(laser.size(), 120, lasersVHandle, lasersCHandle);
+            this.laserProgram.activate();
+            this.laserProgram.useMVP(lasersMvp);
+            this.laserProgram.setLineWidth(120);
+            this.laserProgram.draw(laser);
             this.audioEngine.setSoundObjectPosition(laser.audio(),
                     laserModel[12], laserModel[13], laserModel[14]);
         }
@@ -202,7 +199,7 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
             float x = MathUtils.randRange(-2, 2);
             float y = MathUtils.randRange(-2, 2);
             if (Math.abs(x) > 0.7 && Math.abs(y) > 0.7
-                && willNotCollideWithOthers(x, y, z)) {
+                    && willNotCollideWithOthers(x, y, z)) {
                 AlienShip ship = new AlienShip(new Coordinates(x, y, z), 3);
                 this.aliens.add(ship);
                 this.coolDownPerShip.put(ship, 0L);
@@ -214,8 +211,8 @@ public class AliensRenderer extends SpaceRenderer implements GvrView.StereoRende
     private boolean willNotCollideWithOthers(float x, float y, float z) {
         for (Polyhedron ship : this.aliens) {
             if (Math.abs(ship.getPosition().z - z) <= 0.4
-                && Math.abs(ship.getPosition().y - y) <= 0.4
-                && Math.abs(ship.getPosition().x - x) <= 0.4) {
+                    && Math.abs(ship.getPosition().y - y) <= 0.4
+                    && Math.abs(ship.getPosition().x - x) <= 0.4) {
                 return false;
             }
         }
