@@ -50,7 +50,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     private final SphericalBody mars;
     private final float distanceToTravel;
 
-    private final GvrAudioEngine audioEngine;
+    private GvrAudioEngine audioEngine;
     private final float[] headQuaternion;
     private final float[] headView;
     private final float[] origin;
@@ -82,7 +82,6 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         this.currentCooldown = 0L;
         this.currentMovement = 0f;
 
-        this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
         this.headQuaternion = new float[4];
         this.headView = new float[16];
         this.origin = MathUtils.convertPositionToMatrix(new Coordinates());
@@ -92,33 +91,17 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     @Override
     public void onSurfaceCreated(EGLConfig config) {
         this.initializeOpenGLPrograms();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                audioEngine.preloadSoundFile(LASER_SOUNDFILE);
-                audioEngine.preloadSoundFile(EXPLOSION_SOUNDFILE);
-            }
-        }).start();
     }
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
-        headTransform.getQuaternion(this.headQuaternion, 0);
-        headTransform.getHeadView(this.headView, 0);
-
-        audioEngine.setHeadRotation(this.headQuaternion[0], this.headQuaternion[1],
-                this.headQuaternion[2], this.headQuaternion[3]);
-        audioEngine.update();
 
         for (Sphere asteroid : this.field.asteroids()) {
-            float[] sightModel = MathUtils.convertPositionToMatrix(
-                    new Coordinates(0, 0, Math.abs(asteroid.getPosition().z)));
-            Matrix.multiplyMM(this.sight, 0, this.headView, 0, sightModel, 0);
             float sightHAngle = MathUtils.horizontalAngleBetween(this.origin, this.sight);
             float sightVAngle = MathUtils.verticalAngleBetween(this.origin, this.sight);
             if (shouldFireAt(asteroid, sightHAngle, sightVAngle)) {
                 Laser laser = createLaser(asteroid);
+                this.lasers.add(laser);
                 int laserAudioId = this.audioEngine.createSoundObject(LASER_SOUNDFILE);
                 laser.audio(laserAudioId);
                 this.audioEngine.setSoundObjectPosition(laserAudioId,
@@ -128,6 +111,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         }
 
         this.moveWorld();
+
         this.countNewFrame();
     }
 
@@ -140,9 +124,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
 
         this.drawCelestialBodies(perspective);
         for (Laser laser : this.lasers) {
-            Coordinates laserPosition = draw(laser, perspective);
-            this.audioEngine.setSoundObjectPosition(laser.audio(),
-                    laserPosition.x, laserPosition.y, laserPosition.z);
+            draw(laser, perspective);
         }
     }
 
@@ -225,7 +207,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         this.lasers.removeAll(lasersToRemove);
     }
 
-    private Coordinates draw(Laser laser, float[] perspective) {
+    private void draw(Laser laser, float[] perspective) {
         float[] laserModel = laser.model();
         this.laserProgram.activate();
         this.laserProgram.setLineWidth(120);
@@ -233,8 +215,6 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         Matrix.multiplyMM(this.mvp, 0, perspective, 0, this.modelView, 0);
         this.laserProgram.useMVP(this.mvp);
         this.laserProgram.draw(laser);
-        return new Coordinates(MathUtils.getX(laserModel),
-                MathUtils.getY(laserModel), MathUtils.getZ(laserModel));
     }
 
     private void drawCelestialBodies(float[] perspective) {
@@ -269,7 +249,6 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         float pitch = (float) Math.toDegrees(pitchInRad);
         laser.pitch(pitch);
 
-        this.lasers.add(laser);
         this.currentCooldown = LASER_COOLDOWN;
         return laser;
     }
