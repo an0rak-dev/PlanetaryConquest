@@ -85,6 +85,16 @@ public class FlyingRenderer extends SpaceRenderer implements GLSurfaceView.Rende
     @Override
     public void onDrawFrame(GL10 gl) {
         // Logic for each new frame
+        this.performLogic();
+
+        // Drawing
+        float[] specificView = new float[16];
+        Matrix.setIdentityM(specificView, 0);
+        float[] perspective = this.projection;
+        this.draw(specificView, perspective);
+    }
+
+    private void performLogic() {
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
         float currentDistance = (this.movementSpeed / 1000f) * time;
         if (distanceElapsed > 0f) {
@@ -93,12 +103,10 @@ public class FlyingRenderer extends SpaceRenderer implements GLSurfaceView.Rende
             distanceElapsed -= currentDistance;
         }
         this.countNewFrame();
+    }
 
-        // Drawing
+    private void draw(float[] specificView, float[] perspective) {
         OpenGLUtils.clear();
-        float[] perspective = this.projection;
-        float[] specificView = new float[16];
-        Matrix.setIdentityM(specificView, 0);
         this.drawStars(specificView, perspective);
 
         Matrix.multiplyMM(this.view, 0, specificView, 0, this.getCamera(), 0);

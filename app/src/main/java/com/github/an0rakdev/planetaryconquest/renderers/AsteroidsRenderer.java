@@ -86,6 +86,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         this.headView = new float[16];
         this.origin = MathUtils.convertPositionToMatrix(new Coordinates());
         this.sight = new float[16];
+        this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
     }
 
     @Override
@@ -95,6 +96,9 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
+        headTransform.getHeadView(this.headView, 0);
+        float[] sightM = MathUtils.asMatrix(0,0, this.distanceToTravel + 10);
+        Matrix.multiplyMM(this.sight, 0, this.headView, 0, sightM, 0);
 
         for (Sphere asteroid : this.field.asteroids()) {
             float sightHAngle = MathUtils.horizontalAngleBetween(this.origin, this.sight);
@@ -102,11 +106,6 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
             if (shouldFireAt(asteroid, sightHAngle, sightVAngle)) {
                 Laser laser = createLaser(asteroid);
                 this.lasers.add(laser);
-                int laserAudioId = this.audioEngine.createSoundObject(LASER_SOUNDFILE);
-                laser.audio(laserAudioId);
-                this.audioEngine.setSoundObjectPosition(laserAudioId,
-                        laser.getPosition().x, laser.getPosition().y, laser.getPosition().z);
-                this.audioEngine.playSound(laserAudioId, true);
             }
         }
 
@@ -277,12 +276,14 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         for (Sphere asteroid : this.field.asteroids()) {
             if (MathUtils.collide(laser, asteroid)) {
                 lasersToRemove.add(laser);
-                this.audioEngine.stopSound(laser.audio());
                 asteroidsToRemove.add(asteroid);
+                /*
+                this.audioEngine.stopSound(laser.audio());
                 int explosionSound = this.audioEngine.createSoundObject(EXPLOSION_SOUNDFILE);
                 this.audioEngine.setSoundObjectPosition(explosionSound,
                         MathUtils.getX(asteroid.model()), MathUtils.getY(asteroid.model()), MathUtils.getZ(asteroid.model()));
                 this.audioEngine.playSound(explosionSound, false);
+                */
                 break;
             }
         }

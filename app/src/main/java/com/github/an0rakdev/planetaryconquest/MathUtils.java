@@ -79,4 +79,8 @@ public class MathUtils {
     public static float getZ(float[] matrix) {
         return matrix[14];
     }
+
+    public static float[] asMatrix(float x, float y, float z) {
+        return MathUtils.convertPositionToMatrix(new Coordinates(x,y,z));
+    }
 }
