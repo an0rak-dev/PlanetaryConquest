@@ -1,6 +1,46 @@
-== Licenses
+# Planetary Conquest
+
+A Google Cardboard demo.
+
+## Description
+
+This repository contains the app used for the Demo of a talk I made ("The
+Space conquest starts in your pocket"), and I think that this demo can be
+so much more.
+
+So I want to use the Hacktoberfest 2018 to create a small game out of it.
+Like a game where you start from the Earth, travel with your sight to put a
+flag on several planets... Something like that.
+
+If you want to join me, be my guest ! You can create issues or pull request
+(following the Contributing section bellow).
+
+an0rak.
+
+## Build
+
+* 1 Clone this project.
+* 2 Import this project in Android studio
+* 3 Build it and run it :)
+
+
+## Contributing
+
+If you want to contribute to the code, feel free to open
+a new PR on a fork of `master` only. I keep the `demo`
+branch for the future of my talk =)
+
+Also be sure to often check your PR because I will use it
+for every communication (question/remarks/say thanks :D )
+
+## Licenses
+
+All this project is released under the MIT Licence.
+If you want to read the full License, you can read the file
+LICENSE.md
 
 The Laser sound use for this demo was taken from 
 https://freesound.org/people/pschneib/sounds/428163/ and is the work of 
 Pschneib (which I thanks) released under CreativeCommons Attribution License.
-I've only modify it to use one channel instead of two.
+I've only modify it to use one channel instead of two and make it works with
+the vr sdk lib.
