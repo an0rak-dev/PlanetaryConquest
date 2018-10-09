@@ -1,3 +1,9 @@
+/* ****************************************************************************
+ * SphericalBody.java
+ *
+ * Copyright © 2018 by Sylvain Nieuwlandt
+ * Released under the MIT License (which can be found in the LICENSE.md file)
+ *****************************************************************************/
 package com.github.an0rakdev.planetaryconquest.graphics.models;
 
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;

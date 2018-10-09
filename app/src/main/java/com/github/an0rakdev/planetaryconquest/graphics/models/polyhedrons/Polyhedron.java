@@ -1,3 +1,9 @@
+/* ****************************************************************************
+ * Polyhedron.java
+ *
+ * Copyright © 2018 by Sylvain Nieuwlandt
+ * Released under the MIT License (which can be found in the LICENSE.md file)
+ *****************************************************************************/
 package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
 
 import android.opengl.Matrix;
