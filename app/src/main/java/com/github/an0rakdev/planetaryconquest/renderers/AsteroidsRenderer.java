@@ -96,9 +96,12 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
 
     @Override
     public void onNewFrame(HeadTransform headTransform) {
+        headTransform.getHeadView(this.headView, 0);
+        float[] forward = MathUtils.asMatrix(0, 0, 1);
+        Matrix.multiplyMM(this.sight, 0, this.headView, 0, forward, 0);
         for (Sphere asteroid : this.field.asteroids()) {
-            float sightHAngle = MathUtils.horizontalAngleBetween(this.origin, new float[16]);
-            float sightVAngle = MathUtils.verticalAngleBetween(this.origin, new float[16]);
+            float sightHAngle = MathUtils.horizontalAngleBetween(this.origin, this.sight);
+            float sightVAngle = MathUtils.verticalAngleBetween(this.origin, this.sight);
             if (shouldFireAt(asteroid, sightHAngle, sightVAngle)) {
                 Laser laser = createLaser(asteroid);
                 this.lasers.add(laser);
@@ -171,8 +174,9 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     private void moveWorld() {
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
         float laserDistance = (this.laserSpeed / 1000) * time;
-        float cameraMovement = (this.movementSpeed / 1000) * time;
+        //float cameraMovement = (this.movementSpeed / 1000) * time;
         this.currentCooldown -= time;
+        /*
         if (this.currentMovement < this.distanceToTravel) {
             for (Sphere asteroid : this.field.asteroids()) {
                 asteroid.move(0,0,-cameraMovement); // https://www.youtube.com/watch?v=1RtMMupdOC4
@@ -180,6 +184,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         }
         this.currentMovement += cameraMovement;
         this.mars.moveForward(-cameraMovement);
+        */
         for (Laser laser : this.lasers) {
             laser.move(0, 0, laserDistance);
         }
