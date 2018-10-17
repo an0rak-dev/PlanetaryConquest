@@ -45,8 +45,6 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     private final float laserSpeed;
     private final List<Laser> lasers;
     private long currentCooldown;
-    private float currentMovement;
-    private final float movementSpeed;
     private final SphericalBody mars;
     private final float distanceToTravel;
 
@@ -65,11 +63,10 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         super(context);
 
         this.field = new AsteroidField(
-                50, 0.2f, 1f,
-                -10, -5, 12, 10, 5, 16,
+                100, 0.2f, 1f,
+                -15, -10, 8, 15, 10, 14,
                 138, 135, 130);
         this.laserSpeed = 20; // m/s
-        this.movementSpeed = 5; // m/s
         this.distanceToTravel = 30; // meters
         this.mars = new SphericalBody(new Coordinates(0,0, this.distanceToTravel + 10), 3);
         this.mars.background(253,153,58);
@@ -80,7 +77,6 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
 
         this.lasers = new ArrayList<>();
         this.currentCooldown = 0L;
-        this.currentMovement = 0f;
 
         this.headQuaternion = new float[4];
         this.headView = new float[16];
@@ -174,17 +170,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     private void moveWorld() {
         long time = SystemClock.uptimeMillis() % this.getTimeBetweenFrames();
         float laserDistance = (this.laserSpeed / 1000) * time;
-        //float cameraMovement = (this.movementSpeed / 1000) * time;
         this.currentCooldown -= time;
-        /*
-        if (this.currentMovement < this.distanceToTravel) {
-            for (Sphere asteroid : this.field.asteroids()) {
-                asteroid.move(0,0,-cameraMovement); // https://www.youtube.com/watch?v=1RtMMupdOC4
-            }
-        }
-        this.currentMovement += cameraMovement;
-        this.mars.moveForward(-cameraMovement);
-        */
         for (Laser laser : this.lasers) {
             laser.move(0, 0, laserDistance);
         }
