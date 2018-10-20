@@ -31,12 +31,5 @@ Released under the MIT License (which can be found in the LICENSE.md file)
             android:layout_height="wrap_content"
             android:onClick="startAsteroidsDemo"
             android:text="@string/menu_asteroidsbutton" />
-
-        <Button
-            android:id="@+id/aliensDemoButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:onClick="startAliensDemo"
-            android:text="@string/menu_aliensbutton" />
     </LinearLayout>
 </android.support.constraint.ConstraintLayout>

@@ -40,10 +40,5 @@ Released under the MIT License (which can be found in the LICENSE.md file)
             android:parentActivityName=".activities.Main"
             android:screenOrientation="landscape">
         </activity>
-        <activity
-            android:name=".activities.Aliens"
-            android:parentActivityName=".activities.Main"
-            android:screenOrientation="landscape">
-        </activity>
     </application>
 </manifest>

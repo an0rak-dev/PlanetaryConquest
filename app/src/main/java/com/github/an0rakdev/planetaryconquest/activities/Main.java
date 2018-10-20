@@ -38,9 +38,4 @@ public final class Main extends AppCompatActivity {
         final Intent intent = new Intent(this, Asteroids.class);
         this.startActivity(intent);
     }
-
-    public void startAliensDemo(final View view) {
-        final Intent intent = new Intent(this, Aliens.class);
-        this.startActivity(intent);
-    }
 }
