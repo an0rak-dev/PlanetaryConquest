@@ -19,16 +19,17 @@ import com.google.vr.sdk.base.GvrView;
  * @author Sylvain Nieuwlandt
  * @version 1.0
  */
-public final class Flying extends GvrActivity {
-    private GvrView.StereoRenderer renderer;
-
+public class Flying extends GvrActivity {
+    /**
+     * Create a Google VR renderer dedicated to this demo and
+     * set it to this Google VR view.
+     */
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.setContentView(R.layout.flying_activity);
         final GvrView gvrView = findViewById(R.id.flying_gvr_view);
-        this.renderer = new FlyingRenderer(this);
-        gvrView.setRenderer(this.renderer);
+        gvrView.setRenderer(new FlyingRenderer(this));
         this.setGvrView(gvrView);
     }
 }

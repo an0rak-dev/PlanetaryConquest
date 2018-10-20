@@ -56,7 +56,8 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     private final SphericalBody mars;
     private final float distanceToTravel;
 
-    private final GvrAudioEngine audioEngine;
+    private GvrAudioEngine audioEngine;
+    private Context context;
     private final float[] headQuaternion;
     private final float[] headView;
     private final float[] origin;
@@ -69,6 +70,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
      */
     public AsteroidsRenderer(Context context) {
         super(context);
+        this.context = context;
 
         this.field = new AsteroidField(
                 50, 0.2f, 1f,
@@ -88,7 +90,6 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
         this.currentCooldown = 0L;
         this.currentMovement = 0f;
 
-        this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
         this.headQuaternion = new float[4];
         this.headView = new float[16];
         this.origin = MathUtils.convertPositionToMatrix(new Coordinates());
@@ -98,7 +99,7 @@ public class AsteroidsRenderer extends SpaceRenderer implements GvrView.StereoRe
     @Override
     public void onSurfaceCreated(EGLConfig config) {
         this.initializeOpenGLPrograms();
-
+        this.audioEngine = new GvrAudioEngine(context, GvrAudioEngine.RenderingMode.BINAURAL_HIGH_QUALITY);
         new Thread(new Runnable() {
             @Override
             public void run() {

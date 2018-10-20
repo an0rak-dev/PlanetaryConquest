@@ -54,17 +54,17 @@ public class FlyingRenderer extends SpaceRenderer implements GvrView.StereoRende
         this.near = 0.1f;
         this.far = 100f;
 
-        this.moon = new SphericalBody(new Coordinates(2.5f, 3.5f, 20), 1);
-        this.moon.background(138, 135, 130);
-        this.earth = new SphericalBody(new Coordinates(0, -8, 10), 5);
-        this.earth.background(32, 119, 238);
-
         this.view = new float[16];
         this.mvp = new float[16];
     }
 
     @Override
     public void onSurfaceCreated(EGLConfig config) {
+        this.moon = new SphericalBody(new Coordinates(2.5f, 3.5f, 20), 1);
+        this.moon.background(138, 135, 130);
+        this.earth = new SphericalBody(new Coordinates(0, -8, 10), 5);
+        this.earth.background(32, 119, 238);
+
         // Create the OpenGL Program
         this.openGlProgram = new OpenGLProgram(OpenGLProgram.DrawType.TRIANGLES);
         String vertexSources = readContentOf(R.raw.mvp_vertex);

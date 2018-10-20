@@ -50,11 +50,6 @@ public abstract class SpaceRenderer {
         if (null == stars) {
             stars = new StarsCloud(STARS_COUNT, -5, 5, -3, 3, -3, 3);
         }
-
-        Matrix.setLookAtM(this.camera, 0,
-                getCameraPosition().x, getCameraPosition().y, getCameraPosition().z,
-                getCameraDirection().x, getCameraDirection().y, getCameraDirection().z,
-                0f, 1f, 0f);
     }
 
     final float[] getCamera() {
@@ -70,6 +65,10 @@ public abstract class SpaceRenderer {
         final String fragmentSources = readContentOf(R.raw.simple_fragment);
         this.starsProgram.compile(vertexSources, fragmentSources);
         this.starsProgram.setAttributesNames("vMatrix", "vVertices", "vColor");
+        Matrix.setLookAtM(this.camera, 0,
+                getCameraPosition().x, getCameraPosition().y, getCameraPosition().z,
+                getCameraDirection().x, getCameraDirection().y, getCameraDirection().z,
+                0f, 1f, 0f);
     }
 
     final void countNewFrame() {
