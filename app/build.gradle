@@ -38,4 +38,6 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.google.vr:sdk-base:1.170.0'
     implementation 'com.google.vr:sdk-audio:1.170.0'
+    // To add the javax.microedition.khronos to the tests.
+    testImplementation 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
 }

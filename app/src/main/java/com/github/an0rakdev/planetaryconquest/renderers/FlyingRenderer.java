@@ -13,14 +13,15 @@ import android.os.SystemClock;
 import com.github.an0rakdev.planetaryconquest.OpenGLProgram;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.graphics.models.SphericalBody;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+import com.github.an0rakdev.planetaryconquest.graphics.models.SphericalBody;
 import com.google.vr.sdk.base.Eye;
 import com.google.vr.sdk.base.GvrView;
 import com.google.vr.sdk.base.HeadTransform;
 import com.google.vr.sdk.base.Viewport;
 
 import javax.microedition.khronos.egl.EGLConfig;
+
 
 /**
  * This renderer manages the first demo of the application which

@@ -23,7 +23,7 @@ public class FlyingTest {
     }
 
     @Test
-    public void onCreateTest_should_set_the_gvrview() {
+    public void onCreate_should_set_the_gvrview() {
         // Given
         final GvrView fakeGvrView = Mockito.mock(GvrView.class);
         Mockito.doReturn(fakeGvrView).when(this.cut).findViewById(R.id.flying_gvr_view);

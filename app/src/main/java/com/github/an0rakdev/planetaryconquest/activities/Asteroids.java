@@ -13,21 +13,38 @@ import com.github.an0rakdev.planetaryconquest.renderers.AsteroidsRenderer;
 import com.google.vr.sdk.base.GvrActivity;
 import com.google.vr.sdk.base.GvrView;
 
+/**
+ * This activity is created for displaying a set of asteroids to
+ * destroy when moving the head.
+ *
+ * @author Sylvain Nieuwlandt
+ * @version 1.0
+ */
 public class Asteroids extends GvrActivity {
-	private AsteroidsRenderer renderer;
+	AsteroidsRenderer renderer;
 
+	/**
+	 * Send the pause order to the renderer.
+	 */
 	@Override
 	public void onPause() {
 		this.renderer.pause();
 		super.onPause();
 	}
 
+	/**
+	 * Send the resume order to the renderer.
+	 */
 	@Override
 	public void onResume() {
 		this.renderer.resume();
 		super.onResume();
 	}
 
+	/**
+	 * Create a Google VR renderer dedicated to this demo and
+	 * set it to this Google VR view.
+	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
