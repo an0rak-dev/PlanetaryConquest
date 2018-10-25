@@ -8,6 +8,7 @@ import com.github.an0rakdev.planetaryconquest.R;
 import com.github.an0rakdev.planetaryconquest.renderers.FlyingRenderer;
 import com.google.vr.sdk.base.GvrView;
 
+import org.assertj.core.api.Assertions;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -32,7 +33,7 @@ public class FlyingTest {
         this.cut.onCreate(Mockito.any(Bundle.class));
         // Then
         Mockito.verify(fakeGvrView).setRenderer(rendererUsed.capture());
-        Assert.assertTrue(FlyingRenderer.class.isAssignableFrom(rendererUsed.getValue().getClass()));
-        Assert.assertEquals(fakeGvrView, this.cut.getGvrView());
+        Assertions.assertThat(FlyingRenderer.class).isAssignableFrom(rendererUsed.getValue().getClass());
+        Assertions.assertThat(fakeGvrView).isEqualTo(this.cut.getGvrView());
     }
 }

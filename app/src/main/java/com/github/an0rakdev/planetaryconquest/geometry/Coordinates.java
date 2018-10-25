@@ -2,9 +2,9 @@
  * Coordinates.java
  *
  * Copyright © 2018 by Sylvain Nieuwlandt
- * Released under the MIT License (which can be found in the LICENSE.md file)
+ * Released under the MIT License (which can be found in the LICENSE.adoc file)
  *****************************************************************************/
-package com.github.an0rakdev.planetaryconquest.graphics.models;
+package com.github.an0rakdev.planetaryconquest.geometry;
 
 /**
  * A 3dimensional coordinates object.
@@ -42,9 +42,21 @@ public final class Coordinates {
         this.z = z;
     }
 
+	/**
+	 * Copy constructor, create a new Coordinates with the same values as
+	 * the origin.
+	 *
+	 * @param origin the object with the values to copy.
+	 */
+	public Coordinates(final Coordinates origin) {
+    	this.x = origin.x;
+    	this.y = origin.y;
+    	this.z = origin.z;
+	}
+
     @Override
     public boolean equals(final Object o) {
-    	if (o == null || !(o instanceof Coordinates)) {
+    	if (!(o instanceof Coordinates)) {
     		return false;
     	}
     	final Coordinates that = (Coordinates)o;

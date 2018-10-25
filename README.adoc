@@ -31,7 +31,7 @@ Also be sure to often check your PR because I will use it for every communicatio
 == Licenses
 
 All this project is released under the MIT Licence.
-If you want to read the full License, you can read the file LICENSE.md
+If you want to read the full License, you can read the file LICENSE.adoc
 
 The Laser sound use for this demo was taken from https://freesound.org/people/pschneib/sounds/428163/ and is the work of  Pschneib (which I thanks) released under CreativeCommons Attribution License.
 

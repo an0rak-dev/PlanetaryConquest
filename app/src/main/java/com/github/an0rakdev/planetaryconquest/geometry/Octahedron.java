@@ -2,11 +2,9 @@
  * Octahedron.java
  *
  * Copyright © 2018 by Sylvain Nieuwlandt
- * Released under the MIT License (which can be found in the LICENSE.md file)
+ * Released under the MIT License (which can be found in the LICENSE.adoc file)
  *****************************************************************************/
-package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
-
-import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+package com.github.an0rakdev.planetaryconquest.geometry;
 
 import java.util.List;
 

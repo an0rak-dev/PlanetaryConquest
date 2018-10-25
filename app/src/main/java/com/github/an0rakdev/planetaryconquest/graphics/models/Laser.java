@@ -2,13 +2,14 @@
  * Laser.java
  *
  * Copyright © 2018 by Sylvain Nieuwlandt
- * Released under the MIT License (which can be found in the LICENSE.md file)
+ * Released under the MIT License (which can be found in the LICENSE.adoc file)
  *****************************************************************************/
 package com.github.an0rakdev.planetaryconquest.graphics.models;
 
 import android.opengl.Matrix;
 
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
+import com.github.an0rakdev.planetaryconquest.geometry.Coordinates;
 
 import java.nio.FloatBuffer;
 

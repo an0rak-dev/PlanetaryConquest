@@ -2,15 +2,15 @@
  * MathUtils.java
  *
  * Copyright © 2018 by Sylvain Nieuwlandt
- * Released under the MIT License (which can be found in the LICENSE.md file)
+ * Released under the MIT License (which can be found in the LICENSE.adoc file)
  *****************************************************************************/
 package com.github.an0rakdev.planetaryconquest;
 
 import android.opengl.Matrix;
 
-import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+import com.github.an0rakdev.planetaryconquest.geometry.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Laser;
-import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
+import com.github.an0rakdev.planetaryconquest.geometry.Sphere;
 
 public class MathUtils {
     public static final int FLOAT_BYTES = (Float.SIZE / Byte.SIZE);

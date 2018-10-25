@@ -2,7 +2,7 @@
 // build.gradle (PlanetaryConquest)
 //
 // Copyright © 2018 by Sylvain Nieuwlandt
-// Released under the MIT License (which can be found in the LICENSE.md file)
+// Released under the MIT License (which can be found in the LICENSE.adoc file)
 //*****************************************************************************
 
 apply plugin: 'com.android.application'
@@ -40,4 +40,5 @@ dependencies {
     implementation 'com.google.vr:sdk-audio:1.170.0'
     // To add the javax.microedition.khronos to the tests.
     testImplementation 'org.khronos:opengl-api:gl1.1-android-2.1_r1'
+    testImplementation 'org.assertj:assertj-core:3.11.1'
 }

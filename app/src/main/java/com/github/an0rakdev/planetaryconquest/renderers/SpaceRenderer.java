@@ -2,7 +2,7 @@
  * SpaceRenderer.java
  *
  * Copyright © 2018 by Sylvain Nieuwlandt
- * Released under the MIT License (which can be found in the LICENSE.md file)
+ * Released under the MIT License (which can be found in the LICENSE.adoc file)
  *****************************************************************************/
 package com.github.an0rakdev.planetaryconquest.renderers;
 
@@ -14,7 +14,7 @@ import com.github.an0rakdev.planetaryconquest.FrameCounter;
 import com.github.an0rakdev.planetaryconquest.OpenGLProgram;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
 import com.github.an0rakdev.planetaryconquest.R;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+import com.github.an0rakdev.planetaryconquest.geometry.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.StarsCloud;
 import com.google.vr.sdk.base.Eye;
 

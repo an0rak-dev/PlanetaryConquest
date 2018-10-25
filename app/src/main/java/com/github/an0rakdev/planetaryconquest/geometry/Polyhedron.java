@@ -2,15 +2,13 @@
  * Polyhedron.java
  *
  * Copyright © 2018 by Sylvain Nieuwlandt
- * Released under the MIT License (which can be found in the LICENSE.md file)
+ * Released under the MIT License (which can be found in the LICENSE.adoc file)
  *****************************************************************************/
-package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
+package com.github.an0rakdev.planetaryconquest.geometry;
 
 import android.opengl.Matrix;
 
-import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
-import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
 import com.github.an0rakdev.planetaryconquest.graphics.models.Model;
 
 import java.nio.FloatBuffer;

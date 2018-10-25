@@ -2,16 +2,15 @@
  * AsteroidField.java
  *
  * Copyright © 2018 by Sylvain Nieuwlandt
- * Released under the MIT License (which can be found in the LICENSE.md file)
+ * Released under the MIT License (which can be found in the LICENSE.adoc file)
  *****************************************************************************/
 package com.github.an0rakdev.planetaryconquest.graphics.models;
 
 import com.github.an0rakdev.planetaryconquest.MathUtils;
 import com.github.an0rakdev.planetaryconquest.OpenGLUtils;
-import com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons.Sphere;
+import com.github.an0rakdev.planetaryconquest.geometry.Coordinates;
+import com.github.an0rakdev.planetaryconquest.geometry.Sphere;
 
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;

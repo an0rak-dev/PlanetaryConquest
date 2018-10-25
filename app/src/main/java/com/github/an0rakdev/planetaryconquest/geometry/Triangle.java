@@ -2,11 +2,9 @@
  * Triangle.java
  *
  * Copyright © 2018 by Sylvain Nieuwlandt
- * Released under the MIT License (which can be found in the LICENSE.md file)
+ * Released under the MIT License (which can be found in the LICENSE.adoc file)
  *****************************************************************************/
-package com.github.an0rakdev.planetaryconquest.graphics.models.polyhedrons;
-
-import com.github.an0rakdev.planetaryconquest.graphics.models.Coordinates;
+package com.github.an0rakdev.planetaryconquest.geometry;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,8 +20,10 @@ public final class Triangle {
     /**
      * Number of vertices per triangle.
      */
-    public static final int NB_VERTEX = 3;
-    private final List<Coordinates> coords;
+    static final int NB_VERTEX = 3;
+    private Coordinates top;
+    private Coordinates left;
+    private Coordinates right;
 
     /**
      * Create a new Triangle with the given 3 coordinates.
@@ -32,11 +32,10 @@ public final class Triangle {
      * @param c2 the second vertex
      * @param c3 the third vertex
      */
-    public Triangle(final Coordinates c1, final Coordinates c2, final Coordinates c3) {
-        this.coords = new ArrayList<>();
-        this.coords.add(c1);
-        this.coords.add(c2);
-        this.coords.add(c3);
+    Triangle(final Coordinates c1, final Coordinates c2, final Coordinates c3) {
+        this.top = c1;
+        this.left = c2;
+        this.right = c3;
     }
 
     /**
@@ -45,7 +44,11 @@ public final class Triangle {
      * @return the coordinates of this Triangle.
      */
     public List<Coordinates> coordinates() {
-        return this.coords;
+        List<Coordinates> result = new ArrayList<>();
+        result.add(new Coordinates(this.top));
+        result.add(new Coordinates(this.left));
+        result.add(new Coordinates(this.right));
+        return result;
     }
 
     /**
@@ -59,16 +62,13 @@ public final class Triangle {
     public List<Triangle> split(final int splitCount) {
         final List<Triangle> result = new ArrayList<>();
         if (splitCount <= 1) {
-            final Coordinates top = this.coords.get(0);
-            final Coordinates right = this.coords.get(1);
-            final Coordinates left = this.coords.get(2);
-            final Coordinates middleL = this.middleOf(top, left);
-            final Coordinates middleR = this.middleOf(top, right);
-            final Coordinates middleB = this.middleOf(left, right);
-            result.add(new Triangle(top, middleR, middleL));
-            result.add(new Triangle(middleR, right, middleB));
+            final Coordinates middleL = new Line(this.top, this.left).middle();
+            final Coordinates middleR = new Line(this.top, this.right).middle();
+            final Coordinates middleB = new Line(this.left, this.right).middle();
+            result.add(new Triangle(this.top, middleR, middleL));
+            result.add(new Triangle(middleR, this.right, middleB));
             result.add(new Triangle(middleL, middleR, middleB));
-            result.add(new Triangle(middleL, middleB, left));
+            result.add(new Triangle(middleL, middleB, this.left));
         } else {
             final List<Triangle> subtriangles = this.split(1);
             for (final Triangle subtriangle : subtriangles) {
@@ -76,17 +76,5 @@ public final class Triangle {
             }
         }
         return result;
-    }
-
-    private Coordinates middleOf(final Coordinates c1, final Coordinates c2) {
-        return new Coordinates(this.middleOf(c1.x, c2.x),
-                this.middleOf(c1.y, c2.y),
-                this.middleOf(c1.z, c2.z));
-    }
-
-    private float middleOf(final float p1, final float p2) {
-        final float a = (p1 > p2) ? p1 : p2;
-        final float b = (p1 > p2) ? p2 : p1;
-        return a - ((a - b) / 2);
     }
 }
