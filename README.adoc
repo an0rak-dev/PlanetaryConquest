@@ -10,7 +10,9 @@ So I want to use the Hacktoberfest 2018 to create a small game out of it.
 Like a game where you start from the Earth, travel with your sight to put a flag on several planets... Something like that.
 
 If you want to join me, be my guest !
-You can create issues or pull request (following the Contributing section bellow).
+You can create issues or pull request (following the Contributing section below).
+
+[Slides](https://docs.google.com/presentation/d/1Be1-spZijRkXSoNz3uasGHxgfJ-jG4RFY70lkc3TP0g/edit#slide=id.g40ce3d60d4_0_364)
 
 **an0rak.**
 
